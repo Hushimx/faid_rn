@@ -1,0 +1,5 @@
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// IMPORTANT: Replace this with your actual Google Maps API key
+GOOGLE_MAPS_API_KEY = YOUR_API_KEY_HERE

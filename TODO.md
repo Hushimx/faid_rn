@@ -1,0 +1,3 @@
+- [x] Modify MapView in src/screens/service-details/index.tsx to disable scrolling and zooming to prevent conflicts with ScrollView
+- [x] Remove backgroundColor from MapView style
+- [ ] Test the MapView display inside ScrollView on simulator

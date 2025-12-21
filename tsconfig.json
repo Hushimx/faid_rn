@@ -1,0 +1,22 @@
+{
+  "extends": "@react-native/typescript-config",
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["**/node_modules", "**/Pods"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "paths": {
+      "*": ["src/*"],
+      "@components": ["src/components/index"],
+      "@common": ["./src/common/index"],
+      "@screens": ["./src/screens/index"],
+      "@utils": ["./src/utils/index"],
+      "@hooks": ["./src/hooks/index"],
+      "@store": ["./src/store/index"],
+      "@config": ["./src/config/index"],
+      "@services": ["./src/services/index"],
+      "@assets/*": ["./src/assets/*"]
+    }
+  }
+}

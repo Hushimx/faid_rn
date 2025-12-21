@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "743927825398",
+    "project_id": "faid-3375a",
+    "storage_bucket": "faid-3375a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743927825398:android:c4b42750bd69d1b8547dd7",
+        "android_client_info": {
+          "package_name": "com.faid.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeIgi06O-ncetXzEfuKJJE25HmT1mIWr0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

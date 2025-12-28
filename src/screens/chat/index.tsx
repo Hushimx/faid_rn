@@ -115,7 +115,11 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.pageBackground }}>
-      <AppHeader label={vendor?.name} isChatHeader />
+      <AppHeader
+        label={vendor?.name}
+        isChatHeader
+        imageUrl={vendor?.profile_picture}
+      />
       <BottomTabBarHeightContext.Consumer>
         {tabBarHeight => {
           return (

@@ -9,6 +9,7 @@ import UserAvatar from './user-avatar';
 interface IPropsBase {
   label?: string;
   isChatHeader?: boolean;
+  imageUrl?: string;
 }
 
 interface IPropsWithSearch extends IPropsBase {
@@ -31,6 +32,7 @@ const AppHeader: FC<IProps> = ({
   isChatHeader,
   value,
   onChangeText,
+  imageUrl,
 }) => {
   const navigation = useNavigation();
 
@@ -59,7 +61,7 @@ const AppHeader: FC<IProps> = ({
           <Box flexDirection="row" alignItems="center">
             {isChatHeader && (
               <Box marginHorizontal="s">
-                <UserAvatar />
+                <UserAvatar image={imageUrl} />
               </Box>
             )}
             <AppText variant="m">{label}</AppText>

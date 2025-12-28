@@ -9,7 +9,7 @@ export const GOOGLE_IOS_CLIENT_ID =
 
 export const FONT_FAMILY = 'Cairo';
 
-export const BASE_URL = 'https://test.myjarak.com/api/';
+export const BASE_URL = 'https://faid.app/api/';
 
 export const OTP_COUNT_DOWN_NUMBER = 60;
 

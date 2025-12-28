@@ -1,5 +1,5 @@
 import { Box } from 'common';
-import { AppText, Camera, ImageViewerModal } from 'components';
+import { AppImage, AppText, Camera, ImageViewerModal } from 'components';
 import React, { useRef, useState } from 'react';
 import {
   View,
@@ -105,7 +105,7 @@ const AppSlider = <T extends Record<string, any> = IServiceMedia>({
                     paused
                   />
                 ) : (
-                  <Image
+                  <AppImage
                     source={{ uri: itemUrl }}
                     style={styles.imageHolder}
                     resizeMode="contain"

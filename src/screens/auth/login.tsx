@@ -60,6 +60,7 @@ const Login = () => {
           >
             {t('forgetPassword')}
           </AppText>
+          <AppSpacer variant="xxl" />
         </AppKeyboardAwareScrollView>
       </Box>
       <AuthFooter

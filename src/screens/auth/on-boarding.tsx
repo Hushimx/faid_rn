@@ -1,6 +1,5 @@
 import { APP_NAME, Box, IMAGES, useAppTheme } from 'common';
-import { AppSpacer, AppSpaceWrapper, AppText, IntroSlider } from 'components';
-import { useRef } from 'react';
+import { AppButton, AppSpacer, AppText, IntroSlider } from 'components';
 import { useTranslation } from 'react-i18next';
 import {
   Image,
@@ -9,35 +8,13 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-// import AppIntroSlider from 'react-native-app-intro-slider';
 import { useAuthStore } from 'store';
 import { AuthFooter } from './components';
 
-const slides = [
-  {
-    key: 'somethun',
-    title: 'Title 1',
-    text: 'Description.\nSay something cools',
-    image: IMAGES.imageOnboardingOne,
-  },
-  {
-    key: 'somethun-dos',
-    title: 'Title 2',
-    text: 'Other cool stuff',
-    image: IMAGES.imageOnboardingTwo,
-  },
-  {
-    key: 'somethun1',
-    title: 'Rocket guy',
-    text: "I'm already out of descriptions\n\nLorem ipsum bla bla bla",
-    image: IMAGES.imageOnboardingThree,
-  },
-];
 type SlideItem = {
   key: string;
   title: string;
   text: string;
-  backgroundColor: string;
   image: any;
 };
 
@@ -46,12 +23,99 @@ const OnBoarding = () => {
   const { colors } = useAppTheme();
   const { setIsOnBoarded } = useAuthStore();
 
-  // const sliderRef = useRef<AppIntroSlider | null>(null);
+  const slides: SlideItem[] = [
+    {
+      key: 'slide-1',
+      title: t('onboardingTitle1') || 'Sell your products easily',
+      text:
+        t('onboardingDescription1') ||
+        'Buy and sell easily in one place. Discover products near you and start your experience now.',
+      image: IMAGES.imageOnboardingOne,
+    },
+    {
+      key: 'slide-2',
+      title: t('onboardingTitle2') || 'Find services quickly',
+      text:
+        t('onboardingDescription2') ||
+        'Connect with service providers in your area. Get quality services at your convenience.',
+      image: IMAGES.imageOnboardingTwo,
+    },
+    {
+      key: 'slide-3',
+      title: t('onboardingTitle3') || 'Start your journey',
+      text:
+        t('onboardingDescription3') ||
+        'Join thousands of users. Create your account and explore endless possibilities.',
+      image: IMAGES.imageOnboardingThree,
+    },
+  ];
 
-  const _renderItem = ({ item }: { item: SlideItem }) => {
+  const _renderItem = ({ item, index }: { item: SlideItem; index: number }) => {
+    const isLastSlide = index === slides.length - 1;
+
     return (
-      <Box alignItems="center" width={'95%'} alignSelf="center">
-        <Image style={styles.image} resizeMode="cover" source={item?.image} />
+      <Box
+        flex={1}
+        alignItems="center"
+        justifyContent="center"
+        paddingHorizontal="m"
+        width="100%"
+      >
+        {/* Image Container */}
+        <Box
+          alignItems="center"
+          justifyContent="center"
+          marginBottom="xl"
+          width="100%"
+        >
+          <Image
+            style={styles.image}
+            resizeMode="contain"
+            source={item.image}
+          />
+        </Box>
+
+        {/* Text Container */}
+        <Box
+          alignItems="center"
+          justifyContent="center"
+          width="100%"
+          paddingHorizontal="sm"
+        >
+          <AppText
+            variant="h1"
+            color="lightBlack"
+            style={styles.title}
+            textAlign="center"
+          >
+            {item.title}
+          </AppText>
+
+          <AppSpacer variant="sm" />
+
+          <AppText
+            variant="s1"
+            color="grayDark"
+            style={styles.description}
+            textAlign="center"
+          >
+            {item.text}
+          </AppText>
+
+          {/* Start Now Button - Only on last slide */}
+          {isLastSlide && (
+            <>
+              <AppSpacer variant="xl" />
+              <Box width="100%" paddingHorizontal="m">
+                <AppButton
+                  label={t('startNow') || 'Start Now!'}
+                  onPress={handleSkip}
+                  isFullWidth
+                />
+              </Box>
+            </>
+          )}
+        </Box>
       </Box>
     );
   };
@@ -61,47 +125,40 @@ const OnBoarding = () => {
   };
 
   return (
-    <Box flex={1}>
-      <AppSpaceWrapper>
-        <Box
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="space-between"
-          paddingHorizontal="sm"
-        >
-          <AppText variant="s1" color="grayDark">
-            {t('welcomeTo')} {APP_NAME}
-          </AppText>
+    <Box flex={1} backgroundColor="white">
+      {/* Header with Skip Button */}
+      <Box
+        flexDirection="row"
+        alignItems="center"
+        justifyContent="space-between"
+        paddingHorizontal="m"
+        paddingTop="l"
+        paddingBottom="sm"
+      >
+        <AppText variant="s1" color="grayDark">
+          {t('welcomeTo')} {APP_NAME}
+        </AppText>
 
-          <Pressable onPress={handleSkip} style={styles.skipButton}>
-            <AppText variant="s1" color="lightBlack" style={styles.skipText}>
-              {t('skip')}
-            </AppText>
-          </Pressable>
-        </Box>
+        <Pressable onPress={handleSkip} style={styles.skipButton}>
+          <AppText variant="s1" color="lightBlack" style={styles.skipText}>
+            {t('skip')}
+          </AppText>
+        </Pressable>
+      </Box>
 
-        <AppSpacer variant="s" />
-        <Box paddingHorizontal="sm">
-          <AppText variant="h1" color="lightBlack">
-            {t('sellYourProductsEasily')}
-          </AppText>
-        </Box>
-        <AppSpacer variant="sm" />
-        <Box height={550}>
-          <IntroSlider
-            // ref={sliderRef}
-            renderItem={_renderItem}
-            data={slides}
-            activeDotStyle={{
-              backgroundColor: colors.primary,
-            }}
-            width={Dimensions.get('window').width * 0.95}
-          />
-          <AppText variant="s1" color="grayDark">
-            {t('sellYourProductsEasilyDescription')}
-          </AppText>
-        </Box>
-      </AppSpaceWrapper>
+      {/* Slider Container */}
+      <Box flex={1} paddingBottom="xxl">
+        <IntroSlider
+          renderItem={_renderItem}
+          data={slides}
+          activeDotStyle={{
+            backgroundColor: colors.primary,
+          }}
+          width={Dimensions.get('window').width}
+        />
+      </Box>
+
+      {/* Footer */}
       <AuthFooter
         firstSubLabel={t('alreadyHaveAccount')}
         secondSubLabel={t('login2')}
@@ -115,35 +172,36 @@ export default OnBoarding;
 
 const styles = StyleSheet.create({
   image: {
-    height: 400,
-    width: 400,
-    borderRadius: 20,
+    width: Dimensions.get('window').width * 0.7,
+    height: Dimensions.get('window').height * 0.28,
+    maxWidth: 320,
+    maxHeight: 320,
+  },
+  title: {
+    fontWeight: 'bold',
+    lineHeight: 36,
+  },
+  description: {
+    lineHeight: 22,
   },
   skipButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
     backgroundColor: 'white',
-    marginTop: 8,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 27 }, // Using the largest offset
-        shadowOpacity: 0.03,
-        shadowRadius: 7, // Using the largest radius for a smooth blend
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
       },
       android: {
-        elevation: 4,
+        elevation: 2,
       },
     }),
   },
   skipText: {
     textAlign: 'center',
-  },
-  activeDot: {
-    width: 40,
-    height: 10,
-    borderRadius: 5,
-    marginHorizontal: 3,
   },
 });

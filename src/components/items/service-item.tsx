@@ -24,20 +24,28 @@ const ServiceItem: FC<IServiceItem> = ({
       <Box
         alignItems="center"
         justifyContent="center"
-        width={80}
+        width={70}
         marginLeft="ss"
       >
         <Box
-          height={80}
-          width={90}
-          borderRadius={10}
+          height={70}
+          width={70}
+          borderRadius={35}
           alignItems="center"
           justifyContent="center"
           backgroundColor="lightBlue"
+          overflow="hidden"
         >
           <AppImage source={{ uri: imageUrl! }} style={styles.img} />
         </Box>
-        <AppText numberOfLines={1}>{name}</AppText>
+        <AppText 
+          numberOfLines={2} 
+          marginTop="ss" 
+          textAlign="center" 
+          style={{ minHeight: 40, width: '100%', textAlign: 'center' }}
+        >
+          {name}
+        </AppText>
       </Box>
     </AppPresseble>
   );
@@ -45,5 +53,5 @@ const ServiceItem: FC<IServiceItem> = ({
 export default ServiceItem;
 
 const styles = StyleSheet.create({
-  img: { width: 50, height: 50, resizeMode: 'contain' },
+  img: { width: '100%', height: '100%', resizeMode: 'cover' },
 });

@@ -8,6 +8,7 @@ import {
   AppText,
   LoadingTransparent,
 } from 'components';
+import { LoadingErrorScreenHandler } from 'hoc';
 import { useEnterOtpController } from 'hooks';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet } from 'react-native';
@@ -19,7 +20,7 @@ const EnterOtp = (
   props: NativeStackScreenProps<RootStackParamList, 'EnterOtp'>,
 ) => {
   const { t } = useTranslation();
-  const { phone, callingCode, userData, isForResetPassword } =
+  const { phone, callingCode, userData, isForResetPassword, isForRegister } =
     props?.route?.params || {};
   const { colors } = useAppTheme();
 
@@ -33,10 +34,14 @@ const EnterOtp = (
     isLoading,
     otp,
     setOtp,
+    isError,
+    errorMessage,
+    isRateLimitError,
   } = useEnterOtpController({
     phone,
     callingCode,
     isForResetPassword,
+    isForRegister,
     userData,
   });
 
@@ -48,65 +53,72 @@ const EnterOtp = (
   return (
     <Box flex={1} backgroundColor="white">
       <AppHeader label={t('otp')} />
-      <ScrollView>
-        <AppSpaceWrapper>
-          <AuthHeader
-            label={t('checkYourPhoneForOtp')}
-            subLabel={t('enterOtpFromYourPhone')}
-          />
+      <LoadingErrorScreenHandler
+        loading={isLoading && !isError}
+        isError={isError}
+        errorMessage={errorMessage}
+        refetch={refetch}
+      >
+        <ScrollView>
+          <AppSpaceWrapper>
+            <AuthHeader
+              label={t('checkYourPhoneForOtp')}
+              subLabel={t('enterOtpFromYourPhone')}
+            />
 
-          <OtpInput
-            numberOfDigits={6}
-            onTextChange={setOtp}
-            onFilled={onConfirmPress}
-            disabled={isVerifying}
-            theme={{
-              focusedPinCodeContainerStyle: {
-                borderColor: colors.primary,
-              },
-            }}
-          />
+            <OtpInput
+              numberOfDigits={6}
+              onTextChange={setOtp}
+              onFilled={onConfirmPress}
+              disabled={isVerifying}
+              theme={{
+                focusedPinCodeContainerStyle: {
+                  borderColor: colors.primary,
+                },
+              }}
+            />
 
-          <AppSpacer variant="sm" />
+            <AppSpacer variant="sm" />
 
-          {/* Countdown timer below OTP input */}
-          <Box
-            alignItems="center"
-            flexDirection="row"
-            justifyContent="space-between"
-            flexWrap="wrap"
-          >
-            <AppText color="grayDark" variant="s1">
-              {t('otpEndsAfter')}{' '}
-              <AppText color="grayDark" variant="s1" fontWeight={'bold'}>
-                {OTP_COUNT_DOWN_NUMBER}{' '}
-              </AppText>
-              {t('seconds')}
-            </AppText>
-            {countdown > 0 ? (
+            {/* Countdown timer below OTP input */}
+            <Box
+              alignItems="center"
+              flexDirection="row"
+              justifyContent="space-between"
+              flexWrap="wrap"
+            >
               <AppText color="grayDark" variant="s1">
-                {'00'}:{countdown?.toString().padStart(2, '0')}
+                {t('otpEndsAfter')}{' '}
+                <AppText color="grayDark" variant="s1" fontWeight={'bold'}>
+                  {OTP_COUNT_DOWN_NUMBER}{' '}
+                </AppText>
+                {t('seconds')}
               </AppText>
-            ) : (
-              <AppText
-                color="primary"
-                textDecorationLine="underline"
-                textDecorationColor="primary"
-                variant="s1"
-                onPress={onResendCodePress}
-              >
-                {t('resendOtp')}
-              </AppText>
-            )}
-          </Box>
+              {countdown > 0 ? (
+                <AppText color="grayDark" variant="s1">
+                  {'00'}:{countdown?.toString().padStart(2, '0')}
+                </AppText>
+              ) : (
+                <AppText
+                  color="primary"
+                  textDecorationLine="underline"
+                  textDecorationColor="primary"
+                  variant="s1"
+                  onPress={onResendCodePress}
+                >
+                  {t('resendOtp')}
+                </AppText>
+              )}
+            </Box>
 
-          <AppErrorMessage
-            isError={!isValid && !!otp?.length}
-            text={t('errors.enterValidOtp')}
-          />
-        </AppSpaceWrapper>
-      </ScrollView>
-      {isLoading && <LoadingTransparent />}
+            <AppErrorMessage
+              isError={!isValid && !!otp?.length}
+              text={t('errors.enterValidOtp')}
+            />
+          </AppSpaceWrapper>
+        </ScrollView>
+      </LoadingErrorScreenHandler>
+      {isLoading && !isError && <LoadingTransparent />}
     </Box>
   );
 };

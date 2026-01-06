@@ -1,22 +1,26 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Box } from 'common';
-import { AppHeader, AppSpaceWrapper, CategoryItem } from 'components';
+import { AppHeader, AppSpaceWrapper, CategoryItem, CategoryItemSkeleton } from 'components';
 import { LoadingErrorFlatListHandler } from 'hoc';
 import { useDebounce, useMemoizedData } from 'hooks';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { Alert } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { ServicesApis } from 'services';
 import { useAuthStore } from 'store';
 import { IServiceResponse, QUERIES_KEY_ENUM, RootStackParamList } from 'types';
-import { dataExtractor, metaExtractor } from 'utils';
+import { metaExtractor, ShowSnackBar } from 'utils';
 
 const VendorServices = (
-  props: NativeStackScreenProps<RootStackParamList, 'VendorServices'>,
+  _props: NativeStackScreenProps<RootStackParamList, 'VendorServices'>,
 ) => {
   const [search, setSearch] = useState('');
   const debounceValue = useDebounce(search);
   const { user } = useAuthStore();
   const vendorId = user?.id!;
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const {
     data,
@@ -44,6 +48,65 @@ const VendorServices = (
     queryKey: [QUERIES_KEY_ENUM.vendor_services, vendorId, debounceValue],
   });
 
+  const { mutateAsync: deleteService } = useMutation({
+    mutationFn: (serviceId: number) => ServicesApis.deleteService(serviceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERIES_KEY_ENUM.vendor_services, vendorId],
+      });
+      // Show success alert
+      Alert.alert(
+        t('serviceDeletedSuccessfully'),
+        '',
+        [
+          {
+            text: t('ok'),
+            style: 'default',
+          },
+        ],
+      );
+      // Also show snackbar for additional feedback
+      ShowSnackBar({
+        text: t('serviceDeletedSuccessfully'),
+        type: 'default',
+      });
+    },
+    onError: (err: any) => {
+      Alert.alert(
+        t('failedToDeleteService'),
+        err?.response?.data?.message || t('failedToDeleteService'),
+        [
+          {
+            text: t('ok'),
+            style: 'default',
+          },
+        ],
+      );
+      ShowSnackBar({
+        text: err?.response?.data?.message || t('failedToDeleteService'),
+        type: 'error',
+      });
+    },
+  });
+
+  const handleDelete = (serviceId: number) => {
+    Alert.alert(
+      t('deleteService'),
+      t('deleteServiceConfirmation'),
+      [
+        {
+          text: t('cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('delete'),
+          style: 'destructive',
+          onPress: () => deleteService(serviceId),
+        },
+      ],
+    );
+  };
+
   const allData = useMemoizedData<IServiceResponse>(data);
 
   return (
@@ -60,6 +123,8 @@ const VendorServices = (
           loading={isPending}
           isRefetching={isRefetching}
           isFetching={isFetching || isFetchingNextPage}
+          skeletonComponent={CategoryItemSkeleton}
+          skeletonCount={5}
           onEndReached={
             hasNextPage && !isFetchingNextPage
               ? () => fetchNextPage()
@@ -78,6 +143,7 @@ const VendorServices = (
               reviewCount={item?.reviews_count}
               rating={item?.rating}
               city={item?.city}
+              onDelete={handleDelete}
             />
           )}
         />

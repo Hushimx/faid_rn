@@ -22,6 +22,8 @@ interface LoadingFlatListProps<T> extends FlatListProps<T> {
   isFetching?: boolean;
   infiniteQueryOptions?: UseInfiniteQueryOptions;
   dataExtractor?: (page: any) => T[];
+  skeletonComponent?: React.ComponentType<any>;
+  skeletonCount?: number;
 }
 
 /**
@@ -38,6 +40,8 @@ export function LoadingErrorFlatListHandler<T>({
   isFetching,
   infiniteQueryOptions,
   dataExtractor,
+  skeletonComponent: SkeletonComponent,
+  skeletonCount = 5,
   ...rest
 }: LoadingFlatListProps<T>) {
   const { colors } = useAppTheme();
@@ -47,6 +51,29 @@ export function LoadingErrorFlatListHandler<T>({
   // console.log('fetching', queryIsFetching);
 
   if (loading) {
+    // If skeleton component is provided, show skeleton loading
+    if (SkeletonComponent) {
+      const skeletonData = Array.from({ length: skeletonCount }, (_, i) => i);
+      return (
+        <AnimatedFlatList
+          data={skeletonData}
+          horizontal={rest?.horizontal}
+          showsHorizontalScrollIndicator={rest?.showsHorizontalScrollIndicator}
+          numColumns={rest?.numColumns}
+          columnWrapperStyle={rest?.columnWrapperStyle}
+          contentContainerStyle={[
+            {
+              gap: SPACING.gap,
+              paddingHorizontal: rest?.horizontal ? SPACING.gap : 0,
+            },
+            rest?.contentContainerStyle,
+          ]}
+          renderItem={() => <SkeletonComponent />}
+          {...(rest?.horizontal ? { snapToInterval: rest?.snapToInterval } : {})}
+        />
+      );
+    }
+    // Otherwise show spinner
     return (
       <View style={styles.center}>
         <Spinner size="large" status="primary" />
@@ -87,11 +114,16 @@ export function LoadingErrorFlatListHandler<T>({
         rest?.contentContainerStyle,
       ]}
       refreshControl={
-        <RefreshControl
-          colors={[colors.primary]}
-          refreshing={isRefetching ?? false}
-          onRefresh={refetch}
-        />
+        // Disable pull-to-refresh for horizontal lists to prevent interference with scrolling
+        rest?.horizontal
+          ? undefined
+          : refetch && (
+              <RefreshControl
+                colors={[colors.primary]}
+                refreshing={isRefetching ?? false}
+                onRefresh={refetch}
+              />
+            )
       }
       ListFooterComponent={() =>
         isFetching && (

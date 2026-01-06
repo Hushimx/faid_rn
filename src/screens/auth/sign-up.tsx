@@ -83,6 +83,7 @@ const SignUp = () => {
             error={errors.phone}
             countryCode={values?.countryCode}
             onChangeCountry={code => setFieldValue('countryCode', code)}
+            disableCountryPicker={true}
           />
           <AppSpacer variant="s" />
 
@@ -108,6 +109,7 @@ const SignUp = () => {
             accessoryLeft={() => <Lock />}
             isPassword
           />
+          <AppSpacer variant="xxl" />
           <AppSpacer variant="xxl" />
         </AppSpaceWrapper>
       </AppKeyboardAwareScrollView>

@@ -34,6 +34,9 @@ export type RootStackParamList = {
   };
   VendorServices: undefined;
   ServiceDetailsForm: undefined;
+  EditService: {
+    serviceId: number;
+  };
   UpdateProfile: undefined;
   Chat: {
     vendor: IVendor;
@@ -48,6 +51,8 @@ export type RootStackParamList = {
   UserPolicies: undefined;
   ShowAllServices: undefined;
   Notifications: undefined;
+  ChatsList: undefined;
+  VendorApplication: undefined;
 };
 
 // Augment React Navigation's global types so hooks like `useNavigation()` and

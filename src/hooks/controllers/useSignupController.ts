@@ -59,7 +59,7 @@ const useSignupController = ({ phoneRef }: UseSignupControllerProps = {}) => {
     try {
       setIsLoading(true);
       const fcmToken = await fcmTokenGenerator();
-      const res = await AuthApis.signup({
+      await AuthApis.signup({
         email: values.email,
         phone: phoneNumberShapeCreator({
           phone: values.phone,
@@ -72,14 +72,17 @@ const useSignupController = ({ phoneRef }: UseSignupControllerProps = {}) => {
         fcm_token: fcmToken,
       });
 
+      // Navigate to OTP screen - user will be created after OTP verification
       navigation.navigate('EnterOtp', {
         phone,
         callingCode: callingCode,
         isForRegister: true,
-        userData: res?.data?.data,
       });
-    } catch (e) {}
-    setIsLoading(false);
+    } catch (e) {
+      // Error handling is done by axios interceptor
+    } finally {
+      setIsLoading(false);
+    }
   }
   const goBack = () => navigation.goBack();
 

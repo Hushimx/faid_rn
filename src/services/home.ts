@@ -20,5 +20,8 @@ const HomeApis = {
   getOffers: () => {
     return axiosInstance.get('offers');
   },
+  getBanners: () => {
+    return axiosInstance.get('banners');
+  },
 };
 export default HomeApis;

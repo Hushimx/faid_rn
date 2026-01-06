@@ -42,6 +42,7 @@ const AppHeader: FC<IProps> = ({
       alignItems="center"
       paddingHorizontal="sm"
       paddingTop="sm"
+      paddingBottom="sm"
     >
       <Box flex={1} alignItems="center" justifyContent="center">
         <Pressable onPress={() => navigation.goBack()}>

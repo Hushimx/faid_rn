@@ -1,4 +1,5 @@
 import Services from './services';
 import SpecialOffers from './special-offers';
 import ServiceList from './service-list';
-export { Services, SpecialOffers, ServiceList };
+import Banners from './banners';
+export { Services, SpecialOffers, ServiceList, Banners };

@@ -1,7 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Box } from 'common';
-import { AppHeader, MapView } from 'components';
+import { AppHeader } from 'components';
 import { useTranslation } from 'react-i18next';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { RootStackParamList } from 'types';
 
 const FullScreenMapView = (
@@ -15,14 +16,25 @@ const FullScreenMapView = (
       <AppHeader label={t('mapView')} />
       <Box flex={1}>
         <MapView
-          style={{ height: '100%' }}
-          region={{
-            latitude,
-            longitude,
-            latitudeDelta: 0,
-            longitudeDelta: 0,
+          key={`${latitude}-${longitude}`}
+          style={{ flex: 1 }}
+          provider={PROVIDER_GOOGLE}
+          initialRegion={{
+            latitude: latitude,
+            longitude: longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
           }}
-        />
+          scrollEnabled={true}
+          zoomEnabled={true}
+        >
+          <Marker
+            coordinate={{
+              latitude: latitude,
+              longitude: longitude,
+            }}
+          />
+        </MapView>
       </Box>
     </Box>
   );

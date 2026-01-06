@@ -1,6 +1,7 @@
 import { useFormik } from 'formik';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from 'i18n';
 import { LayoutAnimation, Platform, UIManager } from 'react-native';
 import { Asset } from 'react-native-image-picker';
 import { LatLng } from 'react-native-maps';
@@ -14,7 +15,6 @@ import {
 import {
   createServiceScheme,
   dataExtractor,
-  imagePicker,
   imageVideoPicker,
   reverseGeocode,
 } from 'utils';
@@ -43,6 +43,8 @@ export interface ServiceDetailsFormValues {
   serviceCost: string;
   // servicePeriod: string;
   fullLocation: string;
+  fullLocationAr: string;
+  fullLocationEn: string;
   locationLink: string;
   faqs: {
     questionEn: string;
@@ -52,7 +54,6 @@ export interface ServiceDetailsFormValues {
   }[];
   currentQuestion: string;
   currentAnswer: string;
-  profilePicture: Asset | null;
   serviceMedia: Asset[];
 
   serviceType: PRICE_TYPE_ENUM;
@@ -61,6 +62,8 @@ export interface ServiceDetailsFormValues {
   category_id: number | null;
   // status: SERVICE_STATUS_ENUM | null;
   city: string | null;
+  cityAr: string | null;
+  cityEn: string | null;
 }
 
 const useServiceDetailsFormController = () => {
@@ -86,11 +89,12 @@ const useServiceDetailsFormController = () => {
       serviceCost: '',
       // servicePeriod: '',
       fullLocation: '',
+      fullLocationAr: '',
+      fullLocationEn: '',
       locationLink: '',
       faqs: [newFaq],
       currentQuestion: '',
       currentAnswer: '',
-      profilePicture: null,
       serviceMedia: [],
       serviceType: PRICE_TYPE_ENUM?.fixed,
       lat: 0,
@@ -98,30 +102,21 @@ const useServiceDetailsFormController = () => {
       category_id: null,
       // status: null,
       city: null,
+      cityAr: null,
+      cityEn: null,
     },
     validationSchema,
     validateOnChange: true,
-    onSubmit: values => onUploadServicePress(),
+    onSubmit: () => onUploadServicePress(),
   });
   const { values } = formik;
-  const { serviceMedia, profilePicture, category_id } = formik.values;
+  const { serviceMedia, category_id } = formik.values;
   const queryClient = useQueryClient();
 
   const { data: categories } = useQuery({
     queryFn: () => HomeApis.getCategories(),
     queryKey: [QUERIES_KEY_ENUM.categories],
   });
-
-  const onUploadProfilePicture = async () => {
-    try {
-      const res = await imagePicker();
-      if (res?.assets?.length) {
-        formik.setFieldValue('profilePicture', res?.assets[0]);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
 
   const onUploadServiceMedia = async () => {
     try {
@@ -194,10 +189,18 @@ const useServiceDetailsFormController = () => {
     try {
       setIsLocationLoading(true);
       const res = await reverseGeocode(latitude, longitude);
-      formik.setFieldValue('fullLocation', res?.display_name);
+      if (res) {
+        const currentLang = i18n.language || 'ar';
+        const displayAddress = currentLang === 'ar' ? res.display_name_ar : res.display_name_en;
+        formik.setFieldValue('fullLocation', displayAddress);
+        formik.setFieldValue('fullLocationAr', res.display_name_ar);
+        formik.setFieldValue('fullLocationEn', res.display_name_en);
       formik.setFieldValue('lat', latitude);
       formik.setFieldValue('lng', longitude);
-      formik.setFieldValue('city', res?.address?.city);
+        formik.setFieldValue('cityAr', res?.address?.city_ar || '');
+        formik.setFieldValue('cityEn', res?.address?.city_en || '');
+        formik.setFieldValue('city', currentLang === 'ar' ? res?.address?.city_ar : res?.address?.city_en);
+      }
     } catch (e) {
       console.log('Error getting address:', e);
     } finally {
@@ -213,12 +216,25 @@ const useServiceDetailsFormController = () => {
     formData.append('description[en]', values.serviceDescriptionEn);
     formData.append('description[ar]', values.serviceDescriptionAr);
     formData.append('price_type', values.serviceType);
+    // Only send price if not unspecified
+    if (values.serviceType !== PRICE_TYPE_ENUM.unspecified && values.serviceCost) {
     formData.append('price', values.serviceCost);
+    }
     formData.append('lat', values.lat.toString());
     formData.append('lng', values.lng.toString());
     // formData.append('status', values?.status);
-    formData.append('address', values?.fullLocation);
-    formData.append('city', values?.city);
+    if (values.fullLocationAr) {
+      formData.append('address[ar]', values.fullLocationAr);
+    }
+    if (values.fullLocationEn) {
+      formData.append('address[en]', values.fullLocationEn);
+    }
+    if (values.cityAr) {
+      formData.append('city[ar]', values.cityAr);
+    }
+    if (values.cityEn) {
+      formData.append('city[en]', values.cityEn);
+    }
     values.faqs.forEach((item, index) => {
       if (
         item.questionEn ||
@@ -242,19 +258,11 @@ const useServiceDetailsFormController = () => {
         `media[${index}][type]`,
         item.type?.includes('image') ? 'image' : 'video',
       );
-    });
-
-    // // Add profile picture as the last media item with is_primary flag
-    if (profilePicture) {
-      const primaryIndex = serviceMedia?.length;
-      formData.append(`media[${primaryIndex}][file]`, {
-        uri: profilePicture.uri,
-        type: profilePicture.type,
-        name: profilePicture.fileName,
-      });
-      formData.append(`media[${primaryIndex}][type]`, 'image');
-      formData.append(`media[${primaryIndex}][is_primary]`, 1);
+      // Mark the first image as primary
+      if (index === 0) {
+        formData.append(`media[${index}][is_primary]`, 1);
     }
+    });
 
     try {
       const res = await AddServiceMutation(formData);
@@ -273,12 +281,13 @@ const useServiceDetailsFormController = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERIES_KEY_ENUM.vendor_services, QUERIES_KEY_ENUM.services],
       });
-    } catch (e) {}
+    } catch {
+      // Error handled silently
+    }
   };
 
   return {
     formik,
-    onUploadProfilePicture,
     onUploadServiceMedia,
     onDeleteServiceImage,
     onAddFaq,

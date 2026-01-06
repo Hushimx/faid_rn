@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Box, useAppTheme } from 'common';
 import {
   AppPresseble,
+  ChatIcon,
   HomeIcon,
   MarketplaceIcon,
   Plus,
@@ -14,14 +15,17 @@ import { Dimensions, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   Chat,
+  ChatsList,
   FullScreenMapView,
   Notifications,
   ServiceConditions,
   ServiceDetails,
   ServiceDetailsForm,
+  EditService,
   ShowAllForCategory,
   ShowAllServices,
   UserPolicies,
+  VendorApplication,
   VendorServices,
 } from 'screens';
 import { useAuthStore } from 'store';
@@ -79,6 +83,9 @@ const CustomTabBar = (props: any) => {
               }}
             >
               {route?.name === 'HomeStack' && <HomeIcon active={isFocused} />}
+              {route?.name === 'ChatsList' && (
+                <ChatIcon active={isFocused} />
+              )}
               {route?.name === 'Profile' && (
                 <UserBottomTabIcon active={isFocused} />
               )}
@@ -140,7 +147,13 @@ const BottomTab = () => {
       )}
     >
       <Tab.Screen name="HomeStack" component={HomeStack} />
-
+      <Tab.Screen
+        name="ChatsList"
+        component={ChatsList}
+        options={{
+          tabBarIcon: () => <ChatIcon />,
+        }}
+      />
       {/* <Tab.Screen
         name="MarketPlace"
         component={ProfileStack}
@@ -183,6 +196,7 @@ const MainStack = () => {
     >
       <Stack.Screen name="BottomTab" component={BottomTab} />
       <Stack.Screen name="ServiceDetailsForm" component={ServiceDetailsForm} />
+      <Stack.Screen name="EditService" component={EditService as any} />
       <Stack.Screen name="ServiceDetails" component={ServiceDetails as any} />
       <Stack.Screen
         name="ShowAllForCategory"
@@ -199,6 +213,7 @@ const MainStack = () => {
       <Stack.Screen name="UserPolicies" component={UserPolicies} />
       <Stack.Screen name="ShowAllServices" component={ShowAllServices} />
       <Stack.Screen name="Notifications" component={Notifications} />
+      <Stack.Screen name="VendorApplication" component={VendorApplication} />
     </Stack.Navigator>
   );
 };

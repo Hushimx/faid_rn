@@ -48,6 +48,7 @@ const ForgetPassword = (
             setIsValid={setIsValid}
             countryCode={countryCode}
             onChangeCountry={setCountryCode}
+            disableCountryPicker={true}
           />
           <AppErrorMessage
             isError={!isValid && !!value?.length}

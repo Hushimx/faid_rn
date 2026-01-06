@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { array, number, object, string, ValidationError } from 'yup';
+import { array, number, object, string } from 'yup';
 
 export const loginScheme = (t: any) =>
   Yup.object().shape({
@@ -8,13 +8,7 @@ export const loginScheme = (t: any) =>
       .required(t('errors.fieldRequired')),
     password: Yup.string()
       .min(8, t('errors.passwordAtLeast8'))
-      .matches(/[a-z]/, t('errors.passwordMustContainLowcase'))
-      .matches(/[A-Z]/, t('errors.passwordMustContainUppercase'))
-      .matches(/[0-9]/, t('errors.passwordMustContainNumber'))
-      .matches(
-        /[@$!%*?&#^()\-_=+{};:,<.>]/,
-        t('errors.passwordMustContainSymbol'),
-      )
+      .matches(/^[a-zA-Z0-9]+$/, t('errors.passwordOnlyLettersNumbers'))
       .required(t('errors.fieldRequired')),
   });
 
@@ -28,13 +22,7 @@ export const signUpScheme = (t: any) =>
     lastName: Yup.string().required(t('errors.fieldRequired')),
     password: Yup.string()
       .min(8, t('errors.passwordAtLeast8'))
-      .matches(/[a-z]/, t('errors.passwordMustContainLowcase'))
-      .matches(/[A-Z]/, t('errors.passwordMustContainUppercase'))
-      .matches(/[0-9]/, t('errors.passwordMustContainNumber'))
-      .matches(
-        /[@$!%*?&#^()\-_=+{};:,<.>]/,
-        t('errors.passwordMustContainSymbol'),
-      )
+      .matches(/^[a-zA-Z0-9]+$/, t('errors.passwordOnlyLettersNumbers'))
       .required(t('errors.fieldRequired')),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password'), undefined], t('errors.passwordsMustMatch'))
@@ -45,13 +33,7 @@ export const resetPasswordScheme = (t: any) =>
   Yup.object().shape({
     password: Yup.string()
       .min(8, t('errors.passwordAtLeast8'))
-      .matches(/[a-z]/, t('errors.passwordMustContainLowcase'))
-      .matches(/[A-Z]/, t('errors.passwordMustContainUppercase'))
-      .matches(/[0-9]/, t('errors.passwordMustContainNumber'))
-      .matches(
-        /[@$!%*?&#^()\-_=+{};:,<.>]/,
-        t('errors.passwordMustContainSymbol'),
-      )
+      .matches(/^[a-zA-Z0-9]+$/, t('errors.passwordOnlyLettersNumbers'))
       .required(t('errors.fieldRequired')),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password'), undefined], t('errors.passwordsMustMatch'))
@@ -68,31 +50,23 @@ export const createServiceScheme = (t: any) =>
   object().shape({
     // fullName: string().required(t('errors.fieldRequired')),
     // brief: string().required(t('errors.fieldRequired')),
-    city: string().required(t('errors.fieldRequired')),
-    serviceTitleEn: string()
-      .optional()
-      .matches(/^[a-zA-Z0-9\s.,!?'-]*$/, t('errors.onlyEnglishAllowed')),
-    serviceTitleAr: string()
-      .required(t('errors.fieldRequired'))
-      .matches(/^[\u0600-\u06FF\s.,!?'-]+$/, t('errors.onlyArabicAllowed')),
-    serviceDescriptionEn: string()
-      .optional()
-      .matches(/^[a-zA-Z0-9\s.,!?'-]*$/, t('errors.onlyEnglishAllowed')),
-    serviceDescriptionAr: string()
-      .required(t('errors.fieldRequired'))
-      .matches(/^[\u0600-\u06FF\s.,!?'-]+$/, t('errors.onlyArabicAllowed')),
+    cityAr: string().required(t('errors.fieldRequired')),
+    cityEn: string().optional(),
+    serviceTitleEn: string().optional(),
+    serviceTitleAr: string().required(t('errors.fieldRequired')),
+    serviceDescriptionEn: string().optional(),
+    serviceDescriptionAr: string().required(t('errors.fieldRequired')),
     serviceType: string().required(t('errors.fieldRequired')),
-    serviceCost: number().required(t('errors.fieldRequired')),
+    serviceCost: number().when('serviceType', {
+      is: (val: string) => val !== 'unspecified',
+      then: (schema) => schema.required(t('errors.fieldRequired')),
+      otherwise: (schema) => schema.optional(),
+    }),
     // servicePeriod: string().required(t('errors.fieldRequired')),
     fullLocation: string().required(t('errors.fieldRequired')),
+    fullLocationAr: string().required(t('errors.fieldRequired')),
+    fullLocationEn: string().optional(),
     locationLink: string().optional(),
-    profilePicture: object()
-      .shape({
-        uri: string().required(t('errors.fieldRequired')),
-        type: string().required(t('errors.fieldRequired')),
-        fileName: string().required(t('errors.fieldRequired')),
-      })
-      .required(t('errors.fieldRequired')),
     serviceMedia: array()
       .min(1, t('errors.fieldRequired'))
       .of(
@@ -102,7 +76,6 @@ export const createServiceScheme = (t: any) =>
           fileName: string().required(t('errors.fieldRequired')),
         }),
       )
-
       .required(t('errors.fieldRequired')),
     lat: number().required(t('errors.fieldRequired')),
     lng: number().required(t('errors.fieldRequired')),
@@ -112,25 +85,26 @@ export const createServiceScheme = (t: any) =>
       .of(
         object()
           .shape({
+            id: number().optional(),
             questionEn: string().matches(/^[a-zA-Z0-9\s.,!?'-]*$/, {
               message: t('errors.onlyEnglishAllowed'),
               excludeEmptyString: true,
-            }),
+            }).optional(),
             questionAr: string().matches(/^[\u0600-\u06FF\s.,!?'-]*$/, {
               message: t('errors.onlyArabicAllowed'),
               excludeEmptyString: true,
-            }),
+            }).optional(),
             answerEn: string().matches(/^[a-zA-Z0-9\s.,!?'-]*$/, {
               message: t('errors.onlyEnglishAllowed'),
               excludeEmptyString: true,
-            }),
+            }).optional(),
             answerAr: string().matches(/^[\u0600-\u06FF\s.,!?'-]*$/, {
               message: t('errors.onlyArabicAllowed'),
               excludeEmptyString: true,
-            }),
+            }).optional(),
           })
-          .test('faq-complete', t('errors.fieldRequired'), (value, context) => {
-            const { questionEn, questionAr, answerEn, answerAr } = value || {};
+          .test('faq-complete', t('errors.fieldRequired'), (value) => {
+            const { questionEn, questionAr, answerEn, answerAr, id } = value || {};
             // Check if any field is filled
             const hasAnyContent =
               !!questionEn || !!questionAr || !!answerEn || !!answerAr;
@@ -138,32 +112,17 @@ export const createServiceScheme = (t: any) =>
             // If no content, it's valid (optional row)
             if (!hasAnyContent) return true;
 
-            // If there is content, ARABIC fields are strictly required
-            const isArComplete = !!questionAr && !!answerAr;
-
-            if (isArComplete) return true;
-
-            const errors: ValidationError[] = [];
-            // We only enforce errors on Arabic fields if they are missing when other content exists
-            if (!questionAr)
-              errors.push(
-                new ValidationError(
-                  t('errors.fieldRequired'),
-                  value,
-                  `${context.path}.questionAr`,
-                ),
-              );
-
-            if (!answerAr)
-              errors.push(
-                new ValidationError(
-                  t('errors.fieldRequired'),
-                  value,
-                  `${context.path}.answerAr`,
-                ),
-              );
-
-            return new ValidationError(errors);
+            // For existing FAQs (with id), allow any combination
+            // For new FAQs, require at least Arabic question and answer
+            if (id) {
+              // Existing FAQ - just need at least one question and one answer
+              const hasQuestion = !!(questionEn || questionAr);
+              const hasAnswer = !!(answerEn || answerAr);
+              return hasQuestion && hasAnswer;
+            } else {
+              // New FAQ - require Arabic fields
+              return !!(questionAr && answerAr);
+            }
           }),
       )
       .optional(),

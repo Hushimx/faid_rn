@@ -98,6 +98,33 @@ const Settings = () => {
           </Box>
         </AppPresseble>
         <AppSpacer />
+        {user?.type === 'user' && (
+          <>
+            <AppPresseble
+              onPress={() => navigation.navigate('VendorApplication')}
+            >
+              <Box
+                flexDirection="row"
+                alignItems="center"
+                backgroundColor="white"
+                borderRadius={30}
+                padding="sm"
+              >
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <InfoCircleIcon />
+                </Box>
+                <Box flex={8} alignItems="flex-start">
+                  <AppText variant="s1">{t('becomeVendor')}</AppText>
+                </Box>
+
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <Chevron size={15} />
+                </Box>
+              </Box>
+            </AppPresseble>
+            <AppSpacer />
+          </>
+        )}
 
         <Box width={'100%'} borderRadius={30} backgroundColor="white">
           {/* <Box flexDirection="row" alignItems="center" padding="sm">

@@ -29,6 +29,8 @@ export interface IVerifyOtpPayload {
 
 export interface IVerifyOtpResponse {
   otp: string | null;
+  token?: string;
+  user?: import('./auth').IUser;
 }
 
 export interface IResetPasswordPayload {
@@ -53,12 +55,15 @@ export enum QUERIES_KEY_ENUM {
   get_service_reviews = 'get_service_reviews',
   cities = 'cities',
   offers = 'offers',
+  banners = 'banners',
   notifications = 'notifications',
+  chats = 'chats',
 }
 
 export interface ICityResponse {
   id: number;
   name: string;
+  country_id?: number;
 }
 
 export interface IGetCategoriesPayload {
@@ -93,12 +98,21 @@ export interface IVendor {
 }
 
 export interface IServiceMedia {
+  id?: number;
   url: string;
   is_primary: boolean;
   type: 'image' | 'video';
 }
 export interface IOffers {
   image: string;
+}
+
+export interface IBanner {
+  id: number;
+  image_url: string;
+  link: string | null;
+  status: string;
+  order: number | null;
 }
 
 export interface IServiceReviewsPayload {
@@ -117,9 +131,9 @@ export interface IServiceFaq {
   answer: string;
 }
 export interface IServiceResponse {
-  title: string;
-  description: string;
-  price: number;
+  title: string | { ar: string; en: string };
+  description: string | { ar: string; en: string } | null;
+  price: number | null;
   price_type: PRICE_TYPE_ENUM;
   id: number;
   vendor: IVendor;
@@ -131,11 +145,15 @@ export interface IServiceResponse {
   primary_image: {
     id: number;
     url: string;
+  } | null;
+  address: string | { ar: string; en: string } | null;
+  lat: number | null;
+  lng: number | null;
+  city: string | { ar: string; en: string } | null;
+  category?: {
+    id: number;
+    name: string | { ar: string; en: string };
   };
-  address: string;
-  lat: number;
-  lng: number;
-  city: string;
   faqs: IServiceFaq[];
 }
 
@@ -169,12 +187,19 @@ export interface IMessageResponse {
   message: string;
   file_path: string | null;
   file_type: string | null;
+  latitude?: string | number;
+  longitude?: string | number;
   created_at: string;
   updated_at: string;
 }
 export interface ISendMessagePayload {
   message?: string;
   file?: any;
+  location?: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+  };
 }
 
 export interface IAddServicePayload {
@@ -214,4 +239,68 @@ export interface IGetNotificationsPayload {
 
 export interface IMarkNotificationAsReadPayload {
   notificationId: number;
+}
+
+export interface IChat {
+  id: number;
+  user_id: number;
+  vendor_id: number;
+  service_id: number;
+  user?: IVendor;
+  vendor?: IVendor;
+  service?: {
+    id: number;
+    title: string;
+  };
+  lastMessage?: IMessageResponse;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ISubmitVendorApplicationPayload {
+  country_id?: number;
+  city_id?: number;
+  lat?: number;
+  lng?: number;
+  banner?: any;
+  bio?: string;
+  category_id?: number;
+  custom_category?: string;
+  meta?: any;
+}
+
+export interface IVendorApplication {
+  id: number;
+  user_id: number;
+  country_id?: number;
+  city_id?: number;
+  lat?: number;
+  lng?: number;
+  banner?: string;
+  bio?: string;
+  category_id?: number;
+  custom_category?: string;
+  meta?: any;
+  status: 'pending' | 'approved' | 'rejected';
+  rejection_reason?: string;
+  reviewed_by?: number;
+  reviewed_at?: string;
+  country?: {
+    id: number;
+    name: string;
+  };
+  city?: {
+    id: number;
+    name: string;
+  };
+  category?: {
+    id: number;
+    name: string;
+  };
+  reviewer?: {
+    id: number;
+    name: string;
+  };
+  created_at: string;
+  updated_at: string;
 }

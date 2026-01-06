@@ -48,6 +48,30 @@ axiosInstance.interceptors.request.use(
         config.headers['Accept-Language'] = I18nManager.isRTL ? 'ar' : 'en';
       }
 
+      // Check if data is FormData - React Native FormData has _parts property
+      const isFormData =
+        config.data instanceof FormData ||
+        (config.data && typeof config.data === 'object' && '_parts' in config.data);
+
+      if (isFormData) {
+        // Completely remove Content-Type header - React Native will set it automatically
+        // with multipart/form-data and boundary
+        if (config.headers) {
+          delete config.headers['Content-Type'];
+          delete config.headers['content-type'];
+        }
+        // Prevent axios from transforming FormData - let React Native handle it natively
+        // This is crucial for Android to work correctly
+        config.transformRequest = [];
+        // Also ensure axios doesn't try to serialize it
+        config.data = config.data; // Keep as-is
+      } else if (config.data && typeof config.data === 'object') {
+        // For non-FormData requests (JSON), ensure Content-Type is set correctly
+        if (config.headers && !config.headers['Content-Type']) {
+          config.headers['Content-Type'] = 'application/json';
+        }
+      }
+
       return config;
     } catch (error) {
       return Promise.reject(error);

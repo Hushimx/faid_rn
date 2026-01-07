@@ -1,5 +1,5 @@
 import { Box, SPACING } from 'common';
-import { AppSpacer, ServiceItem } from 'components';
+import { AppSpacer, ServiceItem, ServiceItemSkeleton } from 'components';
 import { LoadingErrorFlatListHandler } from 'hoc';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -36,8 +36,17 @@ const Services: FC<IService> = ({
         errorMessage={errorMessage}
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: SPACING.gap }}
+        contentContainerStyle={{ 
+          gap: SPACING.gap,
+          paddingHorizontal: SPACING.gap,
+        }}
+        snapToInterval={100}
+        decelerationRate="fast"
+        pagingEnabled={false}
+        bounces={false}
         data={categories}
+        skeletonComponent={ServiceItemSkeleton}
+        skeletonCount={5}
         renderItem={({ item }) => (
           <ServiceItem
             imageUrl={item?.image_url}

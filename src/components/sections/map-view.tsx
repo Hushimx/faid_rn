@@ -1,11 +1,12 @@
 import { Spinner } from '@ui-kitten/components';
 import { Box } from 'common';
 import { AppText } from 'components/atoms';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleProp, ViewStyle } from 'react-native';
 import Maps, {
   LatLng,
+  MapPressEvent,
   Marker,
   MarkerDragStartEndEvent,
   Polygon,
@@ -31,10 +32,10 @@ interface IProps {
   scrollEnabled?: boolean;
   zoomEnabled?: boolean;
   region?: IRegion;
-  setLocationCoordinates?: (value: LatLng) => void;
+  setLocationCoordinates?: (_value: LatLng) => void;
   isMrkerDraggable?: boolean;
   onMapLoaded?: () => void;
-  onUserSelectUnSupportedArea?: (value: boolean) => void;
+  onUserSelectUnSupportedArea?: (_value: boolean) => void;
 }
 interface IRegion {
   latitude: number;
@@ -57,13 +58,66 @@ const MapView: FC<IProps> = ({
   const [currentRegion, setCurrentRegion] = useState<IRegion>(
     region ? regionFrom(region?.latitude, region?.longitude) : defaultRegion,
   );
+  const [markerCoordinate, setMarkerCoordinate] = useState<LatLng>({
+    latitude: region?.latitude || defaultRegion.latitude,
+    longitude: region?.longitude || defaultRegion.longitude,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [isLocationError, setIsLocationError] = useState(false);
   const [polygonPoints, setPolygonPoints] = useState<LatLng[]>([]);
+  const isInternalUpdateRef = useRef(false);
+  const lastRegionRef = useRef<IRegion | null>(null);
 
   useEffect(() => {
     if (!region) getCurretUserLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (region) {
+      const newRegion = regionFrom(region.latitude, region.longitude);
+      
+      // Check if region actually changed to avoid unnecessary updates
+      const regionChanged =
+        !lastRegionRef.current ||
+        Math.abs(lastRegionRef.current.latitude - newRegion.latitude) > 0.0001 ||
+        Math.abs(lastRegionRef.current.longitude - newRegion.longitude) > 0.0001;
+
+      if (regionChanged) {
+        // Check if the new region matches the current marker position
+        // If it does, this update likely came from handleLocationUpdate, so don't call setLocationCoordinates again
+        const matchesMarker =
+          Math.abs(markerCoordinate.latitude - region.latitude) < 0.0001 &&
+          Math.abs(markerCoordinate.longitude - region.longitude) < 0.0001;
+
+        lastRegionRef.current = newRegion;
+        setCurrentRegion(newRegion);
+        setMarkerCoordinate({
+          latitude: region.latitude,
+          longitude: region.longitude,
+        });
+
+        // Only call setLocationCoordinates if this is an external update (region doesn't match current marker)
+        // This prevents infinite loop when handleLocationUpdate triggers region prop change
+        // Also check the ref flag to be extra safe
+        if (setLocationCoordinates && !matchesMarker && !isInternalUpdateRef.current) {
+          setLocationCoordinates({
+            latitude: region.latitude,
+            longitude: region.longitude,
+          });
+        }
+
+        if (onUserSelectUnSupportedArea) {
+          const isUnsupported = !isInsideSaudiArabia(
+            region.latitude,
+            region.longitude,
+          );
+          onUserSelectUnSupportedArea(isUnsupported);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [region]);
 
   useEffect(() => {
     // GeoJSON uses [lng, lat]
@@ -82,9 +136,15 @@ const MapView: FC<IProps> = ({
     const isLocationPermissionGranted = await checkLocationPermission();
     if (isLocationPermissionGranted) {
       const userLocation = await getCurrentLocation();
-      setCurrentRegion(
-        regionFrom(userLocation?.latitude, userLocation?.longitude),
-      );
+      if (userLocation) {
+        setCurrentRegion(
+          regionFrom(userLocation.latitude, userLocation.longitude),
+        );
+        setMarkerCoordinate({
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+        });
+      }
       if (onMapLoaded) onMapLoaded();
     } else {
       ShowSnackBar({
@@ -95,21 +155,59 @@ const MapView: FC<IProps> = ({
     }
     setIsLoading(false);
   };
-  const onMarkerDragEnd = useCallback((event: MarkerDragStartEndEvent) => {
-    const newCoordinate = event.nativeEvent.coordinate;
+  const handleLocationUpdate = useCallback(
+    (coordinate: LatLng) => {
+      const { latitude, longitude } = coordinate;
 
-    const { latitude, longitude } = newCoordinate;
+      if (!setLocationCoordinates) return;
 
-    if (!onUserSelectUnSupportedArea || !setLocationCoordinates) return;
+      // Mark this as an internal update to prevent infinite loop
+      isInternalUpdateRef.current = true;
 
-    if (!isInsideSaudiArabia(latitude, longitude)) {
-      onUserSelectUnSupportedArea(true);
-      return;
-    } else {
-      onUserSelectUnSupportedArea(false);
-    }
-    setLocationCoordinates(newCoordinate);
-  }, []);
+      // Update marker position immediately for smooth interaction
+      // Don't update the region - let the user keep their current view
+      setMarkerCoordinate(coordinate);
+
+      // Check if location is inside Saudi Arabia
+      if (onUserSelectUnSupportedArea) {
+        if (!isInsideSaudiArabia(latitude, longitude)) {
+          onUserSelectUnSupportedArea(true);
+          // Reset ref after a short delay to allow useEffect to process
+          setTimeout(() => {
+            isInternalUpdateRef.current = false;
+          }, 50);
+          return;
+        } else {
+          onUserSelectUnSupportedArea(false);
+        }
+      }
+
+      // Update location coordinates only - don't update region to avoid centering
+      setLocationCoordinates(coordinate);
+      
+      // Reset ref after a short delay to allow useEffect to process
+      setTimeout(() => {
+        isInternalUpdateRef.current = false;
+      }, 50);
+    },
+    [onUserSelectUnSupportedArea, setLocationCoordinates],
+  );
+
+  const onMarkerDragEnd = useCallback(
+    (event: MarkerDragStartEndEvent) => {
+      const newCoordinate = event.nativeEvent.coordinate;
+      handleLocationUpdate(newCoordinate);
+    },
+    [handleLocationUpdate],
+  );
+
+  const onMapPress = useCallback(
+    (event: MapPressEvent) => {
+      const newCoordinate = event.nativeEvent.coordinate;
+      handleLocationUpdate(newCoordinate);
+    },
+    [handleLocationUpdate],
+  );
 
   if (isLoading)
     return (
@@ -136,16 +234,30 @@ const MapView: FC<IProps> = ({
         style,
       ]}
       initialRegion={currentRegion}
-      region={currentRegion}
+      region={region ? regionFrom(region.latitude, region.longitude) : currentRegion}
       scrollEnabled={scrollEnabled}
       zoomEnabled={zoomEnabled}
       provider={PROVIDER_GOOGLE}
+      onPress={setLocationCoordinates ? onMapPress : undefined}
+      moveOnMarkerPress={false}
+      pitchEnabled={false}
+      rotateEnabled={false}
+      showsUserLocation={false}
+      onRegionChangeComplete={(newRegion) => {
+        // Update currentRegion when user manually pans/zooms
+        // This keeps the map state in sync without forcing updates
+        if (!isInternalUpdateRef.current) {
+          setCurrentRegion({
+            latitude: newRegion.latitude,
+            longitude: newRegion.longitude,
+            latitudeDelta: newRegion.latitudeDelta,
+            longitudeDelta: newRegion.longitudeDelta,
+          });
+        }
+      }}
     >
       <Marker
-        coordinate={{
-          latitude: currentRegion.latitude,
-          longitude: currentRegion.longitude,
-        }}
+        coordinate={markerCoordinate}
         draggable={isMrkerDraggable}
         onDragEnd={onMarkerDragEnd}
       />

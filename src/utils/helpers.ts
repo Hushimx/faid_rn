@@ -66,7 +66,7 @@ export const imagePicker = async (
     }
 
     return result;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -97,7 +97,7 @@ export const imageVideoPicker = async (
     }
 
     return result;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -146,7 +146,6 @@ export const getCurrentLocation = () => {
       return location;
     })
     .catch(error => {
-      const { code, message } = error;
       return error;
     });
 };
@@ -155,17 +154,42 @@ export const reverseGeocode = async (
   latitude: number,
   longitude: number,
 ): Promise<{
-  display_name: string;
+  display_name_ar: string;
+  display_name_en: string;
   address: {
-    city: string;
+    city_ar: string;
+    city_en: string;
   };
 } | null> => {
   try {
-    const response = await axios.get(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
-    );
-    // const address = response.data.display_name;
-    return response.data; // Return the formatted address
+    // Make two API calls: one for Arabic, one for English
+    const [arResponse, enResponse] = await Promise.all([
+      axios.get(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`,
+        {
+          headers: {
+            'User-Agent': 'FaidApp/1.0',
+          },
+        },
+      ),
+      axios.get(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=en`,
+      {
+        headers: {
+          'User-Agent': 'FaidApp/1.0',
+        },
+      },
+      ),
+    ]);
+
+    return {
+      display_name_ar: arResponse.data.display_name || '',
+      display_name_en: enResponse.data.display_name || '',
+      address: {
+        city_ar: arResponse.data.address?.city || arResponse.data.address?.town || arResponse.data.address?.municipality || '',
+        city_en: enResponse.data.address?.city || enResponse.data.address?.town || enResponse.data.address?.municipality || '',
+      },
+    };
   } catch (error) {
     ShowSnackBar({
       text: i18next.t('errorsWithMaps'),
@@ -174,6 +198,44 @@ export const reverseGeocode = async (
     // Handle any request or processing errors
     console.log('Error during reverse geocoding: ', error);
     return null;
+  }
+};
+
+export interface GeocodeResult {
+  display_name: string;
+  lat: string;
+  lon: string;
+  place_id: number;
+}
+
+export const forwardGeocode = async (
+  query: string,
+): Promise<GeocodeResult[]> => {
+  try {
+    if (!query || query.trim().length === 0) {
+      return [];
+    }
+    const response = await axios.get(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=sa&addressdetails=1`,
+      {
+        headers: {
+          'User-Agent': 'FaidApp/1.0',
+        },
+      },
+    );
+    return response.data.map((item: any) => ({
+      display_name: item.display_name,
+      lat: item.lat,
+      lon: item.lon,
+      place_id: item.place_id,
+    }));
+  } catch (error) {
+    ShowSnackBar({
+      text: i18next.t('errorsWithMaps'),
+      type: 'error',
+    });
+    console.log('Error during forward geocoding: ', error);
+    return [];
   }
 };
 
@@ -204,7 +266,7 @@ export const fcmTokenGenerator = async () => {
       throw new Error('No FCM token found');
     }
     return fcmToken;
-  } catch (e) {
+  } catch {
     throw new Error('No FCM token found');
   }
 };
@@ -214,3 +276,11 @@ export const createdAtHelper = (createdAt: string) => {
     .locale(I18nManager.isRTL ? 'ar' : 'en')
     .fromNow();
 };
+
+
+
+
+
+
+
+

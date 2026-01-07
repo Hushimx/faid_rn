@@ -43,7 +43,7 @@ const ServicesApis = {
       `services?vendor_id=${vendorId}&per_page=10&page=${currentPage}&search=${search}&include_media=true`,
     ),
   getService: ({ serviceId }: IGetServicePayload) =>
-    axiosInstance.get(`services/${serviceId}`),
+    axiosInstance.get(`services/${serviceId}?include_media=true&include_faqs=true`),
   getReviews: ({
     serviceId,
     page = 1,
@@ -60,6 +60,16 @@ const ServicesApis = {
         'Content-Type': 'multipart/form-data',
       },
     });
+  },
+  updateService: (serviceId: number, formData: FormData) => {
+    return axiosInstance.post(`services/${serviceId}/update`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  deleteService: (serviceId: number) => {
+    return axiosInstance.delete(`services/${serviceId}`);
   },
 };
 

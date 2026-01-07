@@ -10,12 +10,12 @@ import {
   AppText,
   Expand,
   LocationPin,
-  MapView,
   Star,
 } from 'components';
 import { LoadingErrorScreenHandler } from 'hoc';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native-gesture-handler';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Comments } from 'screens/show-all-for-category/components';
 import { ServicesApis } from 'services';
 import {
@@ -63,9 +63,18 @@ const ServiceDetails = (
             <AppSlider
               data={[...(DATA?.images ?? []), ...(DATA?.videos ?? [])]}
             />
-            <AppText variant="h6" color="cutomBlack">
-              {DATA?.title}
-            </AppText>
+
+            <Box flexDirection="row" justifyContent="space-between" alignItems="center">
+              <AppText variant="h6" color="cutomBlack" flex={1}>
+                {DATA?.title}
+              </AppText>
+              <Box flexDirection="row" alignItems="center" marginLeft="s">
+                <LocationPin color={colors.customGray} size={14} />
+                <AppText color="customGray" marginLeft="ss">
+                  {DATA?.city}
+                </AppText>
+              </Box>
+            </Box>
 
             <Box flexDirection="row" alignItems="center">
               <Star color={colors.customYellow} />
@@ -114,14 +123,25 @@ const ServiceDetails = (
             <AppSpacer />
             <Box height={300}>
               <MapView
-                region={{
+                key={`${DATA?.lat}-${DATA?.lng}`}
+                style={{ flex: 1 }}
+                provider={PROVIDER_GOOGLE}
+                initialRegion={{
                   latitude: DATA?.lat,
                   longitude: DATA?.lng,
-                  latitudeDelta: 0,
-                  longitudeDelta: 0,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
                 }}
                 scrollEnabled={false}
-              />
+                zoomEnabled={false}
+              >
+                <Marker
+                  coordinate={{
+                    latitude: DATA?.lat,
+                    longitude: DATA?.lng,
+                  }}
+                />
+              </MapView>
               <Box position="absolute" right={10} top={10}>
                 <Expand
                   onPress={() =>

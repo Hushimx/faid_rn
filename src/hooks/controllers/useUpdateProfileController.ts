@@ -47,7 +47,11 @@ const useUpdateProfileController = () => {
   };
 
   const onSaveChanges = async () => {
-    if (!dirty) {
+    // Check if there's a new image selected (Asset object, not a string)
+    const hasNewImage = values?.profileImage && typeof values.profileImage !== 'string';
+    
+    // Only proceed if form is dirty OR there's a new image to upload
+    if (!dirty && !hasNewImage) {
       navigation.goBack();
       return;
     }
@@ -57,13 +61,28 @@ const useUpdateProfileController = () => {
     formData.append('first_name', values.firstName);
     formData.append('last_name', values.lastName);
 
-    if (values?.profileImage) {
+    // Only append profile_picture if it's a new image (Asset object)
+    // If it's a string, it means the user didn't select a new image
+    if (hasNewImage) {
       const image = values.profileImage as Asset;
-      formData.append('profile_picture', {
-        uri: image.uri,
-        name: image.fileName || `profile.${image.type?.split('/')[1] || 'jpg'}`,
-        type: image.type || 'image/jpeg',
-      });
+      if (image?.uri) {
+        // Generate a proper filename with extension
+        let fileName = image.fileName || 'profile.jpg';
+        // Remove path separators if present
+        fileName = fileName.split('/').pop() || fileName;
+        fileName = fileName.split('\\').pop() || fileName;
+        // Ensure it has an extension
+        if (!fileName.includes('.')) {
+          const ext = image.type?.split('/')[1] || 'jpg';
+          fileName = `profile.${ext}`;
+        }
+        
+        formData.append('profile_picture', {
+          uri: image.uri,
+          name: fileName,
+          type: image.type || 'image/jpeg',
+        } as any);
+      }
     }
 
     try {

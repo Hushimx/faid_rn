@@ -12,6 +12,7 @@ import LocationPin from './locaion-pin';
 import ChevronSmall from './chevron-small';
 import Star from './star';
 import MessageIcon from './message';
+import ChatIcon from './chat';
 import Camera from './camera';
 import RoundedPhone from './rounded-phone';
 import CloseCircle from './close-circle';
@@ -40,6 +41,7 @@ export {
   ChevronSmall,
   Star,
   MessageIcon,
+  ChatIcon,
   Camera,
   RoundedPhone,
   CloseCircle,

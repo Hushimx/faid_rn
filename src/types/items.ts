@@ -10,17 +10,18 @@ export interface IServiceItem {
 export interface ICategoryItem {
   showComments?: boolean;
   serviceId: number;
-  title: string;
+  title: string | { ar: string; en: string };
   userName: string;
-  price: number;
+  price: number | null;
   index: number;
   vendorId: number;
-  imageUrl: string;
+  imageUrl: string | undefined;
   reviewCount: number;
   rating: number;
-  vendorImageUrl: string;
+  vendorImageUrl: string | undefined;
   style?: StyleProp<ViewStyle>;
-  city: string;
+  city: string | { ar: string; en: string } | null;
+  onDelete?: (serviceId: number) => void;
 }
 
 export interface ICommentItem {

@@ -30,6 +30,7 @@ export interface IResponseMeta {
 export enum PRICE_TYPE_ENUM {
   fixed = 'fixed',
   negotiable = 'negotiable',
+  unspecified = 'unspecified',
 }
 
 export interface IServiceProviderInfo {

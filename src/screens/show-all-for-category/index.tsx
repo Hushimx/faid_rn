@@ -5,6 +5,7 @@ import {
   AppSpaceWrapper,
   CategoriesModal,
   CategoryItem,
+  CategoryItemSkeleton,
   PriceFilterModal,
   ServiceSectionTilte,
 } from 'components';
@@ -77,6 +78,8 @@ const ShowAllForCategory = () => {
           loading={isLoading}
           isRefetching={isRefetching}
           isFetching={isFetching || isFetchingNextPage}
+          skeletonComponent={CategoryItemSkeleton}
+          skeletonCount={5}
           onEndReached={
             hasNextPage && !isFetchingNextPage
               ? () => fetchNextPage()

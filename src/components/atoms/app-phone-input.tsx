@@ -19,6 +19,8 @@ interface IAppPhoneInputProps extends Omit<PhoneInputProps, 'onChangeText'> {
   isTouched?: boolean;
   onChangeCountry?: (country: any) => void;
   countryCode: string;
+  onlyCountries?: string[];
+  disableCountryPicker?: boolean;
 }
 
 const AppPhoneInput = forwardRef<PhoneInputRefType, IAppPhoneInputProps>(
@@ -36,6 +38,8 @@ const AppPhoneInput = forwardRef<PhoneInputRefType, IAppPhoneInputProps>(
       isTouched,
       onChangeCountry,
       countryCode = 'SA',
+      onlyCountries,
+      disableCountryPicker = false,
       ...props
     },
     ref,
@@ -43,15 +47,20 @@ const AppPhoneInput = forwardRef<PhoneInputRefType, IAppPhoneInputProps>(
     const { t } = useTranslation();
     const { colors } = useAppTheme();
 
+    // Force SA if country picker is disabled
+    const finalCountryCode = disableCountryPicker ? 'SA' : countryCode;
+
     return (
       <Box>
         <AppText children={t('phone')} color="grayDark" variant="s1" />
         <PhoneInput
           ref={ref}
           defaultValue={value}
-          defaultCode={countryCode}
-          onChangeCountry={onChangeCountry}
+          defaultCode={finalCountryCode}
+          onChangeCountry={disableCountryPicker ? undefined : onChangeCountry}
           placeholder={t('enterPhoneNumber')}
+          onlyCountries={onlyCountries}
+          disableCountryPicker={disableCountryPicker}
           textInputProps={{
             selectionColor: colors.primaryLight,
           }}
@@ -71,6 +80,15 @@ const AppPhoneInput = forwardRef<PhoneInputRefType, IAppPhoneInputProps>(
             },
             containerStyle,
           ]}
+          flagButtonStyle={
+            disableCountryPicker
+              ? {
+                  display: 'none',
+                  width: 0,
+                  opacity: 0,
+                }
+              : undefined
+          }
           textContainerStyle={[
             {
               borderRadius: 12,

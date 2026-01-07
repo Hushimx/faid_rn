@@ -5,6 +5,7 @@ import {
   AppSpacer,
   AppSpaceWrapper,
   ServiceItem,
+  ServiceItemSkeleton,
   ServiceSectionTilte,
 } from 'components';
 import { LoadingErrorFlatListHandler } from 'hoc';
@@ -69,6 +70,8 @@ const ShowAllServices = () => {
             gap: SPACING.gap,
             justifyContent: allData?.length > 1 ? 'space-evenly' : 'flex-start',
           }}
+          skeletonComponent={ServiceItemSkeleton}
+          skeletonCount={9}
           onEndReached={
             hasNextPage && !isFetchingNextPage
               ? () => fetchNextPage()

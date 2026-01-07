@@ -7,14 +7,15 @@ import {
   AppText,
   UserAvatar,
 } from 'components/atoms';
-import { LocationPin, MessageIcon, Star } from 'components/icons';
+import { EditIcon, LocationPin, MessageIcon, Star, Trash } from 'components/icons';
 import { useChatController } from 'hooks';
-import { FC, Fragment } from 'react';
+import { FC, Fragment, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useAuthStore } from 'store';
 import { ICategoryItem } from 'types';
+import i18n from 'i18n';
 
 const CategoryItem: FC<ICategoryItem> = ({
   title,
@@ -29,6 +30,7 @@ const CategoryItem: FC<ICategoryItem> = ({
   vendorImageUrl,
   style,
   city,
+  onDelete,
 }) => {
   const { colors } = useAppTheme();
   const { t } = useTranslation();
@@ -36,7 +38,21 @@ const CategoryItem: FC<ICategoryItem> = ({
   const { startChatWithVendor, isStartChatLaoding } = useChatController();
   const { user } = useAuthStore();
   const { width } = useWindowDimensions();
-  const disableChatWithVendor = user?.id == vendorId;
+  const disableChatWithVendor = user?.id === vendorId;
+
+  // Helper to extract string from translation object
+  const getTranslatedValue = (value: string | { ar: string; en: string } | null | undefined): string => {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    const currentLang = i18n.language || 'ar';
+    return value[currentLang as 'ar' | 'en'] || value.ar || value.en || '';
+  };
+
+  const displayTitle = useMemo(() => getTranslatedValue(title), [title]);
+  const displayCity = useMemo(() => getTranslatedValue(city), [city]);
+  const displayPrice = useMemo(() => price ?? 0, [price]);
+  const displayImageUrl = useMemo(() => imageUrl || '', [imageUrl]);
+  const displayVendorImageUrl = useMemo(() => vendorImageUrl || '', [vendorImageUrl]);
 
   return (
     <Animated.View entering={FadeIn.delay(index * 100)} style={{ flex: 1 }}>
@@ -54,13 +70,15 @@ const CategoryItem: FC<ICategoryItem> = ({
         >
           <Box
             width={'100%'}
+            height={185}
             borderRadius={10}
-            paddingVertical="s"
             backgroundColor="grayLight"
             alignSelf="center"
             alignItems="center"
+            justifyContent="center"
+            overflow="hidden"
           >
-            <AppImage source={{ uri: imageUrl }} style={styles.img} />
+            <AppImage source={{ uri: displayImageUrl }} style={styles.img} />
           </Box>
 
           <Box width={'95%'} alignSelf="center">
@@ -72,12 +90,12 @@ const CategoryItem: FC<ICategoryItem> = ({
               flexWrap="wrap"
             >
               <AppText fontWeight={'400'} color="cutomBlack">
-                {title}
+                {displayTitle}
               </AppText>
-              {city && (
+              {displayCity && (
                 <Box flexDirection="row" alignItems="center">
                   <LocationPin color={colors.customGray} />
-                  <AppText color="customGray">{city}</AppText>
+                  <AppText color="customGray">{displayCity}</AppText>
                 </Box>
               )}
             </Box>
@@ -94,7 +112,7 @@ const CategoryItem: FC<ICategoryItem> = ({
               marginLeft="ss"
               fontWeight={'700'}
             >
-              {price} {t('riyal')}
+              {displayPrice} {t('riyal')}
             </AppText>
           </Box>
 
@@ -109,12 +127,48 @@ const CategoryItem: FC<ICategoryItem> = ({
               justifyContent="space-between"
             >
               <Box flexDirection="row" justifyContent="center">
-                <UserAvatar image={vendorImageUrl} />
+                <UserAvatar image={displayVendorImageUrl} />
                 <Box marginLeft="s">
                   <AppText color="cutomBlack">{userName}</AppText>
                   <AppText color="customGray">{t('serviceProvider')}</AppText>
                 </Box>
               </Box>
+              <Box flexDirection="row" alignItems="center">
+                {disableChatWithVendor && (
+                  <>
+                    <AppPresseble
+                      onPress={() => navigation.navigate('EditService', { serviceId })}
+                    >
+                      <Box
+                        width={40}
+                        height={40}
+                        alignItems="center"
+                        justifyContent="center"
+                        backgroundColor="primary"
+                        borderRadius={10}
+                        marginRight="s"
+                      >
+                        <EditIcon size={20} color={colors.white} />
+                      </Box>
+                    </AppPresseble>
+                    {onDelete && (
+                      <AppPresseble
+                        onPress={() => onDelete(serviceId)}
+                      >
+                        <Box
+                          width={40}
+                          height={40}
+                          alignItems="center"
+                          justifyContent="center"
+                          backgroundColor="red"
+                          borderRadius={10}
+                        >
+                          <Trash size={20} color={colors.white} />
+                        </Box>
+                      </AppPresseble>
+                    )}
+                  </>
+                )}
               {!disableChatWithVendor && (
                 <AppPresseble
                   isLoading={isStartChatLaoding}
@@ -124,7 +178,7 @@ const CategoryItem: FC<ICategoryItem> = ({
                       vendor: {
                         id: vendorId,
                         name: userName,
-                        profile_picture: vendorImageUrl,
+                        profile_picture: displayVendorImageUrl,
                       },
                     })
                   }
@@ -141,6 +195,7 @@ const CategoryItem: FC<ICategoryItem> = ({
                   </Box>
                 </AppPresseble>
               )}
+              </Box>
             </Box>
           </Fragment>
 
@@ -160,10 +215,8 @@ export default CategoryItem;
 
 const styles = StyleSheet.create({
   img: {
-    width: '95%',
-    height: 185,
-    borderRadius: 10,
-    resizeMode: 'contain',
-    alignSelf: 'center',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
 });

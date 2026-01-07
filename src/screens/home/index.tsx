@@ -11,7 +11,7 @@ import {
 import { useHomeController } from 'hooks';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet } from 'react-native';
-import { ServiceList, Services, SpecialOffers } from './components';
+import { Banners, ServiceList, Services, SpecialOffers } from './components';
 
 const Home = () => {
   const { t } = useTranslation();
@@ -25,6 +25,8 @@ const Home = () => {
     selectedCity,
     offers,
     offersLoading,
+    banners,
+    bannersLoading,
   } = useHomeController();
   const naviagtion = useNavigation();
 
@@ -85,6 +87,8 @@ const Home = () => {
           >
             <AppSearchInput />
           </AppPresseble>
+          <AppSpacer variant="sm" />
+          <Banners banners={banners} />
           <AppSpacer variant="sm" />
 
           <Services

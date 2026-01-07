@@ -18,10 +18,12 @@ const useEnterOtpController = ({
   callingCode,
   isForResetPassword,
   userData,
+  isForRegister,
 }: {
   phone: string;
   callingCode: string;
   isForResetPassword?: boolean;
+  isForRegister?: boolean;
   userData?: {
     user: IUser;
     token: string;
@@ -40,12 +42,21 @@ const useEnterOtpController = ({
     isPending: isLoadingForQuery,
     isRefetching,
     refetch,
+    isError: isSendOtpError,
+    error: sendOtpError,
   } = useQuery<any, any, { data: ISendOtpPayload }>({
-    queryFn: async () =>
-      AuthApis.sendOtp({
-        phone: phoneNumberShapeCreator({ phone, callingCode }),
-      }),
-    queryKey: [QUERIES_KEY_ENUM.send_otp],
+    queryFn: async () => {
+      const formattedPhone = phoneNumberShapeCreator({ phone, callingCode });
+      return AuthApis.sendOtp({
+        phone: formattedPhone,
+      });
+    },
+    queryKey: [QUERIES_KEY_ENUM.send_otp, phone, callingCode],
+    retry: false,
+    // Always enable the query - it will send OTP when screen loads
+    // This works for both new registrations and password resets
+    enabled: !!phone && !!callingCode,
+    refetchOnMount: true,
   });
 
   const { mutateAsync: verifyOtp, isPending: isLoading } = useMutation({
@@ -82,8 +93,14 @@ const useEnterOtpController = ({
         return;
       }
 
-      setIsLoggedIn(true);
-      if (userData) {
+      // Handle registration verification - user and token come from verifyOtp response
+      if (otpRes?.token && otpRes?.user) {
+        setIsLoggedIn(true);
+        setAccessToken(otpRes.token);
+        setUser(otpRes.user);
+      } else if (userData) {
+        // Fallback for existing users
+        setIsLoggedIn(true);
         setAccessToken(userData?.token);
         setUser(userData?.user);
       }
@@ -92,6 +109,12 @@ const useEnterOtpController = ({
       setIsVerifying(false);
     }
   };
+
+  // Check if error is 429 (Too Many Requests)
+  const isRateLimitError = sendOtpError?.response?.status === 429;
+  const errorMessage = isRateLimitError
+    ? 'Too many requests. Please wait a minute before requesting a new OTP code.'
+    : sendOtpError?.response?.data?.message || sendOtpError?.message || 'Failed to send OTP';
 
   return {
     countdown,
@@ -105,6 +128,9 @@ const useEnterOtpController = ({
     isLoading: isLoading || isLoadingForQuery || isRefetching,
     otp,
     setOtp,
+    isError: isSendOtpError,
+    errorMessage,
+    isRateLimitError,
   };
 };
 export default useEnterOtpController;

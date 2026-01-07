@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import { Box, SPACING } from 'common';
-import { AppSpacer, CategoryItem, ServiceSectionTilte } from 'components';
+import { AppSpacer, CategoryItem, CategoryItemSkeleton, ServiceSectionTilte } from 'components';
 import { LoadingErrorFlatListHandler } from 'hoc';
 import { FC } from 'react';
 import { ServicesApis } from 'services';
@@ -62,7 +62,15 @@ const ServiceList: FC<IProps> = ({
           errorMessage={error?.message}
           horizontal
           showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ 
+            gap: SPACING.gap,
+            paddingHorizontal: SPACING.gap,
+          }}
+          decelerationRate="fast"
+          bounces={false}
           data={DATA}
+          skeletonComponent={CategoryItemSkeleton}
+          skeletonCount={3}
           renderItem={({ item, index }) => (
             <CategoryItem
               index={index}

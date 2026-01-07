@@ -63,7 +63,7 @@ interface BaseModalComponent
   KeyboardRestoreHandler: typeof KeyboardRestoreHandler;
 }
 
-const maxHeight = height * 0.8; // Set max height to 80% of screen height
+const maxHeight = height * 0.95; // Set max height to 95% of screen height
 
 const BaseModalInner = (props: IProps, ref: any) => {
   const {

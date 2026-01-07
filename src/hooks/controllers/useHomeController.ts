@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { HomeApis } from 'services';
-import { ICategory, ICityResponse, QUERIES_KEY_ENUM } from 'types';
+import { IBanner, ICategory, ICityResponse, QUERIES_KEY_ENUM } from 'types';
 import { dataExtractor, metaExtractor } from 'utils';
 
 const useHomeController = () => {
@@ -23,6 +23,11 @@ const useHomeController = () => {
     queryKey: [QUERIES_KEY_ENUM.offers],
   });
 
+  const { data: bannersData, isLoading: bannersLoading } = useQuery({
+    queryFn: () => HomeApis.getBanners(),
+    queryKey: [QUERIES_KEY_ENUM.banners],
+  });
+
   return {
     categories: dataExtractor(categories) as ICategory[],
     isLoading: isPending,
@@ -33,6 +38,8 @@ const useHomeController = () => {
     setSelectedCity,
     offers: (dataExtractor(offersData) as any[]) || [],
     offersLoading,
+    banners: (dataExtractor(bannersData) as IBanner[]) || [],
+    bannersLoading,
   };
 };
 

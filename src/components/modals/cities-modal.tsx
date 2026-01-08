@@ -3,6 +3,7 @@ import { Spinner } from '@ui-kitten/components';
 import { Box, useAppTheme } from 'common';
 import { BaseModal, ModalHeader } from 'components';
 import {
+  AppFilterBtn,
   AppPresseble,
   AppSpacer,
   AppSpaceWrapper,
@@ -40,6 +41,10 @@ const CitiesModal = (props: IProps, ref: any) => {
   const handleSelectCity = (city: ICityResponse | null) => {
     onSelectCity(city);
     closeModal();
+  };
+
+  const onOpenModal = () => {
+    ref?.current?.openModal();
   };
 
   return (

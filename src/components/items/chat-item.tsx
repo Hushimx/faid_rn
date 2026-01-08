@@ -1,11 +1,12 @@
 import { Box } from 'common';
 import { AppImage, AppPresseble, AppText } from 'components/atoms';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { IChat } from 'types';
 import { createdAtHelper } from 'utils';
 import { useAuthStore } from 'store';
+import i18n from 'i18n';
 
 interface IChatItemProps {
   index: number;
@@ -16,10 +17,19 @@ interface IChatItemProps {
 const ChatItem: FC<IChatItemProps> = ({ index, onPress, chat }) => {
   const { user } = useAuthStore();
   
+  // Helper to extract string from translation object
+  const getTranslatedValue = (value: string | { ar: string; en: string } | null | undefined): string => {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    const currentLang = i18n.language || 'ar';
+    return value[currentLang as 'ar' | 'en'] || value.ar || value.en || '';
+  };
+  
   // Determine which user to display based on current user type
   const otherUser = user?.type === 'vendor' ? chat.user : chat.vendor;
   const lastMessage = chat.lastMessage;
-  const serviceTitle = chat.service?.title;
+  const serviceTitleRaw = chat.service?.title;
+  const serviceTitle = useMemo(() => getTranslatedValue(serviceTitleRaw as any), [serviceTitleRaw]);
 
   // Format last message preview
   const getMessagePreview = () => {

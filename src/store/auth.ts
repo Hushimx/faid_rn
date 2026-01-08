@@ -42,6 +42,21 @@ const useAuthStore = create<IAuthStore>()(
           set({ isLoggedIn: false });
         }
       },
+      deleteAccount: async () => {
+        try {
+          const fcmToken = await fcmTokenGenerator();
+          await AuthApis.deleteAccount({ fcm_token: fcmToken });
+          set({ user: null });
+          set({ access_token: null });
+          set({ isLoggedIn: false });
+        } catch (e) {
+          // Even if API call fails, clear local state
+          set({ user: null });
+          set({ access_token: null });
+          set({ isLoggedIn: false });
+          throw e;
+        }
+      },
     }),
     {
       name: 'user-storage', // storage key

@@ -17,6 +17,7 @@ import {
   dataExtractor,
   imageVideoPicker,
   reverseGeocode,
+  ShowSnackBar,
 } from 'utils';
 import { HomeApis, ServicesApis } from 'services';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -498,6 +499,11 @@ const useEditServiceController = (serviceId: number) => {
       // 4. Refetch the service details to ensure fresh data before navigation
       await queryClient.refetchQueries({
         queryKey: [QUERIES_KEY_ENUM.service_details, updatedServiceId],
+      });
+      
+      // Show success message
+      ShowSnackBar({
+        text: t('serviceUpdatedSuccessfully') || 'Service updated successfully',
       });
       
       // Navigate back to previous screen (or service details if coming from there)

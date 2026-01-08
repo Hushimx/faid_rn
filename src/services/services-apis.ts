@@ -1,6 +1,7 @@
 import { axiosInstance } from 'config';
 import {
   IAddServiceReviewPayload,
+  IGetRelatedServicesPayload,
   IGetServicePayload,
   IGetServicesForCategoryPayload,
   IGetVendorServicesPayload,
@@ -15,12 +16,13 @@ const ServicesApis = {
     cityId,
     minPrice,
     maxPrice,
+    sort = 'latest',
   }: IGetServicesForCategoryPayload) => {
     const params = new URLSearchParams({
-      per_page: '10',
+      per_page: '20',
       page: currentPage.toString(),
-
       include_media: 'true',
+      sort: sort,
     });
     if (categoryId) params.append('category_id', categoryId.toString());
 
@@ -44,6 +46,8 @@ const ServicesApis = {
     ),
   getService: ({ serviceId }: IGetServicePayload) =>
     axiosInstance.get(`services/${serviceId}?include_media=true&include_faqs=true`),
+  getRelatedServices: ({ serviceId }: IGetRelatedServicesPayload) =>
+    axiosInstance.get(`services/${serviceId}/related`),
   getReviews: ({
     serviceId,
     page = 1,

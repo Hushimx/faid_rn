@@ -27,6 +27,10 @@ import {
   UserPolicies,
   VendorApplication,
   VendorServices,
+  VendorStore,
+  Tickets,
+  TicketDetail,
+  CreateTicket,
 } from 'screens';
 import { useAuthStore } from 'store';
 import { USER_TYPE_ENUM } from 'types';
@@ -47,6 +51,14 @@ const ICONS = {
 
 const CustomTabBar = (props: any) => {
   const { state, navigation, userType, colors } = props;
+  // Filter routes to exclude VendorServices if user is not a vendor
+  const filteredRoutes = state.routes.filter((route: any) => {
+    if (route.name === 'VendorServices') {
+      return userType === USER_TYPE_ENUM.vendor;
+    }
+    return true;
+  });
+
   return (
     <Box>
       <Box
@@ -59,8 +71,12 @@ const CustomTabBar = (props: any) => {
         alignItems="center"
         height={60}
       >
-        {state.routes.map((route: any, index: number) => {
-          const isFocused = state.index === index;
+        {filteredRoutes.map((route: any) => {
+          // Find the original index in state.routes to determine if focused
+          const originalIndex = state.routes.findIndex(
+            (r: any) => r.key === route.key,
+          );
+          const isFocused = state.index === originalIndex;
           const onPress = () => {
             const event = navigation.emit({
               type: 'tabPress',
@@ -89,10 +105,9 @@ const CustomTabBar = (props: any) => {
               {route?.name === 'Profile' && (
                 <UserBottomTabIcon active={isFocused} />
               )}
-              {route?.name === 'VendorServices' &&
-                userType === USER_TYPE_ENUM.vendor && (
-                  <MarketplaceIcon active={isFocused} />
-                )}
+              {route?.name === 'VendorServices' && (
+                <MarketplaceIcon active={isFocused} />
+              )}
               {route?.name === 'Settings' && (
                 <SettingsIcon active={isFocused} />
               )}
@@ -168,13 +183,15 @@ const BottomTab = () => {
           tabBarIcon: ({ color }) => <UserBottomTabIcon active />,
         }}
       /> */}
-      <Tab.Screen
-        name="VendorServices"
-        component={VendorServices as any}
-        options={{
-          tabBarIcon: ({ color }) => <MarketplaceIcon />,
-        }}
-      />
+      {user?.type === USER_TYPE_ENUM.vendor && (
+        <Tab.Screen
+          name="VendorServices"
+          component={VendorServices as any}
+          options={{
+            tabBarIcon: ({ color }) => <MarketplaceIcon />,
+          }}
+        />
+      )}
       <Tab.Screen
         name="Settings"
         component={SettingsStack}
@@ -214,6 +231,10 @@ const MainStack = () => {
       <Stack.Screen name="ShowAllServices" component={ShowAllServices} />
       <Stack.Screen name="Notifications" component={Notifications} />
       <Stack.Screen name="VendorApplication" component={VendorApplication} />
+      <Stack.Screen name="VendorStore" component={VendorStore as any} />
+      <Stack.Screen name="Tickets" component={Tickets} />
+      <Stack.Screen name="TicketDetail" component={TicketDetail as any} />
+      <Stack.Screen name="CreateTicket" component={CreateTicket} />
     </Stack.Navigator>
   );
 };

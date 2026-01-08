@@ -12,6 +12,10 @@ import { useShowAllForCategoryController } from './useShowAllForCategoryControll
 import { useNotificationsController } from './useNotificationsController';
 import { useChatsController } from './useChatsController';
 import useVendorApplicationController from './useVendorApplicationController';
+import { useVendorStoreController } from './useVendorStoreController';
+import { useTicketsController } from './useTicketsController';
+import { useTicketDetailController } from './useTicketDetailController';
+import { useCreateTicketController } from './useCreateTicketController';
 
 export {
   useLoginController,
@@ -28,4 +32,8 @@ export {
   useNotificationsController,
   useChatsController,
   useVendorApplicationController,
+  useVendorStoreController,
+  useTicketsController,
+  useTicketDetailController,
+  useCreateTicketController,
 };

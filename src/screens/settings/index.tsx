@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import { Box, useAppTheme } from 'common';
 import {
   AppButton,
@@ -13,6 +13,8 @@ import {
   InfoCircleIcon,
   LanguageIcon,
   LogoutIcon,
+  MessageIcon,
+  TicketIcon,
   UserAvatar,
 } from 'components';
 import { useRef } from 'react';
@@ -34,26 +36,35 @@ const Settings = () => {
       <AppHeader label={t('settings')} />
       <AppSpaceWrapper>
         <AppSpacer />
-        <Box
-          flexDirection="row"
-          alignItems="center"
-          backgroundColor="white"
-          borderRadius={30}
-          padding="m"
+        <AppPresseble
+          onPress={() => {
+            if (user?.type === 'vendor' && user?.id) {
+              navigation.navigate('VendorStore', { vendorId: user.id });
+            }
+          }}
+          disabled={user?.type !== 'vendor'}
         >
-          <Box flex={1} alignItems="center" justifyContent="center">
-            <UserAvatar size="giant" image={user?.profile_picture} />
-          </Box>
-          <Box flex={5} paddingLeft="ml" alignItems="flex-start">
-            <AppText variant="s1">{user?.name}</AppText>
-          </Box>
+          <Box
+            flexDirection="row"
+            alignItems="center"
+            backgroundColor="white"
+            borderRadius={30}
+            padding="m"
+          >
+            <Box flex={1} alignItems="center" justifyContent="center">
+              <UserAvatar size="giant" image={user?.profile_picture} />
+            </Box>
+            <Box flex={5} paddingLeft="ml" alignItems="flex-start">
+              <AppText variant="s1">{user?.name}</AppText>
+            </Box>
 
-          <Box flex={1} alignItems="center" justifyContent="center">
-            <AppPresseble onPress={() => navigation.navigate('UpdateProfile')}>
-              <EditIcon />
-            </AppPresseble>
+            <Box flex={1} alignItems="center" justifyContent="center">
+              <AppPresseble onPress={() => navigation.navigate('UpdateProfile')}>
+                <EditIcon />
+              </AppPresseble>
+            </Box>
           </Box>
-        </Box>
+        </AppPresseble>
         {/* <AppSpacer /> */}
 
         {/* <Box
@@ -90,6 +101,27 @@ const Settings = () => {
             </Box>
             <Box flex={8} alignItems="flex-start">
               <AppText variant="s1">{t('langauge')}</AppText>
+            </Box>
+
+            <Box flex={1} alignItems="center" justifyContent="center">
+              <Chevron size={15} />
+            </Box>
+          </Box>
+        </AppPresseble>
+        <AppSpacer />
+        <AppPresseble onPress={() => navigation.navigate('Tickets')}>
+          <Box
+            flexDirection="row"
+            alignItems="center"
+            backgroundColor="white"
+            borderRadius={30}
+            padding="sm"
+          >
+            <Box flex={1} alignItems="center" justifyContent="center">
+              <TicketIcon />
+            </Box>
+            <Box flex={8} alignItems="flex-start">
+              <AppText variant="s1">{t('tickets')}</AppText>
             </Box>
 
             <Box flex={1} alignItems="center" justifyContent="center">

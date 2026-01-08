@@ -141,7 +141,8 @@ const FullscreenMapModal = forwardRef<IModalRef, IProps>(
       setSelectedRegion({ latitude: lat, longitude: lon });
       setLocationCoordinates({ latitude: lat, longitude: lon });
       setSelectedAddress(result.display_name);
-      setSearchQuery(result.display_name);
+      // Clear search query and results immediately to prevent rerender issues
+      setSearchQuery('');
       setSearchResults([]);
     };
 

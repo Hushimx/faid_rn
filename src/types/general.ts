@@ -36,6 +36,7 @@ export enum PRICE_TYPE_ENUM {
 export interface IServiceProviderInfo {
   serviceProviderName: string;
   serviceProviderImage: string;
+  onPress?: () => void;
 }
 
 export enum LANGUAGES_ENUM {

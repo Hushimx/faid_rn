@@ -11,6 +11,7 @@ import {
   QUERIES_KEY_ENUM,
   RootStackParamList,
 } from 'types';
+import { SortOption } from 'components';
 import { dataExtractor, metaExtractor } from 'utils';
 
 type ShowAllForCategoryRouteProp = RouteProp<
@@ -31,9 +32,12 @@ export const useShowAllForCategoryController = () => {
     min: number;
     max: number;
   } | null>(null);
+  const [selectedSort, setSelectedSort] = useState<SortOption | null>('latest');
 
   const categoriesModalRef = useRef<IModalRef>(null);
   const priceFilterModalRef = useRef<IModalRef>(null);
+  const citiesModalRef = useRef<IModalRef>(null);
+  const sortModalRef = useRef<IModalRef>(null);
 
   const debounceValue = useDebounce(search);
 
@@ -57,8 +61,9 @@ export const useShowAllForCategoryController = () => {
         currentPage: pageParam,
         search: debounceValue,
         cityId: selectedCity?.id,
-        minPrice: priceRange?.min,
-        maxPrice: priceRange?.max,
+        minPrice: priceRange?.min && priceRange.min > 0 ? priceRange.min : undefined,
+        maxPrice: priceRange?.max && priceRange.max > 0 ? priceRange.max : undefined,
+        sort: selectedSort || 'latest',
       }),
     initialPageParam: 1,
     getNextPageParam: lastPage => {
@@ -71,6 +76,7 @@ export const useShowAllForCategoryController = () => {
       debounceValue,
       selectedCity?.id,
       priceRange,
+      selectedSort,
     ],
   });
 
@@ -81,8 +87,12 @@ export const useShowAllForCategoryController = () => {
   };
 
   const onApplyPriceRange = (min: number, max: number) => {
-    if (!!min && !!max) setPriceRange({ min, max });
-    else setPriceRange(null);
+    // Check if both values are valid numbers and not both 0 (which means reset)
+    if (min === 0 && max === 0) {
+      setPriceRange(null);
+    } else if (!isNaN(min) && !isNaN(max) && min >= 0 && max >= 0 && max >= min) {
+      setPriceRange({ min, max });
+    }
   };
 
   const openCategoriesModal = () => {
@@ -92,6 +102,15 @@ export const useShowAllForCategoryController = () => {
   const openPriceFilterModal = () => {
     priceFilterModalRef.current?.openModal();
   };
+
+  const openCitiesModal = () => {
+    citiesModalRef.current?.openModal();
+  };
+
+  const openSortModal = () => {
+    sortModalRef.current?.openModal();
+  };
+
   const onCategorySelect = (category: ICategory | null) => {
     setSelectedCategory(category);
     categoriesModalRef.current?.closeModal();
@@ -107,10 +126,16 @@ export const useShowAllForCategoryController = () => {
     priceRange,
     setPriceRange, // Exposed if needed, but onApplyPriceRange is better
     onApplyPriceRange,
+    selectedSort,
+    setSelectedSort,
     categoriesModalRef,
     priceFilterModalRef,
+    citiesModalRef,
+    sortModalRef,
     openCategoriesModal,
     openPriceFilterModal,
+    openCitiesModal,
+    openSortModal,
     allData,
     isError,
     error,

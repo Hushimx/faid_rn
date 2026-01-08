@@ -36,4 +36,5 @@ export interface IAuthStore {
   isLoggedIn: boolean;
   setIsLoggedIn: (value: boolean) => void;
   logout: () => void;
+  deleteAccount: () => Promise<void>;
 }

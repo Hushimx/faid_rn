@@ -3,7 +3,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Spinner } from '@ui-kitten/components';
 import { Box, useAppTheme } from 'common';
 import { AppHeader, AppText } from 'components';
-import { LocationPin, Plus } from 'components/icons';
+import { Plus } from 'components/icons';
 import { useChatController } from 'hooks';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -27,16 +27,17 @@ import {
 import Video from 'react-native-video';
 import { useAuthStore } from 'store';
 import { RootStackParamList } from 'types';
-import { FullscreenMapModal } from './components';
+import { FullscreenMapModal, ChatActionsModal } from './components';
 import LocationMessageViewer from './components/location-message-viewer';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { useRef } from 'react';
+import { IModalRef } from 'types';
 
 const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
   const { width } = useWindowDimensions();
   const { t } = useTranslation();
   const { vendor, chatId } = props?.route?.params;
   const {
-    isMessagesLoading,
     sendMessage,
     messagesList,
     setMessagesList,
@@ -51,7 +52,6 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
   } = useChatController({
     chatId,
   });
-  const [showActions, setShowActions] = useState(false);
   const [viewingLocation, setViewingLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -59,6 +59,7 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
   const [viewingImage, setViewingImage] = useState<string | null>(null);
   const { user } = useAuthStore();
   const { colors } = useAppTheme();
+  const chatActionsModalRef = useRef<IModalRef>(null);
   
   const closeImageModal = useCallback(() => {
     setViewingImage(null);
@@ -81,52 +82,14 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
         );
       }
     },
-    [previewMedia],
+    [previewMedia, confirmSendMedia, sendMessage, setMessagesList],
   );
 
   const renderActions = useCallback(
-    (props: any) => (
+    (_props: any) => (
       <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 8 }}>
-        {showActions && (
-          <View
-            style={{
-              flexDirection: 'row',
-              backgroundColor: colors.pageBackground,
-              borderRadius: 20,
-              padding: 4,
-              marginRight: 8,
-              borderWidth: 1,
-              borderColor: colors.grayLight,
-            }}
-          >
-            <TouchableOpacity
-              onPress={() => {
-                pickMedia();
-                setShowActions(false);
-              }}
-              style={{
-                padding: 8,
-                marginHorizontal: 4,
-              }}
-            >
-              <Plus size={20} color={colors.primary} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                openLocationPicker();
-                setShowActions(false);
-              }}
-              style={{
-                padding: 8,
-                marginHorizontal: 4,
-              }}
-            >
-              <LocationPin size={20} color={colors.primary} />
-            </TouchableOpacity>
-          </View>
-        )}
         <Actions
-          onPressActionButton={() => setShowActions(!showActions)}
+          onPressActionButton={() => chatActionsModalRef.current?.openModal()}
           icon={() => (
             <Box width={'100%'} marginTop="ss">
               {isMediaLoaading ? (
@@ -139,7 +102,7 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
         />
       </View>
     ),
-    [isMediaLoaading, showActions, colors, pickMedia, openLocationPicker],
+    [isMediaLoaading, colors],
   );
 
   const renderSend = useCallback(
@@ -574,6 +537,11 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
           );
         }}
       </BottomTabBarHeightContext.Consumer>
+      <ChatActionsModal
+        ref={chatActionsModalRef}
+        onSelectMedia={pickMedia}
+        onSelectLocation={openLocationPicker}
+      />
       <FullscreenMapModal
         ref={mapModalRef}
         onSelectLocation={handleLocationSelect}

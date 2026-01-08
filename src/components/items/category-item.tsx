@@ -31,6 +31,7 @@ const CategoryItem: FC<ICategoryItem> = ({
   style,
   city,
   onDelete,
+  showEditButton = false,
 }) => {
   const { colors } = useAppTheme();
   const { t } = useTranslation();
@@ -134,7 +135,7 @@ const CategoryItem: FC<ICategoryItem> = ({
                 </Box>
               </Box>
               <Box flexDirection="row" alignItems="center">
-                {disableChatWithVendor && (
+                {disableChatWithVendor && showEditButton && (
                   <>
                     <AppPresseble
                       onPress={() => navigation.navigate('EditService', { serviceId })}

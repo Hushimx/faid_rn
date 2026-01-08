@@ -67,6 +67,7 @@ const EnterOtp = (
             />
 
             <OtpInput
+              
               numberOfDigits={6}
               onTextChange={setOtp}
               onFilled={onConfirmPress}

@@ -112,7 +112,7 @@ const VendorServices = (
   return (
     <Box flex={1} backgroundColor="pageBackground">
       <AppSpaceWrapper>
-        <AppHeader isIncludesSearch value={search} onChangeText={setSearch} />
+        <AppHeader label={t('myServices')} isIncludesSearch value={search} onChangeText={setSearch} />
         {/* <AppSpacer variant="sm" /> */}
 
         <LoadingErrorFlatListHandler
@@ -144,6 +144,7 @@ const VendorServices = (
               rating={item?.rating}
               city={item?.city}
               onDelete={handleDelete}
+              showEditButton={true}
             />
           )}
         />

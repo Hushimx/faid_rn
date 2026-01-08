@@ -147,7 +147,8 @@ const MapModal = forwardRef<IModalRef, IProps>(({ onSelectLocation, initialLocat
     const newLocation = { latitude: lat, longitude: lon };
     setLocationCoordinates(newLocation);
     lastCoordinatesRef.current = newLocation;
-    setSearchQuery(result.display_name);
+    // Clear search query and results immediately to prevent rerender issues
+    setSearchQuery('');
     setSearchResults([]);
     
     // Animate map to new location when searching (user wants to see the result)
@@ -160,10 +161,11 @@ const MapModal = forwardRef<IModalRef, IProps>(({ onSelectLocation, initialLocat
   };
 
   return (
-    <BaseModal ref={modalRef}>
+    <BaseModal ref={modalRef} enableContentPanningGesture={false}>
       <BottomSheetScrollView 
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
+        scrollEnabled={false}
       >
         <Box paddingHorizontal="m">
           <AppSpacer variant="s" />

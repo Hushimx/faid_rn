@@ -58,6 +58,9 @@ export enum QUERIES_KEY_ENUM {
   banners = 'banners',
   notifications = 'notifications',
   chats = 'chats',
+  related_services = 'related_services',
+  tickets = 'tickets',
+  ticket_messages = 'ticket_messages',
 }
 
 export interface ICityResponse {
@@ -79,6 +82,7 @@ export interface IGetServicesForCategoryPayload {
   cityId?: number;
   minPrice?: number;
   maxPrice?: number;
+  sort?: string;
 }
 
 export interface IGetVendorServicesPayload {
@@ -88,6 +92,10 @@ export interface IGetVendorServicesPayload {
 }
 
 export interface IGetServicePayload {
+  serviceId: number;
+}
+
+export interface IGetRelatedServicesPayload {
   serviceId: number;
 }
 
@@ -258,15 +266,11 @@ export interface IChat {
 }
 
 export interface ISubmitVendorApplicationPayload {
-  country_id?: number;
-  city_id?: number;
-  lat?: number;
-  lng?: number;
-  banner?: any;
+  business_name?: string;
+  city?: string;
   bio?: string;
   category_id?: number;
   custom_category?: string;
-  meta?: any;
 }
 
 export interface IVendorApplication {
@@ -303,4 +307,74 @@ export interface IVendorApplication {
   };
   created_at: string;
   updated_at: string;
+}
+
+// Ticket Types
+export type TicketStatus = 'open' | 'closed';
+export type TicketPriority = 'low' | 'medium' | 'high';
+
+export interface ITicket {
+  id: number;
+  subject: string;
+  description: string;
+  status: TicketStatus;
+  priority: TicketPriority;
+  assigned_admin?: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  messages_count?: number;
+  messages?: ITicketMessage[];
+  latest_message?: {
+    id: number;
+    message: string;
+    created_at: string;
+    created_at_human: string;
+  } | null;
+  closed_at?: string | null;
+  created_at: string;
+  created_at_human?: string;
+  updated_at: string;
+}
+
+export interface ITicketMessage {
+  id: number;
+  message: string;
+  attachment?: string | null;
+  attachment_name?: string | null;
+  is_read: boolean;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    type: string;
+    profile_picture?: string | null;
+  };
+  created_at: string;
+  created_at_human: string;
+  updated_at: string;
+}
+
+export interface IGetTicketsPayload {
+  currentPage?: number;
+  per_page?: number;
+  status?: TicketStatus;
+  priority?: TicketPriority;
+  search?: string;
+}
+
+export interface ICreateTicketPayload {
+  subject: string;
+  description: string;
+  priority?: TicketPriority;
+}
+
+export interface IUpdateTicketPayload {
+  status: TicketStatus;
+}
+
+export interface ISendTicketMessagePayload {
+  message: string;
+  attachment?: any; // File for FormData
 }

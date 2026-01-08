@@ -53,6 +53,14 @@ export type RootStackParamList = {
   Notifications: undefined;
   ChatsList: undefined;
   VendorApplication: undefined;
+  VendorStore: {
+    vendorId: number;
+  };
+  Tickets: undefined;
+  TicketDetail: {
+    ticketId: number;
+  };
+  CreateTicket: undefined;
 };
 
 // Augment React Navigation's global types so hooks like `useNavigation()` and

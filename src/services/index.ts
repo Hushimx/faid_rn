@@ -5,3 +5,4 @@ export { default as ServicesApis } from './services-apis';
 export { default as UtilitiesApis } from './utilities-apis';
 export { default as NotificationsApis } from './notifications';
 export { default as VendorApplicationApis } from './vendor-application';
+export { default as TicketApis } from './tickets';

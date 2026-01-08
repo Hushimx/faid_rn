@@ -15,3 +15,7 @@ export { default as UserPolicies } from './user-policies';
 export { default as Notifications } from './notifications';
 export { default as ChatsList } from './chats-list';
 export { default as VendorApplication } from './vendor-application';
+export { default as VendorStore } from './vendor-store';
+export { default as Tickets } from './tickets';
+export { default as TicketDetail } from './ticket-detail';
+export { default as CreateTicket } from './create-ticket';

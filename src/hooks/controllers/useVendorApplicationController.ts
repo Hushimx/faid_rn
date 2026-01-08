@@ -1,45 +1,31 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useFormik } from 'formik';
-import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Asset } from 'react-native-image-picker';
-import { LatLng } from 'react-native-maps';
 import { VendorApplicationApis, HomeApis } from 'services';
-import { ICityResponse, ICategory, IModalRef, IVendorApplication, QUERIES_KEY_ENUM } from 'types';
-import { dataExtractor, imagePicker, reverseGeocode } from 'utils';
+import { ICategory, IVendorApplication, QUERIES_KEY_ENUM } from 'types';
+import { dataExtractor } from 'utils';
 import { useNavigation } from '@react-navigation/native';
 import { ShowSnackBar } from 'utils';
 import * as Yup from 'yup';
 
 export interface VendorApplicationFormValues {
-  country_id?: number;
-  city_id?: number;
-  lat?: number;
-  lng?: number;
-  banner?: Asset | null;
+  business_name?: string;
+  city?: string;
   bio?: string;
   category_id?: number | null;
   custom_category?: string;
-  meta?: any;
-  fullLocation?: string;
 }
 
 const useVendorApplicationController = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const mapModalRef = useRef<IModalRef>(null);
-  const citiesModalRef = useRef<IModalRef>(null);
-  const [isLocationLoading, setIsLocationLoading] = useState(false);
-  const [selectedCity, setSelectedCity] = useState<ICityResponse | null>(null);
-  const queryClient = useQueryClient();
 
   // Validation schema
   const validationSchema = Yup.object().shape({
-    bio: Yup.string().max(1000, t('errors.fieldRequired')),
-    city_id: Yup.number().nullable(),
-    lat: Yup.number().nullable(),
-    lng: Yup.number().nullable(),
-    category_id: Yup.mixed().nullable(),
+    business_name: Yup.string().required(t('errors.fieldRequired')),
+    bio: Yup.string().required(t('errors.fieldRequired')).max(1000, t('errors.fieldRequired')),
+    city: Yup.string().required(t('errors.fieldRequired')),
+    category_id: Yup.mixed().required(t('errors.fieldRequired')),
     custom_category: Yup.string().when('category_id', {
       is: (val: any) => val === 'others',
       then: (schema) => schema.required(t('errors.fieldRequired')),
@@ -49,16 +35,11 @@ const useVendorApplicationController = () => {
 
   const formik = useFormik<VendorApplicationFormValues>({
     initialValues: {
-      country_id: undefined,
-      city_id: undefined,
-      lat: undefined,
-      lng: undefined,
-      banner: null,
+      business_name: '',
+      city: '',
       bio: '',
       category_id: null,
       custom_category: '',
-      meta: undefined,
-      fullLocation: '',
     },
     validationSchema,
     validateOnChange: true,
@@ -119,20 +100,54 @@ const useVendorApplicationController = () => {
 
   const handleSubmit = async () => {
     try {
+      // Validate form first
+      const errors = await formik.validateForm();
+      
+      if (Object.keys(errors).length > 0) {
+        formik.setTouched({
+          business_name: true,
+          city: true,
+          bio: true,
+          category_id: true,
+          custom_category: formik.values.category_id === 'others',
+        });
+        return;
+      }
+
+      // Prepare submit data with trimmed values
+      const businessName = formik.values.business_name?.trim() || '';
+      const city = formik.values.city?.trim() || '';
+      const bio = formik.values.bio?.trim() || '';
+      
+      if (!businessName || !city || !bio) {
+        ShowSnackBar({
+          text: t('errors.fieldRequired'),
+          type: 'error',
+        });
+        return;
+      }
+
       const submitData: VendorApplicationFormValues = {
-        city_id: formik.values.city_id,
-        lat: formik.values.lat,
-        lng: formik.values.lng,
-        banner: formik.values.banner,
-        bio: formik.values.bio,
-        category_id: formik.values.category_id === 'others' ? undefined : formik.values.category_id,
-        custom_category: formik.values.category_id === 'others' ? formik.values.custom_category : undefined,
-        meta: formik.values.meta,
+        business_name: businessName,
+        city: city,
+        bio: bio,
+        category_id: formik.values.category_id === 'others' ? undefined : (formik.values.category_id as number | undefined),
+        custom_category: formik.values.category_id === 'others' ? (formik.values.custom_category?.trim() || '') : undefined,
       };
 
+      // Ensure either category_id or custom_category is provided
+      if (!submitData.category_id && !submitData.custom_category) {
+        ShowSnackBar({
+          text: t('errors.fieldRequired'),
+          type: 'error',
+        });
+        return;
+      }
+
       await submitApplicationMutation(submitData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submit error:', error);
+      // Error is already handled by mutation onError
     }
   };
 
@@ -146,58 +161,9 @@ const useVendorApplicationController = () => {
     }
   };
 
-  const onUploadBanner = async () => {
-    try {
-      const res = await imagePicker();
-      if (res?.assets?.length) {
-        formik.setFieldValue('banner', res?.assets[0]);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const onUserSelectLocation = async (location: LatLng) => {
-    setIsLocationLoading(true);
-    try {
-      formik.setFieldValue('lat', location.latitude);
-      formik.setFieldValue('lng', location.longitude);
-
-      const address = await reverseGeocode(
-        location.latitude,
-        location.longitude,
-      );
-      if (address) {
-        formik.setFieldValue('fullLocation', address.display_name);
-      }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setIsLocationLoading(false);
-    }
-  };
-
-  const onSelectCity = (city: ICityResponse | null) => {
-    setSelectedCity(city);
-    if (city) {
-      formik.setFieldValue('city_id', city.id);
-      formik.setFieldValue('country_id', city.country_id);
-    } else {
-      formik.setFieldValue('city_id', undefined);
-      formik.setFieldValue('country_id', undefined);
-    }
-  };
-
   return {
     formik,
-    onUploadBanner,
-    onUserSelectLocation,
-    isLocationLoading,
     isSubmitting,
-    mapModalRef,
-    citiesModalRef,
-    onSelectCity,
-    selectedCity,
     categoriesWithOthers,
     onSelectCategory,
     existingApplication,

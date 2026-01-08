@@ -411,6 +411,32 @@ const useChatController = (props?: { chatId?: number }) => {
     }
   };
 
+  const pickFromCamera = async () => {
+    try {
+      const { launchCamera } = await import('react-native-image-picker');
+      const result = await launchCamera({
+        mediaType: 'mixed',
+        quality: 0.8,
+      });
+
+      if (result?.assets && result?.assets?.length > 0) {
+        const file = result.assets[0];
+        const isVideo =
+          file.type?.includes('video') ||
+          file.type?.includes('mp4') ||
+          file.type?.includes('mov');
+
+        setPreviewMedia({
+          uri: file.uri!,
+          type: isVideo ? 'video' : 'image',
+          file: file,
+        });
+      }
+    } catch (error) {
+      console.log('Error picking from camera:', error);
+    }
+  };
+
   const confirmSendMedia = async (messageText?: string) => {
     if (previewMedia) {
       await sendMessage({
@@ -448,6 +474,7 @@ const useChatController = (props?: { chatId?: number }) => {
     startChatWithVendor,
     isStartChatLaoding,
     isMessagesLoading,
+    pickFromCamera,
     sendMessage,
     messagesList,
     setMessagesList,

@@ -139,11 +139,7 @@ const OnBoarding = () => {
           {t('welcomeTo')} {APP_NAME}
         </AppText>
 
-        <Pressable onPress={handleSkip} style={styles.skipButton}>
-          <AppText variant="s1" color="lightBlack" style={styles.skipText}>
-            {t('skip')}
-          </AppText>
-        </Pressable>
+
       </Box>
 
       {/* Slider Container */}

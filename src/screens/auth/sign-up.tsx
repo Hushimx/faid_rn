@@ -76,6 +76,9 @@ const SignUp = () => {
           <AppSpacer variant="s" />
 
           <AppPhoneInput
+            containerStyle={{
+              direction: 'ltr',
+            }}
             value={values.phone}
             onChangeText={handleChange('phone')}
             ref={phoneInputRef}

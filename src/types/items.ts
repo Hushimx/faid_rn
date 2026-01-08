@@ -22,6 +22,7 @@ export interface ICategoryItem {
   style?: StyleProp<ViewStyle>;
   city: string | { ar: string; en: string } | null;
   onDelete?: (serviceId: number) => void;
+  showEditButton?: boolean;
 }
 
 export interface ICommentItem {

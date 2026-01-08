@@ -10,34 +10,25 @@ import {
   AppSpaceWrapper,
   AppText,
   AppTextArea,
-  CitiesModal,
   LoadingTransparent,
   LocationPin,
-  UplaodBox,
 } from 'components';
 import { useVendorApplicationController } from 'hooks';
 import { useTranslation } from 'react-i18next';
-import { AppDropdown, MapModal } from '../service-details-form/components';
+import { AppDropdown } from '../service-details-form/components';
 
 const VendorApplication = () => {
   const { t } = useTranslation();
   const {
     formik,
-    onUploadBanner,
-    onUserSelectLocation,
-    isLocationLoading,
     isSubmitting,
-    mapModalRef,
-    citiesModalRef,
-    onSelectCity,
-    selectedCity,
     categoriesWithOthers,
     onSelectCategory,
     existingApplication,
     isApplicationLoading,
   } = useVendorApplicationController();
   const { values, errors, touched, handleSubmit } = formik;
-  const { banner, bio, fullLocation, category_id, custom_category } = values;
+  const { business_name, city, bio, category_id, custom_category } = values;
   const { colors } = useAppTheme();
   const isOthersSelected = category_id === 'others';
 
@@ -165,23 +156,16 @@ const VendorApplication = () => {
           <AppText fontWeight={'700'}>{t('vendorApplication')}</AppText>
           <AppSpacer variant="s" />
 
-          <AppText color="grayDark" variant="s1">
-            {t('bannerImage')}
-          </AppText>
-          <AppSpacer variant="ss" />
-          <UplaodBox
-            title={t('uplaodImage')}
-            subTitle={t('maxUploadSize')}
-            onPress={onUploadBanner}
-            image={banner?.uri ? { uri: banner.uri } : undefined}
-            isError={!!touched?.banner && !!errors?.banner}
-          />
-          <AppErrorMessage
-            text={errors?.banner!}
-            isError={!!touched?.banner && !!errors?.banner}
+          <AppInput
+            label={t('businessName')}
+            placeholder={t('enterBusinessName')}
+            value={business_name || ''}
+            onChangeText={formik.handleChange('business_name')}
+            touched={touched.business_name}
+            caption={errors.business_name}
           />
 
-          <AppSpacer variant="sm" />
+          <AppSpacer variant="s" />
 
           <AppDropdown
             data={categoriesWithOthers}
@@ -219,47 +203,16 @@ const VendorApplication = () => {
             maxLength={1000}
           />
 
-          <AppSpacer variant="ml" />
-          <AppText fontWeight={'700'}>{t('location')}</AppText>
           <AppSpacer variant="s" />
 
-          <AppPresseble
-            onPress={() => citiesModalRef.current?.openModal()}
-            disabled={isLocationLoading}
-          >
-            <AppInput
-              label={t('city')}
-              placeholder={t('selectCity')}
-              value={selectedCity ? selectedCity.name : ''}
-              editable={false}
-              accessoryRight={() => <LocationPin />}
-            />
-          </AppPresseble>
-
-          <AppSpacer variant="s" />
-
-          <AppTextArea
-            label={t('fullLocation')}
-            placeholder={t('enterFullLocation')}
-            value={fullLocation}
-            onChangeText={formik.handleChange('fullLocation')}
-            touched={touched.fullLocation}
-            caption={errors.fullLocation}
-            editable={!isLocationLoading && fullLocation?.length > 0}
-          />
-          <AppSpacer variant="s" />
-          <AppButton
-            label={t('selectLocationOnMap')}
-            isOutLined
-            onPress={() => mapModalRef.current?.openModal()}
-            style={{ width: '100%' }}
-            isLoading={isLocationLoading}
-            loadingStatus={'primary'}
-            icon={
-              <Box marginRight="s">
-                <LocationPin size={20} color={colors.primary} />
-              </Box>
-            }
+          <AppInput
+            label={t('city')}
+            placeholder={t('enterCity') || 'Enter city name'}
+            value={city || ''}
+            onChangeText={formik.handleChange('city')}
+            touched={touched.city}
+            caption={errors.city}
+            accessoryRight={() => <LocationPin />}
           />
 
           <AppSpacer variant="xl" />
@@ -274,17 +227,7 @@ const VendorApplication = () => {
         />
       </Box>
 
-      <MapModal
-        ref={mapModalRef}
-        onSelectLocation={onUserSelectLocation}
-      />
-      <CitiesModal
-        ref={citiesModalRef}
-        onSelectCity={onSelectCity}
-        selectedCity={selectedCity}
-      />
-
-      {(isSubmitting || isLocationLoading) && <LoadingTransparent />}
+      {isSubmitting && <LoadingTransparent />}
     </Box>
   );
 };

@@ -74,19 +74,26 @@ const Home = () => {
         </AppPresseble>
       </Box>
 
+      <Box
+        width={'95%'}
+        alignSelf="center"
+        marginTop="s"
+        marginBottom="s"
+      >
+        <AppPresseble
+          onPress={() =>
+            naviagtion?.navigate('ShowAllForCategory', {
+              categoryId: 0,
+            })
+          }
+          style={{ pointerEvents: 'box-only' }}
+        >
+          <AppSearchInput />
+        </AppPresseble>
+      </Box>
+
       <ScrollView>
         <AppSpaceWrapper>
-          <AppSpacer variant="sm" />
-          <AppPresseble
-            onPress={() =>
-              naviagtion?.navigate('ShowAllForCategory', {
-                categoryId: 0,
-              })
-            }
-            style={{ pointerEvents: 'box-only' }}
-          >
-            <AppSearchInput />
-          </AppPresseble>
           <AppSpacer variant="sm" />
           <Banners banners={banners} />
           <AppSpacer variant="sm" />

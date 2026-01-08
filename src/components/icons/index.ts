@@ -25,6 +25,7 @@ import QuestionCircleIcon from './question';
 import InfoCircleIcon from './info';
 import LogoutIcon from './logout';
 import Expand from './expand';
+import TicketIcon from './ticket';
 export {
   Expand,
   RLArrow,
@@ -53,4 +54,5 @@ export {
   QuestionCircleIcon,
   InfoCircleIcon,
   LogoutIcon,
+  TicketIcon,
 };

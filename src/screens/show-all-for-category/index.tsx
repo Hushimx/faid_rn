@@ -4,10 +4,12 @@ import {
   AppSpacer,
   AppSpaceWrapper,
   CategoriesModal,
+  CitiesModal,
   CategoryItem,
   CategoryItemSkeleton,
   PriceFilterModal,
   ServiceSectionTilte,
+  SortModal,
 } from 'components';
 import { LoadingErrorFlatListHandler } from 'hoc';
 import { useShowAllForCategoryController } from 'hooks';
@@ -18,10 +20,16 @@ const ShowAllForCategory = () => {
     search,
     setSearch,
     selectedCategory,
+    selectedCity,
+    setSelectedCity,
     priceRange,
     onApplyPriceRange,
+    selectedSort,
+    setSelectedSort,
     categoriesModalRef,
     priceFilterModalRef,
+    citiesModalRef,
+    sortModalRef,
     allData,
     isError,
     error,
@@ -48,27 +56,35 @@ const ShowAllForCategory = () => {
         {categoryName && <ServiceSectionTilte title={categoryName} />}
         <AppSpacer variant="ss" />
 
-        {!isLoading && (
-          <Box minHeight={40}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <Box flexDirection="row" alignItems="center">
-                {!categoryName && (
-                  <CategoriesModal
-                    ref={categoriesModalRef}
-                    onSelectCategory={onCategorySelect}
-                    selectedCategory={selectedCategory}
-                  />
-                )}
-                <PriceFilterModal
-                  ref={priceFilterModalRef}
-                  onApply={onApplyPriceRange}
-                  currentPriceRange={priceRange}
+        <Box minHeight={40}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <Box flexDirection="row" alignItems="center">
+              {!categoryName && (
+                <CategoriesModal
+                  ref={categoriesModalRef}
+                  onSelectCategory={onCategorySelect}
+                  selectedCategory={selectedCategory}
                 />
-              </Box>
-            </ScrollView>
-            <AppSpacer variant="ss" />
-          </Box>
-        )}
+              )}
+              <PriceFilterModal
+                ref={priceFilterModalRef}
+                onApply={onApplyPriceRange}
+                currentPriceRange={priceRange}
+              />
+              <CitiesModal
+                ref={citiesModalRef}
+                onSelectCity={setSelectedCity}
+                selectedCity={selectedCity}
+              />
+              <SortModal
+                ref={sortModalRef}
+                onSelectSort={setSelectedSort}
+                selectedSort={selectedSort}
+              />
+            </Box>
+          </ScrollView>
+          <AppSpacer variant="ss" />
+        </Box>
 
         <LoadingErrorFlatListHandler
           data={allData}

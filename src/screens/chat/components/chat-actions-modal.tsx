@@ -1,8 +1,8 @@
 import { BaseModal } from 'components/modals';
-import { AppPresseble, AppSpacer, AppSpaceWrapper, AppText } from 'components/atoms';
+import { AppSpacer, AppSpaceWrapper, AppText } from 'components/atoms';
 import { Box, useAppTheme } from 'common';
 import { LocationPin } from 'components/icons';
-import { forwardRef } from 'react';
+import { forwardRef, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IModalRef } from 'types';
 import { StyleSheet, TouchableOpacity } from 'react-native';
@@ -20,9 +20,14 @@ const ChatActionsModal = (
   const { onSelectMedia, onSelectLocation } = props;
   const { t } = useTranslation();
   const { colors } = useAppTheme();
+  const modalRef = useRef<IModalRef>(null);
 
   const closeModal = () => {
-    ref?.current?.closeModal();
+    if (typeof ref === 'function') {
+      // ref is a callback
+      return;
+    }
+    ref?.current?.closeModal?.() || modalRef.current?.closeModal?.();
   };
 
   const handleSelectMedia = () => {
@@ -36,40 +41,6 @@ const ChatActionsModal = (
   };
 
 
-  const ActionButton = ({
-    icon,
-    label,
-    onPress,
-    iconColor = 'primary',
-  }: {
-    icon: React.ReactNode;
-    label: string;
-    onPress: () => void;
-    iconColor?: keyof typeof colors;
-  }) => (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onPress}
-      style={styles.actionButton}
-    >
-      <Box
-        width={60}
-        height={60}
-        borderRadius={30}
-        backgroundColor={iconColor}
-        alignItems="center"
-        justifyContent="center"
-        marginBottom="s"
-        style={styles.iconContainer}
-      >
-        {icon}
-      </Box>
-      <AppText variant="s2" textAlign="center" color="cutomBlack" fontWeight="500">
-        {label}
-      </AppText>
-    </TouchableOpacity>
-  );
-
   return (
     <BaseModal ref={ref}>
       <AppSpaceWrapper>
@@ -82,20 +53,50 @@ const ChatActionsModal = (
           paddingBottom="xl"
         >
           {/* Gallery Option */}
-          <ActionButton
-            icon={
-              <FontAwesome5 name="images" size={28} color={colors.white} />
-            }
-            label={t('gallery')}
+          <TouchableOpacity
+            activeOpacity={0.7}
             onPress={handleSelectMedia}
-          />
+            style={styles.actionButton}
+          >
+            <Box
+              width={60}
+              height={60}
+              borderRadius={30}
+              backgroundColor="primary"
+              alignItems="center"
+              justifyContent="center"
+              marginBottom="s"
+              style={styles.iconContainer}
+            >
+              <FontAwesome5 name="images" size={28} color={colors.white} />
+            </Box>
+            <AppText variant="s2" textAlign="center" color="cutomBlack" fontWeight="500">
+              {t('gallery')}
+            </AppText>
+          </TouchableOpacity>
 
           {/* Location Option */}
-          <ActionButton
-            icon={<LocationPin size={28} color={colors.white} />}
-            label={t('location')}
+          <TouchableOpacity
+            activeOpacity={0.7}
             onPress={handleSelectLocation}
-          />
+            style={styles.actionButton}
+          >
+            <Box
+              width={60}
+              height={60}
+              borderRadius={30}
+              backgroundColor="primary"
+              alignItems="center"
+              justifyContent="center"
+              marginBottom="s"
+              style={styles.iconContainer}
+            >
+              <LocationPin size={28} color={colors.white} />
+            </Box>
+            <AppText variant="s2" textAlign="center" color="cutomBlack" fontWeight="500">
+              {t('location')}
+            </AppText>
+          </TouchableOpacity>
         </Box>
       </AppSpaceWrapper>
     </BaseModal>

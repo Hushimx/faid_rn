@@ -65,6 +65,8 @@ const ChatApis = {
   getChatMessages: (chatId: number) =>
     axiosInstance.get(`chats/${chatId}/messages`),
   getChats: () => axiosInstance.get('chats'),
+  reportChat: (chatId: number, reason: string) =>
+    axiosInstance.post(`chats/${chatId}/report`, { reason }),
 };
 
 export default ChatApis;

@@ -16,6 +16,48 @@ import { ShowSnackBar } from './snack-bar';
 import { getMessaging } from '@react-native-firebase/messaging';
 import moment from 'moment';
 import 'moment/locale/ar';
+
+/**
+ * Translates backend error messages to user-friendly translated messages
+ */
+export const translateErrorMessage = (errorMessage: string): string => {
+  if (!errorMessage) return i18next.t('errors.unexpectedError');
+  
+  const lowerMessage = errorMessage.toLowerCase();
+  
+  // Map common backend error messages to translation keys
+  if (lowerMessage.includes('phone number not found') || lowerMessage.includes('please register first')) {
+    return i18next.t('errors.phoneNumberNotFound');
+  }
+  if (lowerMessage.includes('failed to send otp') || lowerMessage.includes('failed to send')) {
+    return i18next.t('errors.failedToSendOtp');
+  }
+  if (lowerMessage.includes('too many requests') || lowerMessage.includes('rate limit')) {
+    return i18next.t('errors.tooManyRequests');
+  }
+  if (lowerMessage.includes('invalid otp') || lowerMessage.includes('otp is invalid')) {
+    return i18next.t('errors.invalidOtp');
+  }
+  if (lowerMessage.includes('otp expired') || lowerMessage.includes('expired')) {
+    return i18next.t('errors.otpExpired');
+  }
+  if (lowerMessage.includes('email already taken') || lowerMessage.includes('email has already been taken')) {
+    return i18next.t('errors.emailAlreadyTaken');
+  }
+  if (lowerMessage.includes('phone number already taken') || lowerMessage.includes('phone has already been taken')) {
+    return i18next.t('errors.phoneAlreadyTaken');
+  }
+  if (lowerMessage.includes('invalid credentials') || lowerMessage.includes('incorrect password') || lowerMessage.includes('wrong password')) {
+    return i18next.t('errors.invalidCredentials');
+  }
+  if (lowerMessage.includes('network error') || lowerMessage.includes('network')) {
+    return i18next.t('errors.networkError');
+  }
+  
+  // Return original message if no translation found (it might already be translated)
+  return errorMessage;
+};
+
 export const checkInternetConnection = async (disbaleSnackBar?: boolean) => {
   try {
     const res = await NetInfo.fetch();
@@ -162,32 +204,108 @@ export const reverseGeocode = async (
   };
 } | null> => {
   try {
+    const apiKey = 'df9958e2fade405ab83129710d14daec';
     // Make two API calls: one for Arabic, one for English
     const [arResponse, enResponse] = await Promise.all([
       axios.get(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`,
-        {
-          headers: {
-            'User-Agent': 'FaidApp/1.0',
-          },
-        },
+        `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=${apiKey}&lang=ar`,
       ),
       axios.get(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=en`,
-      {
-        headers: {
-          'User-Agent': 'FaidApp/1.0',
-        },
-      },
+        `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=${apiKey}&lang=en`,
       ),
     ]);
 
+    const arFeature = arResponse.data?.features?.[0];
+    const enFeature = enResponse.data?.features?.[0];
+    
+    if (!arFeature || !enFeature) {
+      return null;
+    }
+
+    const arProperties = arFeature.properties || {};
+    const enProperties = enFeature.properties || {};
+
+    // Extract city names - check multiple possible fields
+    // For Arabic, check if the city name is actually in Arabic script
+    const getArabicCity = () => {
+      // Check various city fields from Arabic response
+      const cityFields = [
+        arProperties.city,
+        arProperties.town,
+        arProperties.municipality,
+        arProperties.county,
+        arProperties.state,
+        arProperties.region,
+        arProperties.district,
+        arProperties.suburb,
+      ].filter(Boolean);
+      
+      // Find the first field that contains Arabic characters
+      for (const field of cityFields) {
+        if (field && typeof field === 'string' && /[\u0600-\u06FF]/.test(field)) {
+          return field;
+        }
+      }
+      
+      // Check address components
+      if (arProperties.address_line2 && /[\u0600-\u06FF]/.test(arProperties.address_line2)) {
+        return arProperties.address_line2;
+      }
+      
+      // Check if address object exists and has localized names
+      if (arProperties.address) {
+        const address = arProperties.address;
+        if (address.city && /[\u0600-\u06FF]/.test(address.city)) {
+          return address.city;
+        }
+        if (address.town && /[\u0600-\u06FF]/.test(address.town)) {
+          return address.town;
+        }
+      }
+      
+      // If no Arabic found in any field, check if formatted address contains Arabic
+      const formatted = arProperties.formatted || arProperties.name || '';
+      if (formatted && /[\u0600-\u06FF]/.test(formatted)) {
+        // Try to extract city name from formatted address
+        // This is a fallback - might not be perfect
+        const parts = formatted.split(',').map((p: string) => p.trim());
+        for (const part of parts) {
+          if (/[\u0600-\u06FF]/.test(part) && part.length < 50) {
+            // Likely a city name if it's short and contains Arabic
+            return part;
+          }
+        }
+      }
+      
+      // Last resort: return empty string if no Arabic found
+      // This ensures we don't return English as Arabic
+      return '';
+    };
+
+    const getEnglishCity = () => {
+      return enProperties.city || 
+             enProperties.town || 
+             enProperties.municipality || 
+             enProperties.county || 
+             enProperties.state ||
+             enProperties.region ||
+             enProperties.district ||
+             enProperties.suburb ||
+             '';
+    };
+
+    const cityAr = getArabicCity();
+    const cityEn = getEnglishCity();
+    
+    // If Arabic city is empty but we have English, don't use English as Arabic
+    // This prevents showing English names when Arabic should be shown
+
     return {
-      display_name_ar: arResponse.data.display_name || '',
-      display_name_en: enResponse.data.display_name || '',
+      display_name_ar: arProperties.formatted || arProperties.name || '',
+      display_name_en: enProperties.formatted || enProperties.name || '',
       address: {
-        city_ar: arResponse.data.address?.city || arResponse.data.address?.town || arResponse.data.address?.municipality || '',
-        city_en: enResponse.data.address?.city || enResponse.data.address?.town || enResponse.data.address?.municipality || '',
+        city_ar: cityAr,
+        city_en: cityEn,
       },
     };
   } catch (error) {
@@ -205,7 +323,7 @@ export interface GeocodeResult {
   display_name: string;
   lat: string;
   lon: string;
-  place_id: number;
+  place_id: string | number;
 }
 
 export const forwardGeocode = async (
@@ -215,20 +333,30 @@ export const forwardGeocode = async (
     if (!query || query.trim().length === 0) {
       return [];
     }
+    const apiKey = 'df9958e2fade405ab83129710d14daec';
+    const currentLang = i18n.language || 'ar';
+    const lang = currentLang === 'ar' ? 'ar' : 'en';
+    
     const response = await axios.get(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=sa&addressdetails=1`,
-      {
-        headers: {
-          'User-Agent': 'FaidApp/1.0',
-        },
-      },
+      `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&apiKey=${apiKey}&lang=${lang}&limit=5&filter=countrycode:sa`,
     );
-    return response.data.map((item: any) => ({
-      display_name: item.display_name,
-      lat: item.lat,
-      lon: item.lon,
-      place_id: item.place_id,
-    }));
+    
+    if (!response.data?.features) {
+      return [];
+    }
+    
+    return response.data.features.map((feature: any) => {
+      const properties = feature.properties || {};
+      const geometry = feature.geometry || {};
+      const coordinates = geometry.coordinates || [];
+      
+      return {
+        display_name: properties.formatted || properties.name || '',
+        lat: coordinates[1]?.toString() || '',
+        lon: coordinates[0]?.toString() || '',
+        place_id: feature.properties?.place_id || feature.id || '',
+      };
+    });
   } catch (error) {
     ShowSnackBar({
       text: i18next.t('errorsWithMaps'),

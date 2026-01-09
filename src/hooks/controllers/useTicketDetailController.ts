@@ -163,7 +163,7 @@ export const useTicketDetailController = (ticketId: number) => {
       });
       
       // Show error to user (including rate limit errors)
-      ShowSnackBar(errorMessage, 'danger');
+      ShowSnackBar({ text: errorMessage, type: 'error' });
     },
   });
 
@@ -175,13 +175,13 @@ export const useTicketDetailController = (ticketId: number) => {
         queryKey: [QUERIES_KEY_ENUM.tickets],
       });
       refetchTicket();
-      ShowSnackBar(t('ticketUpdatedSuccessfully'), 'success');
+      ShowSnackBar({ text: t('ticketUpdatedSuccessfully') });
     },
     onError: (error: any) => {
-      ShowSnackBar(
-        error?.response?.data?.message || error?.message || t('error'),
-        'danger',
-      );
+      ShowSnackBar({
+        text: error?.response?.data?.message || error?.message || t('error'),
+        type: 'error',
+      });
     },
   });
 
@@ -217,19 +217,19 @@ export const useTicketDetailController = (ticketId: number) => {
     
     if (!hasMessage && !hasAttachment) {
       console.warn('Neither message nor attachment provided');
-      ShowSnackBar('Either message or attachment is required', 'danger');
+      ShowSnackBar({ text: 'Either message or attachment is required', type: 'error' });
       return;
     }
 
     if (!user?.id) {
       console.error('User ID is missing');
-      ShowSnackBar('Please login to send messages', 'danger');
+      ShowSnackBar({ text: 'Please login to send messages', type: 'error' });
       return;
     }
 
     if (ticket?.status === 'closed') {
       console.warn('Attempted to send message to closed ticket');
-      ShowSnackBar(t('cannotSendMessageToClosedTicket'), 'danger');
+      ShowSnackBar({ text: t('cannotSendMessageToClosedTicket'), type: 'error' });
       return;
     }
 
@@ -257,7 +257,7 @@ export const useTicketDetailController = (ticketId: number) => {
       const errorMessage = error?.response?.data?.message || 
                           error?.message || 
                           'Failed to send message. Please try again.';
-      ShowSnackBar(errorMessage, 'danger');
+      ShowSnackBar({ text: errorMessage, type: 'error' });
       
       // Re-throw to trigger onError handler
       throw error;

@@ -9,7 +9,7 @@ import { Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ServicesApis } from 'services';
 import { useAuthStore } from 'store';
-import { IServiceResponse, QUERIES_KEY_ENUM, RootStackParamList } from 'types';
+import { IServiceResponse, QUERIES_KEY_ENUM, RootStackParamList, USER_TYPE_ENUM } from 'types';
 import { metaExtractor, ShowSnackBar } from 'utils';
 
 const VendorServices = (
@@ -18,7 +18,7 @@ const VendorServices = (
   const [search, setSearch] = useState('');
   const debounceValue = useDebounce(search);
   const { user } = useAuthStore();
-  const vendorId = user?.id!;
+  const vendorId = user?.id;
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -36,7 +36,7 @@ const VendorServices = (
   } = useInfiniteQuery({
     queryFn: ({ pageParam = 1 }) =>
       ServicesApis.getVendorServices({
-        vendorId,
+        vendorId: vendorId!,
         currentPage: pageParam,
         search: debounceValue,
       }),
@@ -46,6 +46,7 @@ const VendorServices = (
       return meta?.has_more ? (meta?.current_page || 0) + 1 : undefined;
     },
     queryKey: [QUERIES_KEY_ENUM.vendor_services, vendorId, debounceValue],
+    enabled: !!vendorId && user?.type === USER_TYPE_ENUM.vendor,
   });
 
   const { mutateAsync: deleteService } = useMutation({

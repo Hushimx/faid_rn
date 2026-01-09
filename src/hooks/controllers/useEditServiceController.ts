@@ -505,15 +505,9 @@ const useEditServiceController = (serviceId: number) => {
       ShowSnackBar({
         text: t('serviceUpdatedSuccessfully') || 'Service updated successfully',
       });
-      
-      // Navigate back to previous screen (or service details if coming from there)
-      // Use goBack instead of reset to preserve navigation history
-      if (navigation.canGoBack()) {
-        navigation.goBack();
-      } else {
-        // Fallback: navigate to service details if can't go back
-        navigation.navigate('ServiceDetails', { serviceId: updatedServiceId });
-      }
+
+      // Navigate to service details screen
+      navigation.navigate('ServiceDetails', { serviceId: updatedServiceId });
     } catch (error: any) {
       console.error('=== UPDATE SERVICE ERROR ===');
       console.error('Error:', error);

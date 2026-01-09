@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AuthApis } from 'services';
 import { useAuthStore } from 'store';
 import {
@@ -11,7 +12,7 @@ import {
   OTP_TYPE_ENUM,
   QUERIES_KEY_ENUM,
 } from 'types';
-import { dataExtractor, phoneNumberShapeCreator } from 'utils';
+import { dataExtractor, phoneNumberShapeCreator, translateErrorMessage } from 'utils';
 
 const useEnterOtpController = ({
   phone,
@@ -36,6 +37,7 @@ const useEnterOtpController = ({
 
   const { setIsLoggedIn, setUser, setAccessToken } = useAuthStore();
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   const {
     data,
@@ -61,6 +63,13 @@ const useEnterOtpController = ({
 
   const { mutateAsync: verifyOtp, isPending: isLoading } = useMutation({
     mutationFn: (data: IVerifyOtpPayload) => AuthApis.verifyOtp(data),
+    onError: (error: any) => {
+      // Error is handled by axios interceptor, but we can add additional handling here if needed
+      const errorMessage = error?.response?.data?.message || error?.message || '';
+      if (errorMessage) {
+        // The axios interceptor will show the translated error via ShowSnackBar
+      }
+    },
   });
 
   useEffect(() => {
@@ -104,7 +113,9 @@ const useEnterOtpController = ({
         setAccessToken(userData?.token);
         setUser(userData?.user);
       }
-    } catch (e) {
+    } catch (e: any) {
+      // Error is handled by the mutation's onError callback or axios interceptor
+      // We can add additional error handling here if needed
     } finally {
       setIsVerifying(false);
     }
@@ -112,9 +123,8 @@ const useEnterOtpController = ({
 
   // Check if error is 429 (Too Many Requests)
   const isRateLimitError = sendOtpError?.response?.status === 429;
-  const errorMessage = isRateLimitError
-    ? 'Too many requests. Please wait a minute before requesting a new OTP code.'
-    : sendOtpError?.response?.data?.message || sendOtpError?.message || 'Failed to send OTP';
+  const rawErrorMessage = sendOtpError?.response?.data?.message || sendOtpError?.message || '';
+  const errorMessage = translateErrorMessage(rawErrorMessage || (isRateLimitError ? t('errors.tooManyRequests') : t('errors.failedToSendOtp')));
 
   return {
     countdown,

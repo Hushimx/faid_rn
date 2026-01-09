@@ -30,6 +30,18 @@ const ChatItem: FC<IChatItemProps> = ({ index, onPress, chat }) => {
   const lastMessage = chat.lastMessage;
   const serviceTitleRaw = chat.service?.title;
   const serviceTitle = useMemo(() => getTranslatedValue(serviceTitleRaw as any), [serviceTitleRaw]);
+  
+  // Helper to get display name from user/vendor object
+  const getDisplayName = (user: any): string => {
+    if (!user) return 'Unknown';
+    if (user.name) return user.name;
+    if (user.first_name || user.last_name) {
+      return [user.first_name, user.last_name].filter(Boolean).join(' ') || 'Unknown';
+    }
+    return 'Unknown';
+  };
+  
+  const displayName = useMemo(() => getDisplayName(otherUser), [otherUser]);
 
   // Format last message preview
   const getMessagePreview = () => {
@@ -92,7 +104,7 @@ const ChatItem: FC<IChatItemProps> = ({ index, onPress, chat }) => {
                 fontWeight="700"
                 numberOfLines={1}
               >
-                {otherUser?.name || 'Unknown'}
+                {displayName}
               </AppText>
               <AppText color="customGray" variant="s3">
                 {timeAgo}

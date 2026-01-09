@@ -1,4 +1,4 @@
-import { Box } from 'common';
+import { Box, useAppTheme } from 'common';
 import {
   AppButton,
   AppErrorMessage,
@@ -10,10 +10,12 @@ import {
 import { useDebounce } from 'hooks';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Modal, StatusBar, TextInput, useWindowDimensions } from 'react-native';
+import { FlatList, Modal, StatusBar, TextInput } from 'react-native';
 import { LatLng } from 'react-native-maps';
 import { IModalRef } from 'types';
-import { forwardGeocode, GeocodeResult, regionFrom, reverseGeocode } from 'utils';
+import { forwardGeocode, GeocodeResult, reverseGeocode, regionFrom } from 'utils';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import i18n from 'i18n';
 
 interface IProps {
   onSelectLocation?: (_location: LatLng & { address?: string }) => void;
@@ -22,7 +24,7 @@ interface IProps {
 const FullscreenMapModal = forwardRef<IModalRef, IProps>(
   ({ onSelectLocation }, ref) => {
     const { t } = useTranslation();
-    const { height, width } = useWindowDimensions();
+    const { colors } = useAppTheme();
     const [visible, setVisible] = useState(false);
     const [locationCoordinates, setLocationCoordinates] = useState<LatLng | null>(
       null,
@@ -40,6 +42,8 @@ const FullscreenMapModal = forwardRef<IModalRef, IProps>(
     const [selectedAddress, setSelectedAddress] = useState<string>('');
     const debouncedSearch = useDebounce(searchQuery, 500);
     const lastCoordinatesRef = useRef<LatLng | null>(null);
+    const [mapKey, setMapKey] = useState(0);
+    const [shouldCenterOnOpen, setShouldCenterOnOpen] = useState(false);
 
     useImperativeHandle(ref, () => ({
       openModal: () => {
@@ -47,9 +51,20 @@ const FullscreenMapModal = forwardRef<IModalRef, IProps>(
         setLocationCoordinates(null);
         setSelectedAddress('');
         setSearchQuery('');
+        setSelectedRegion(null);
+        lastCoordinatesRef.current = null;
+        setIsMapLoaded(false);
+        setShouldCenterOnOpen(true);
+        // Force remount to reset map state
+        setMapKey(prev => prev + 1);
       },
       closeModal: () => {
         setVisible(false);
+        setShouldCenterOnOpen(false);
+        // Reset map state when closing
+        setLocationCoordinates(null);
+        setSelectedRegion(null);
+        lastCoordinatesRef.current = null;
       },
       reset: () => {},
       snapToIndexZero: () => {},
@@ -79,10 +94,16 @@ const FullscreenMapModal = forwardRef<IModalRef, IProps>(
             coordinates.latitude,
             coordinates.longitude,
           );
-          if (reverseResult?.display_name) {
-            setSelectedAddress(reverseResult.display_name);
+          if (reverseResult) {
+            const lang = i18n.language || 'ar';
+            const displayName = lang === 'ar' 
+              ? reverseResult.display_name_ar 
+              : reverseResult.display_name_en;
+            if (displayName) {
+              setSelectedAddress(displayName);
+            }
           }
-        } catch (error) {
+        } catch {
           // Silently fail - address is optional
         }
       },
@@ -116,12 +137,20 @@ const FullscreenMapModal = forwardRef<IModalRef, IProps>(
               locationCoordinates.latitude,
               locationCoordinates.longitude,
             );
-            if (reverseResult?.display_name) {
-              address = reverseResult.display_name;
+            if (reverseResult) {
+              const lang = i18n.language || 'ar';
+              const displayName = lang === 'ar' 
+                ? reverseResult.display_name_ar 
+                : reverseResult.display_name_en;
+              if (displayName) {
+                address = displayName;
+              } else {
+                address = `${locationCoordinates.latitude}, ${locationCoordinates.longitude}`;
+              }
             } else {
               address = `${locationCoordinates.latitude}, ${locationCoordinates.longitude}`;
             }
-          } catch (error) {
+          } catch {
             // Fallback to coordinates if reverse geocoding fails
             address = `${locationCoordinates.latitude}, ${locationCoordinates.longitude}`;
           }
@@ -131,6 +160,10 @@ const FullscreenMapModal = forwardRef<IModalRef, IProps>(
           ...locationCoordinates,
           address,
         });
+        // Reset map state before closing
+        setLocationCoordinates(null);
+        setSelectedRegion(null);
+        lastCoordinatesRef.current = null;
         setVisible(false);
       }
     };
@@ -138,8 +171,10 @@ const FullscreenMapModal = forwardRef<IModalRef, IProps>(
     const handleSelectSearchResult = (result: GeocodeResult) => {
       const lat = parseFloat(result.lat);
       const lon = parseFloat(result.lon);
-      setSelectedRegion({ latitude: lat, longitude: lon });
-      setLocationCoordinates({ latitude: lat, longitude: lon });
+      const newLocation = { latitude: lat, longitude: lon };
+      setSelectedRegion(newLocation);
+      setLocationCoordinates(newLocation);
+      lastCoordinatesRef.current = newLocation;
       setSelectedAddress(result.display_name);
       // Clear search query and results immediately to prevent rerender issues
       setSearchQuery('');
@@ -178,9 +213,9 @@ const FullscreenMapModal = forwardRef<IModalRef, IProps>(
             borderWidth={1}
             borderColor="grayLight"
           >
-            <AppText variant="s2" color="grayDark" marginRight="s">
-              🔍
-            </AppText>
+            <Box marginRight="s">
+              <EvilIcons name="search" size={30} color={colors.grayDark} />
+            </Box>
             <TextInput
               placeholder={t('searchLocation') || 'ابحث عن موقع...'}
               value={searchQuery}
@@ -206,8 +241,8 @@ const FullscreenMapModal = forwardRef<IModalRef, IProps>(
               zIndex={1000}
               position="absolute"
               top={100}
-              left="m"
-              right="m"
+              paddingHorizontal="m"
+              style={{ left: 16, right: 16 }}
             >
               <FlatList
                 data={searchResults}
@@ -243,18 +278,25 @@ const FullscreenMapModal = forwardRef<IModalRef, IProps>(
           {/* Full Screen Map */}
           <Box flex={1} borderRadius={12} overflow="hidden">
             <MapView
+              key={`map-${mapKey}`}
               style={{
                 height: '100%',
                 width: '100%',
               }}
               isMrkerDraggable
               region={
-                selectedRegion
+                shouldCenterOnOpen && locationCoordinates
+                  ? regionFrom(locationCoordinates.latitude, locationCoordinates.longitude)
+                  : selectedRegion
                   ? regionFrom(selectedRegion.latitude, selectedRegion.longitude)
                   : undefined
               }
               setLocationCoordinates={handleLocationCoordinatesChange}
-              onMapLoaded={() => setIsMapLoaded(true)}
+              onMapLoaded={() => {
+                setIsMapLoaded(true);
+                // Reset flag after map is ready
+                setShouldCenterOnOpen(false);
+              }}
               onUserSelectUnSupportedArea={value =>
                 setIsUnSupportedAreaSelected(value)
               }

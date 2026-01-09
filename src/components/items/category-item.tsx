@@ -7,7 +7,8 @@ import {
   AppText,
   UserAvatar,
 } from 'components/atoms';
-import { EditIcon, LocationPin, MessageIcon, Star, Trash } from 'components/icons';
+import { EditIcon, LocationPin, Star, Trash } from 'components/icons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useChatController } from 'hooks';
 import { FC, Fragment, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -78,8 +79,33 @@ const CategoryItem: FC<ICategoryItem> = ({
             alignItems="center"
             justifyContent="center"
             overflow="hidden"
+            position="relative"
           >
             <AppImage source={{ uri: displayImageUrl }} style={styles.img} />
+            {/* City overlay in top right corner */}
+            {displayCity && (
+              <Box
+                position="absolute"
+                top={8}
+                right={8}
+                paddingHorizontal="s"
+                paddingVertical="ss"
+                borderRadius={6}
+                flexDirection="row"
+                alignItems="center"
+                style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+              >
+                <LocationPin size={12} color={colors.white} />
+                <AppText 
+                  variant="s3" 
+                  color="white" 
+                  marginLeft="ss"
+                  fontWeight="bold"
+                >
+                  {displayCity}
+                </AppText>
+              </Box>
+            )}
           </Box>
 
           <Box width={'95%'} alignSelf="center">
@@ -93,12 +119,6 @@ const CategoryItem: FC<ICategoryItem> = ({
               <AppText fontWeight={'400'} color="cutomBlack">
                 {displayTitle}
               </AppText>
-              {displayCity && (
-                <Box flexDirection="row" alignItems="center">
-                  <LocationPin color={colors.customGray} />
-                  <AppText color="customGray">{displayCity}</AppText>
-                </Box>
-              )}
             </Box>
 
             <Box flexDirection="row" alignItems="center">
@@ -192,7 +212,7 @@ const CategoryItem: FC<ICategoryItem> = ({
                     backgroundColor="lightBlue"
                     borderRadius={10}
                   >
-                    <MessageIcon size={30} />
+                    <FontAwesome5 name="comment-dots" size={20} color={colors.primary} />
                   </Box>
                 </AppPresseble>
               )}

@@ -7,6 +7,8 @@ import { dataExtractor } from 'utils';
 import { useNavigation } from '@react-navigation/native';
 import { ShowSnackBar } from 'utils';
 import * as Yup from 'yup';
+import { useAuthStore } from 'store';
+import { useEffect } from 'react';
 
 export interface VendorApplicationFormValues {
   business_name?: string;
@@ -19,6 +21,7 @@ export interface VendorApplicationFormValues {
 const useVendorApplicationController = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const { refreshUser } = useAuthStore();
 
   // Validation schema
   const validationSchema = Yup.object().shape({
@@ -77,6 +80,13 @@ const useVendorApplicationController = () => {
     applicationError?.response?.status === 404 
       ? null 
       : dataExtractor<IVendorApplication>(applicationData);
+
+  // Refresh user data when application status changes to approved
+  useEffect(() => {
+    if (existingApplication?.status === 'approved') {
+      refreshUser();
+    }
+  }, [existingApplication?.status, refreshUser]);
 
   // Submit application mutation
   const { mutateAsync: submitApplicationMutation, isPending: isSubmitting } =

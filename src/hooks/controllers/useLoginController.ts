@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { AuthApis } from 'services';
 import { useAuthStore } from 'store';
 import { ILoginPayload } from 'types';
-import { fcmTokenGenerator, loginScheme } from 'utils';
+import { fcmTokenGenerator, loginScheme, ShowSnackBar, translateErrorMessage } from 'utils';
 
 const useAuthController = () => {
   const navigation = useNavigation();
@@ -48,8 +48,15 @@ const useAuthController = () => {
           isForVerification: true,
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.log('❌ Login failed:', err);
+      const errorMessage = err?.response?.data?.message || err?.message || '';
+      if (errorMessage) {
+        ShowSnackBar({
+          text: translateErrorMessage(errorMessage),
+          type: 'error',
+        });
+      }
     }
   };
 

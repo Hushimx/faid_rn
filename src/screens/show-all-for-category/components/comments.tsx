@@ -40,7 +40,17 @@ const Comments = ({
   const { user } = useAuthStore();
   const allData = useMemoizedData<IServiceReviewResponse>(data);
 
-  const firstComment = allData?.[0];
+  // Sort comments by date (newest first) to ensure proper ordering
+  const sortedComments = useMemo(() => {
+    if (!allData || allData.length === 0) return [];
+    return [...allData].sort((a, b) => {
+      const dateA = new Date(a.created_at || 0).getTime();
+      const dateB = new Date(b.created_at || 0).getTime();
+      return dateB - dateA; // Descending order (newest first)
+    });
+  }, [allData]);
+
+  const firstComment = sortedComments?.[0];
   const isServiceOwner = vendorId === user?.id;
 
   return (
@@ -69,19 +79,17 @@ const Comments = ({
         </Box>
       )}
 
-      {!!allData?.length && (
-        <Box paddingHorizontal="sm">
-          <AppButton
-            label={isServiceOwner ? t('showComments') : t('addComment')}
-            isOutLined
-            onPress={() => addCommentsModalRef?.current?.openModal()}
-          />
-        </Box>
-      )}
+      <Box paddingHorizontal="sm">
+        <AppButton
+          label={isServiceOwner ? t('showComments') : t('addComment')}
+          isOutLined
+          onPress={() => addCommentsModalRef?.current?.openModal()}
+        />
+      </Box>
 
       <AddCommentsModal
         ref={addCommentsModalRef}
-        allReviews={allData}
+        allReviews={sortedComments}
         serviceId={serviceId}
         fetchNextPage={fetchNextPage}
         isFetchingNextPage={isFetchingNextPage}

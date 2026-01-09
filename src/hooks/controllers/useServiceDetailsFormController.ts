@@ -17,10 +17,12 @@ import {
   dataExtractor,
   imageVideoPicker,
   reverseGeocode,
+  ShowSnackBar,
 } from 'utils';
 import { HomeApis, ServicesApis } from 'services';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useAuthStore } from 'store';
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -69,6 +71,7 @@ export interface ServiceDetailsFormValues {
 const useServiceDetailsFormController = () => {
   const { t } = useTranslation();
   const navigation: any = useNavigation();
+  const { user } = useAuthStore();
   const mapModalRef = useRef<IModalRef>(null);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
   const { mutateAsync: AddServiceMutation, isPending: isAddServiceLoading } =
@@ -96,7 +99,7 @@ const useServiceDetailsFormController = () => {
       currentQuestion: '',
       currentAnswer: '',
       serviceMedia: [],
-      serviceType: PRICE_TYPE_ENUM?.fixed,
+      serviceType: PRICE_TYPE_ENUM?.unspecified,
       lat: 0,
       lng: 0,
       category_id: null,
@@ -209,8 +212,28 @@ const useServiceDetailsFormController = () => {
   };
 
   const onUploadServicePress = async () => {
+    // Additional validation checks (formik validation already done in handleSubmitWithScroll)
+    // Ensure category_id is selected
+    if (!category_id) {
+      formik.setFieldTouched('category_id', true);
+      ShowSnackBar({
+        text: t('errors.fieldRequired') || 'Please select a category',
+        type: 'error',
+      });
+      return;
+    }
+
+    // Ensure cityAr is set (required by backend)
+    if (!values.cityAr || values.cityAr.trim() === '') {
+      ShowSnackBar({
+        text: t('errors.fieldRequired') || 'Please select a location',
+        type: 'error',
+      });
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('category_id', category_id);
+    formData.append('category_id', category_id.toString());
     formData.append('title[en]', values.serviceTitleEn);
     formData.append('title[ar]', values.serviceTitleAr);
     formData.append('description[en]', values.serviceDescriptionEn);
@@ -218,7 +241,7 @@ const useServiceDetailsFormController = () => {
     formData.append('price_type', values.serviceType);
     // Only send price if not unspecified
     if (values.serviceType !== PRICE_TYPE_ENUM.unspecified && values.serviceCost) {
-    formData.append('price', values.serviceCost);
+      formData.append('price', values.serviceCost);
     }
     formData.append('lat', values.lat.toString());
     formData.append('lng', values.lng.toString());
@@ -260,14 +283,19 @@ const useServiceDetailsFormController = () => {
       );
       // Mark the first image as primary
       if (index === 0) {
-        formData.append(`media[${index}][is_primary]`, 1);
-    }
+        formData.append(`media[${index}][is_primary]`, '1');
+      }
     });
 
     try {
       const res = await AddServiceMutation(formData);
       const data = dataExtractor<IServiceResponse>(res);
       const serviceId = data?.id;
+      
+      ShowSnackBar({
+        text: t('serviceCreatedSuccessfully') || 'Service created successfully',
+      });
+      
       navigation.dispatch(
         CommonActions.reset({
           index: 1,
@@ -279,10 +307,24 @@ const useServiceDetailsFormController = () => {
       );
       // Invalidate query to refresh the list
       queryClient.invalidateQueries({
-        queryKey: [QUERIES_KEY_ENUM.vendor_services, QUERIES_KEY_ENUM.services],
+        queryKey: [QUERIES_KEY_ENUM.vendor_services, user?.id],
       });
-    } catch {
-      // Error handled silently
+      queryClient.invalidateQueries({
+        queryKey: [QUERIES_KEY_ENUM.services],
+      });
+    } catch (error: any) {
+      console.error('Service creation error:', error);
+      const errorMessage = 
+        error?.response?.data?.message || 
+        error?.response?.data?.error ||
+        error?.message ||
+        t('errors.failedToCreateService') || 
+        'Failed to create service. Please try again.';
+      
+      ShowSnackBar({
+        text: errorMessage,
+        type: 'error',
+      });
     }
   };
 
@@ -299,6 +341,7 @@ const useServiceDetailsFormController = () => {
     categories: dataExtractor(categories) as ICategory[],
     isLocationLoading,
     isAddServiceLoading,
+    onUploadServicePress,
   };
 };
 

@@ -2,11 +2,13 @@ import { BottomTabBarHeightContext } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Spinner } from '@ui-kitten/components';
 import { Box, useAppTheme } from 'common';
-import { AppHeader, AppText } from 'components';
-import { Plus } from 'components/icons';
+import { AppText, UserAvatar } from 'components';
+import { Plus, Chevron } from 'components/icons';
 import { useChatController } from 'hooks';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import { useNavigation } from '@react-navigation/native';
 import {
   Image,
   Modal,
@@ -27,16 +29,30 @@ import {
 import Video from 'react-native-video';
 import { useAuthStore } from 'store';
 import { RootStackParamList } from 'types';
-import { FullscreenMapModal, ChatActionsModal } from './components';
+import { FullscreenMapModal, ChatActionsModal, ReportChatModal } from './components';
 import LocationMessageViewer from './components/location-message-viewer';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useRef } from 'react';
 import { IModalRef } from 'types';
+import { ShowSnackBar } from 'utils';
 
 const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
   const { width } = useWindowDimensions();
   const { t } = useTranslation();
+  const navigation = useNavigation();
   const { vendor, chatId } = props?.route?.params;
+  
+  // Helper to get display name from vendor/user object
+  const getDisplayName = (user: any): string => {
+    if (!user) return 'Unknown';
+    if (user.name) return user.name;
+    if (user.first_name || user.last_name) {
+      return [user.first_name, user.last_name].filter(Boolean).join(' ') || 'Unknown';
+    }
+    return 'Unknown';
+  };
+  
+  const vendorName = getDisplayName(vendor);
   const {
     sendMessage,
     messagesList,
@@ -49,6 +65,8 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
     openLocationPicker,
     mapModalRef,
     handleLocationSelect,
+    reportChat,
+    isReportChatLoading,
   } = useChatController({
     chatId,
   });
@@ -60,10 +78,29 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
   const { user } = useAuthStore();
   const { colors } = useAppTheme();
   const chatActionsModalRef = useRef<IModalRef>(null);
+  const reportChatModalRef = useRef<IModalRef>(null);
   
   const closeImageModal = useCallback(() => {
     setViewingImage(null);
   }, []);
+
+  const handleReport = useCallback(() => {
+    reportChatModalRef.current?.openModal();
+  }, []);
+
+  const handleReportSubmit = useCallback(async (reason: string) => {
+    const success = await reportChat(reason);
+    if (success) {
+      ShowSnackBar({
+        text: t('chatReportedSuccessfully') || 'Chat reported successfully. Our team will review it.',
+      });
+    } else {
+      ShowSnackBar({
+        text: t('failedToReportChat') || 'Failed to report chat. Please try again.',
+        type: 'error',
+      });
+    }
+  }, [reportChat, t]);
 
   const onSend = useCallback(
     (messages = [] as any) => {
@@ -137,11 +174,47 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.pageBackground }}>
-      <AppHeader
-        label={vendor?.name}
-        isChatHeader
-        imageUrl={vendor?.profile_picture}
-      />
+      <Box
+        flexDirection="row"
+        alignItems="center"
+        paddingHorizontal="sm"
+        paddingTop="sm"
+        paddingBottom="sm"
+      >
+        <Box width={40} alignItems="center" justifyContent="center">
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Box style={{ transform: [{ rotate: '180deg' }] }}>
+              <Chevron size={20} />
+            </Box>
+          </TouchableOpacity>
+        </Box>
+
+        <Box
+          flex={1}
+          flexDirection="row"
+          alignItems="center"
+          marginLeft="s"
+          marginRight="s"
+          minWidth={0}
+        >
+          <Box marginRight="s">
+            <UserAvatar image={vendor?.profile_picture} />
+          </Box>
+          <AppText variant="m" numberOfLines={1} style={{ flexShrink: 1 }}>{vendorName}</AppText>
+        </Box>
+
+        {/* Report Button in top right corner */}
+        <Box width={40} alignItems="center" justifyContent="center">
+          <TouchableOpacity
+            onPress={handleReport}
+            style={{
+              padding: 8,
+            }}
+          >
+            <AntDesign name="exclamationcircleo" size={24} color={colors.danger} />
+          </TouchableOpacity>
+        </Box>
+      </Box>
       <BottomTabBarHeightContext.Consumer>
         {tabBarHeight => {
           return (
@@ -435,22 +508,7 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
                         />
                       </MapView>
                       {/* Tap indicator */}
-                      {!isPending && (
-                        <Box
-                          position="absolute"
-                          bottom={8}
-                          left={8}
-                          right={8}
-                          padding="s"
-                          borderRadius={6}
-                          alignItems="center"
-                          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-                        >
-                          <AppText variant="s2" color="white">
-                            📍 Tap to view on map
-                          </AppText>
-                        </Box>
-                      )}
+
                     </Box>
                   </TouchableOpacity>
                 );
@@ -541,6 +599,11 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
         ref={chatActionsModalRef}
         onSelectMedia={pickMedia}
         onSelectLocation={openLocationPicker}
+      />
+      <ReportChatModal
+        ref={reportChatModalRef}
+        onReport={handleReportSubmit}
+        isLoading={isReportChatLoading}
       />
       <FullscreenMapModal
         ref={mapModalRef}

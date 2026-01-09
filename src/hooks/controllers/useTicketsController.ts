@@ -98,13 +98,13 @@ export const useTicketsController = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERIES_KEY_ENUM.tickets],
       });
-      ShowSnackBar(t('ticketDeletedSuccessfully'), 'success');
+      ShowSnackBar({ text: t('ticketDeletedSuccessfully') });
     },
     onError: (error: any) => {
-      ShowSnackBar(
-        error?.response?.data?.message || error?.message || t('error'),
-        'danger',
-      );
+      ShowSnackBar({
+        text: error?.response?.data?.message || error?.message || t('error'),
+        type: 'error',
+      });
     },
   });
 

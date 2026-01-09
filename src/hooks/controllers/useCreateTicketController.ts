@@ -44,7 +44,7 @@ export const useCreateTicketController = () => {
       return TicketApis.createTicket(data, user.id);
     },
     onSuccess: (response: any) => {
-      ShowSnackBar(t('ticketCreatedSuccessfully'), 'success');
+      ShowSnackBar({ text: t('ticketCreatedSuccessfully') });
       navigation.goBack();
       // Optionally navigate to the created ticket
       // const ticket = dataExtractor<ITicket>(response);
@@ -61,7 +61,7 @@ export const useCreateTicketController = () => {
         error?.message || 
         t('error');
       console.log('Error message:', errorMessage);
-      ShowSnackBar(errorMessage, 'danger');
+      ShowSnackBar({ text: errorMessage, type: 'error' });
       
       // Handle rate limiting errors
       if (errorMessage.includes('Rate limit')) {
@@ -85,7 +85,7 @@ export const useCreateTicketController = () => {
 
     if (!user?.id) {
       console.log('User ID missing');
-      ShowSnackBar(t('pleaseLoginToCreateTicket') || 'Please login to create a ticket', 'danger');
+      ShowSnackBar({ text: t('pleaseLoginToCreateTicket') || 'Please login to create a ticket', type: 'error' });
       return;
     }
 

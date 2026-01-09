@@ -6,7 +6,7 @@ import axios, {
 import { BASE_URL } from 'common';
 import { I18nManager } from 'react-native';
 import { useAuthStore } from 'store';
-import { checkInternetConnection, ShowSnackBar } from 'utils';
+import { checkInternetConnection, ShowSnackBar, translateErrorMessage } from 'utils';
 import analytics from '@react-native-firebase/analytics';
 import crashlytics from '@react-native-firebase/crashlytics';
 
@@ -123,7 +123,7 @@ axiosInstance.interceptors.response.use(
     logApiError(error);
 
     // Handle API error messages
-    const errorMessage =
+    const rawErrorMessage =
       error?.response?.data?.message ||
       (error?.code === 'ERR_NETWORK'
         ? 'Network Error: Please check your connection or try again later'
@@ -133,9 +133,15 @@ axiosInstance.interceptors.response.use(
     const responseErrors = res?.data?.errors || {};
     const errors = Object.values(responseErrors)?.flat();
     const messageDisplay = errors?.toString();
+    
+    // Translate error messages
+    const translatedMessage = messageDisplay?.length 
+      ? translateErrorMessage(messageDisplay) 
+      : translateErrorMessage(rawErrorMessage);
+    
     if (error?.config?.method != 'get')
       ShowSnackBar({
-        text: messageDisplay?.length ? messageDisplay : errorMessage,
+        text: translatedMessage,
         type: 'error',
       });
 

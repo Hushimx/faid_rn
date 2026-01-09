@@ -16,9 +16,13 @@ import {
 import { useVendorApplicationController } from 'hooks';
 import { useTranslation } from 'react-i18next';
 import { AppDropdown } from '../service-details-form/components';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useEffect } from 'react';
+import { useAuthStore } from 'store';
 
 const VendorApplication = () => {
   const { t } = useTranslation();
+  const { refreshUser } = useAuthStore();
   const {
     formik,
     isSubmitting,
@@ -26,7 +30,23 @@ const VendorApplication = () => {
     onSelectCategory,
     existingApplication,
     isApplicationLoading,
+    refetchApplication,
   } = useVendorApplicationController();
+
+  // Refresh user data and application status when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      refreshUser();
+      refetchApplication();
+    }, [refreshUser, refetchApplication]),
+  );
+
+  // Refresh user data when application status changes to approved
+  useEffect(() => {
+    if (existingApplication?.status === 'approved') {
+      refreshUser();
+    }
+  }, [existingApplication?.status, refreshUser]);
   const { values, errors, touched, handleSubmit } = formik;
   const { business_name, city, bio, category_id, custom_category } = values;
   const { colors } = useAppTheme();

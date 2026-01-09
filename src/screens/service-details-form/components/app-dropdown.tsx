@@ -82,7 +82,7 @@ const AppDropdown = ({
                 paddingBottom: spacing.xxl * 2,
               }}
               renderItem={({ item }: any) => {
-                const isSelected = selectedItem?.value === value;
+                const isSelected = item.value === value;
                 return (
                   <AppPresseble onPress={() => handleSelect(item.value)}>
                     <Box
@@ -90,11 +90,13 @@ const AppDropdown = ({
                       alignSelf="center"
                       borderRadius={12}
                       borderWidth={1}
-                      borderColor="grayLight"
+                      borderColor={isSelected ? 'primary' : 'grayLight'}
                       padding="sm"
                       backgroundColor={isSelected ? 'customGray1' : 'white'}
                     >
-                      <AppText variant="s1">{item.label}</AppText>
+                      <AppText variant="s1" color={isSelected ? 'primary' : 'darkSlateBlue'}>
+                        {item.label}
+                      </AppText>
                     </Box>
                   </AppPresseble>
                 );

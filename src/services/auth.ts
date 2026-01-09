@@ -20,4 +20,5 @@ export const AuthApis = {
     axiosInstance.post('reset-password', data),
   logout: (data: ILogoutPayload) => axiosInstance.post('logout', data),
   deleteAccount: (data: ILogoutPayload) => axiosInstance.delete('delete-account', { data }),
+  getCurrentUser: () => axiosInstance.get('me'),
 };

@@ -12,6 +12,7 @@ import {
   AppSpaceWrapper,
   AppText,
   AppTextArea,
+  AppSwitch,
   LoadingTransparent,
   LocationPin,
   Trash,
@@ -30,6 +31,30 @@ import ServiceImagesList from '../service-details-form/components/service-images
 const RiyalAccessory = ({ text }: { text: string }) => (
   <AppText>{text}</AppText>
 );
+
+// Helper function to convert Arabic numerals to English
+const convertArabicToEnglish = (text: string): string => {
+  const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  
+  let result = text;
+  arabicNumbers.forEach((arabic, index) => {
+    result = result.replace(new RegExp(arabic, 'g'), englishNumbers[index]);
+  });
+  return result;
+};
+
+// Helper function to convert English numerals to Arabic
+const convertEnglishToArabic = (text: string): string => {
+  const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  
+  let result = text;
+  englishNumbers.forEach((english, index) => {
+    result = result.replace(new RegExp(english, 'g'), arabicNumbers[index]);
+  });
+  return result;
+};
 
 const EditService = (
   props: NativeStackScreenProps<RootStackParamList, 'EditService'>,
@@ -68,6 +93,41 @@ const EditService = (
 
   const [showTitleEn, setShowTitleEn] = useState(false);
   const [showDescriptionEn, setShowDescriptionEn] = useState(false);
+  const [isPriceEnabled, setIsPriceEnabled] = useState(
+    serviceType === PRICE_TYPE_ENUM.fixed
+  );
+
+  // Sync toggle state when serviceType changes
+  useEffect(() => {
+    if (serviceType === PRICE_TYPE_ENUM.fixed) {
+      setIsPriceEnabled(true);
+    } else {
+      setIsPriceEnabled(false);
+    }
+  }, [serviceType]);
+
+  const handlePriceToggle = (enabled: boolean) => {
+    setIsPriceEnabled(enabled);
+    if (enabled) {
+      formik.setFieldValue('serviceType', PRICE_TYPE_ENUM.fixed);
+    } else {
+      formik.setFieldValue('serviceType', PRICE_TYPE_ENUM.unspecified);
+      formik.setFieldValue('serviceCost', '');
+    }
+  };
+
+  const handlePriceChange = (text: string) => {
+    // Convert Arabic numbers to English for storage
+    const englishText = convertArabicToEnglish(text);
+    // Only allow numbers and decimal point
+    const cleaned = englishText.replace(/[^0-9.]/g, '');
+    formik.setFieldValue('serviceCost', cleaned);
+  };
+
+  // Display value: convert to Arabic if current language is Arabic
+  const displayPrice = currentLang === 'ar' && values.serviceCost
+    ? convertEnglishToArabic(values.serviceCost)
+    : values.serviceCost;
 
   // Show English fields if they have values
   useEffect(() => {
@@ -379,47 +439,34 @@ const EditService = (
 
             <AppSpacer variant="m" />
             <View ref={serviceCostRef}>
-            <AppInput
-              label={t('serviceCost')}
-              placeholder={t('enterServiceCost')}
-              accessoryRight={() => <RiyalAccessory text={t('riyal')} />}
-              value={values.serviceCost}
-              onChangeText={formik.handleChange('serviceCost')}
-              touched={touched.serviceCost}
-              caption={errors.serviceCost}
-              keyboardType="numeric"
-              editable={serviceType !== PRICE_TYPE_ENUM.unspecified}
-            />
+              <Box marginBottom="m">
+                <Box
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  marginBottom="s"
+                >
+                  <AppText variant="s1" color="grayDark">
+                    {t('serviceCost')}
+                  </AppText>
+                  <AppSwitch
+                    isEnabled={isPriceEnabled}
+                    toggleSwitch={() => handlePriceToggle(!isPriceEnabled)}
+                  />
+                </Box>
+                {isPriceEnabled && (
+                  <AppInput
+                    placeholder={t('enterServiceCost')}
+                    accessoryRight={() => <RiyalAccessory text={t('riyal')} />}
+                    value={displayPrice}
+                    onChangeText={handlePriceChange}
+                    touched={touched.serviceCost}
+                    caption={errors.serviceCost}
+                    keyboardType="numeric"
+                  />
+                )}
+              </Box>
             </View>
-            <AppSpacer variant="s" />
-            <Box flexDirection="row" alignItems="center" flexWrap="wrap">
-              <Box marginRight="m" marginBottom="s">
-                <AppRadioBtn
-                  text={t('fixed')}
-                  checked={serviceType === PRICE_TYPE_ENUM.fixed}
-                  onChange={() =>
-                    formik.setFieldValue('serviceType', PRICE_TYPE_ENUM.fixed)
-                  }
-                />
-              </Box>
-              <Box marginRight="m" marginBottom="s">
-                <AppRadioBtn
-                  text={t('negotiable')}
-                  checked={serviceType === PRICE_TYPE_ENUM.negotiable}
-                  onChange={() =>
-                    formik.setFieldValue('serviceType', PRICE_TYPE_ENUM.negotiable)
-                  }
-                />
-              </Box>
-              <AppRadioBtn
-                text={t('unspecified')}
-                checked={serviceType === PRICE_TYPE_ENUM.unspecified}
-                onChange={() => {
-                  formik.setFieldValue('serviceType', PRICE_TYPE_ENUM.unspecified);
-                  formik.setFieldValue('serviceCost', '');
-                }}
-              />
-            </Box>
           </AppShadowContainer>
 
           <AppSpacer variant="m" />

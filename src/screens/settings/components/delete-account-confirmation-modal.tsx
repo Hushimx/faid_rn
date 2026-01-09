@@ -65,3 +65,4 @@ const DeleteAccountConfirmationModal = (props: IProps, ref: any) => {
 
 export default forwardRef(DeleteAccountConfirmationModal);
 
+

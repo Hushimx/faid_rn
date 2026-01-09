@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IAuthStore, IUser } from 'types';
 import { AuthApis } from 'services';
-import { fcmTokenGenerator } from 'utils';
+import { fcmTokenGenerator, dataExtractor } from 'utils';
 
 const useAuthStore = create<IAuthStore>()(
   persist(
@@ -55,6 +55,22 @@ const useAuthStore = create<IAuthStore>()(
           set({ access_token: null });
           set({ isLoggedIn: false });
           throw e;
+        }
+      },
+      refreshUser: async () => {
+        try {
+          const { isLoggedIn } = get();
+          if (!isLoggedIn) {
+            return;
+          }
+          const response = await AuthApis.getCurrentUser();
+          const userData = dataExtractor<IUser>(response);
+          if (userData) {
+            set({ user: userData });
+          }
+        } catch (e) {
+          console.log('Failed to refresh user data:', e);
+          // Don't throw error, just log it
         }
       },
     }),

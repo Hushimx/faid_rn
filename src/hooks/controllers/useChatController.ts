@@ -57,6 +57,11 @@ const useChatController = (props?: { chatId?: number }) => {
       },
     });
 
+  const { mutateAsync: reportChatReq, isPending: isReportChatLoading } =
+    useMutation({
+      mutationFn: (reason: string) => ChatApis.reportChat(chatId!, reason),
+    });
+
   useEffect(() => {
     if (messages) {
       const extractedData = dataExtractor<IMessageResponse[]>(messages);
@@ -470,6 +475,16 @@ const useChatController = (props?: { chatId?: number }) => {
     }
   };
 
+  const reportChat = async (reason: string) => {
+    try {
+      await reportChatReq(reason);
+      return true;
+    } catch (error) {
+      console.error('Error reporting chat:', error);
+      return false;
+    }
+  };
+
   return {
     startChatWithVendor,
     isStartChatLaoding,
@@ -486,6 +501,8 @@ const useChatController = (props?: { chatId?: number }) => {
     openLocationPicker,
     mapModalRef,
     handleLocationSelect,
+    reportChat,
+    isReportChatLoading,
   };
 };
 

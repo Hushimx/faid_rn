@@ -3,6 +3,7 @@ import { AppPresseble, AppText } from 'components';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
+import { translateErrorMessage } from 'utils';
 
 interface LoadingErrorScreenHandlerProps {
   loading?: boolean;
@@ -28,9 +29,12 @@ export const LoadingErrorScreenHandler: React.FC<
   }
 
   if (isError) {
+    const translatedErrorMessage = errorMessage ? translateErrorMessage(errorMessage) : t('errors.unexpectedError');
     return (
       <View style={styles.center}>
-        <Text style={[styles.text, styles.errorText]}>{errorMessage}</Text>
+        <AppText variant="s1" color="red" textAlign="center" marginBottom="sm">
+          {translatedErrorMessage}
+        </AppText>
         {refetch && (
           <AppPresseble onPress={refetch}>
             <AppText variant="s1" color="primary" marginTop="sm">
@@ -56,9 +60,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 16,
     textAlign: 'center',
-  },
-  errorText: {
-    color: 'red',
   },
   retryButton: {
     marginTop: 16,

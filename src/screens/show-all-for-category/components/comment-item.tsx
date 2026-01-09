@@ -25,18 +25,25 @@ const CommentItem: FC<ICommentItem> = ({
         />
         <VerticalDashedLine />
       </Box>
-      <Box marginHorizontal="s">
-        <UserAvatar image={userImage} />
-        <AppSpacer variant="ss" />
-        <AppText fontWeight={'500'}>
-          {userName}{' '}
-          <AppText color="customGray">. {createdAtHelper(createdAt)}</AppText>
-        </AppText>
+      <Box marginHorizontal="s" flex={1}>
+        {/* Name and Rating in same row */}
+        <Box flexDirection="row" alignItems="center" justifyContent="space-between" marginBottom="ss">
+          <Box flexDirection="row" alignItems="center" flex={1}>
+            <UserAvatar image={userImage} />
+            <AppSpacer variant="ss" />
+            <Box flex={1}>
+              <AppText fontWeight={'500'}>
+                {userName}
+              </AppText>
+              <AppText color="customGray" variant="s3">
+                {createdAtHelper(createdAt)}
+              </AppText>
+            </Box>
+          </Box>
+          <Rating size={15} disabled rating={rating} />
+        </Box>
 
-        <AppSpacer variant="ss" />
-        <Rating size={15} disabled rating={rating} />
-        <AppSpacer variant="ss" />
-
+        {/* Comment below */}
         <AppText color="customGray" fontWeight={'400'}>
           {comment}
         </AppText>

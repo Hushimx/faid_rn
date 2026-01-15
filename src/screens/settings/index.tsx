@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from 'store';
 import { IModalRef } from 'types';
 import { ChooseLanguageModal, LogoutConfirmationModal } from './components';
+import { ScrollView } from 'react-native';
 
 const Settings = () => {
   const { t } = useTranslation();
@@ -35,39 +36,42 @@ const Settings = () => {
     <Box flex={1} backgroundColor="pageBackground">
       <AppHeader label={t('settings')} />
       <AppSpaceWrapper>
-        <AppSpacer />
-        <AppPresseble
-          onPress={() => {
-            if (user?.type === 'vendor' && user?.id) {
-              navigation.navigate('VendorStore', { vendorId: user.id });
-            }
-          }}
-          disabled={user?.type !== 'vendor'}
-        >
-          <Box
-            flexDirection="row"
-            alignItems="center"
-            backgroundColor="white"
-            borderRadius={30}
-            padding="m"
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <AppSpacer />
+          <AppPresseble
+            onPress={() => {
+              if (user?.type === 'vendor' && user?.id) {
+                navigation.navigate('VendorStore', { vendorId: user.id });
+              }
+            }}
+            disabled={user?.type !== 'vendor'}
           >
-            <Box flex={1} alignItems="center" justifyContent="center">
-              <UserAvatar size="giant" image={user?.profile_picture} />
-            </Box>
-            <Box flex={5} paddingLeft="ml" alignItems="flex-start">
-              <AppText variant="s1">{user?.name}</AppText>
-            </Box>
+            <Box
+              flexDirection="row"
+              alignItems="center"
+              backgroundColor="white"
+              borderRadius={30}
+              padding="m"
+            >
+              <Box flex={1} alignItems="center" justifyContent="center">
+                <UserAvatar size="giant" image={user?.profile_picture} />
+              </Box>
+              <Box flex={5} paddingLeft="ml" alignItems="flex-start">
+                <AppText variant="s1">{user?.name}</AppText>
+              </Box>
 
-            <Box flex={1} alignItems="center" justifyContent="center">
-              <AppPresseble onPress={() => navigation.navigate('UpdateProfile')}>
-                <EditIcon />
-              </AppPresseble>
+              <Box flex={1} alignItems="center" justifyContent="center">
+                <AppPresseble
+                  onPress={() => navigation.navigate('UpdateProfile')}
+                >
+                  <EditIcon />
+                </AppPresseble>
+              </Box>
             </Box>
-          </Box>
-        </AppPresseble>
-        {/* <AppSpacer /> */}
+          </AppPresseble>
+          {/* <AppSpacer /> */}
 
-        {/* <Box
+          {/* <Box
           flexDirection="row"
           alignItems="center"
           backgroundColor="white"
@@ -85,81 +89,81 @@ const Settings = () => {
             <AppSwitch isEnabled toggleSwitch={() => {}} />
           </Box>
         </Box> */}
-        <AppSpacer />
-        <AppPresseble
-          onPress={() => chooseLanguageModalRef?.current?.openModal()}
-        >
-          <Box
-            flexDirection="row"
-            alignItems="center"
-            backgroundColor="white"
-            borderRadius={30}
-            padding="sm"
+          <AppSpacer />
+          <AppPresseble
+            onPress={() => chooseLanguageModalRef?.current?.openModal()}
           >
-            <Box flex={1} alignItems="center" justifyContent="center">
-              <LanguageIcon />
-            </Box>
-            <Box flex={8} alignItems="flex-start">
-              <AppText variant="s1">{t('langauge')}</AppText>
-            </Box>
-
-            <Box flex={1} alignItems="center" justifyContent="center">
-              <Chevron size={15} />
-            </Box>
-          </Box>
-        </AppPresseble>
-        <AppSpacer />
-        <AppPresseble onPress={() => navigation.navigate('Tickets')}>
-          <Box
-            flexDirection="row"
-            alignItems="center"
-            backgroundColor="white"
-            borderRadius={30}
-            padding="sm"
-          >
-            <Box flex={1} alignItems="center" justifyContent="center">
-              <TicketIcon />
-            </Box>
-            <Box flex={8} alignItems="flex-start">
-              <AppText variant="s1">{t('tickets')}</AppText>
-            </Box>
-
-            <Box flex={1} alignItems="center" justifyContent="center">
-              <Chevron size={15} />
-            </Box>
-          </Box>
-        </AppPresseble>
-        <AppSpacer />
-        {user?.type === 'user' && (
-          <>
-            <AppPresseble
-              onPress={() => navigation.navigate('VendorApplication')}
+            <Box
+              flexDirection="row"
+              alignItems="center"
+              backgroundColor="white"
+              borderRadius={30}
+              padding="sm"
             >
-              <Box
-                flexDirection="row"
-                alignItems="center"
-                backgroundColor="white"
-                borderRadius={30}
-                padding="sm"
-              >
-                <Box flex={1} alignItems="center" justifyContent="center">
-                  <InfoCircleIcon />
-                </Box>
-                <Box flex={8} alignItems="flex-start">
-                  <AppText variant="s1">{t('becomeVendor')}</AppText>
-                </Box>
-
-                <Box flex={1} alignItems="center" justifyContent="center">
-                  <Chevron size={15} />
-                </Box>
+              <Box flex={1} alignItems="center" justifyContent="center">
+                <LanguageIcon />
               </Box>
-            </AppPresseble>
-            <AppSpacer />
-          </>
-        )}
+              <Box flex={8} alignItems="flex-start">
+                <AppText variant="s1">{t('langauge')}</AppText>
+              </Box>
 
-        <Box width={'100%'} borderRadius={30} backgroundColor="white">
-          {/* <Box flexDirection="row" alignItems="center" padding="sm">
+              <Box flex={1} alignItems="center" justifyContent="center">
+                <Chevron size={15} />
+              </Box>
+            </Box>
+          </AppPresseble>
+          <AppSpacer />
+          <AppPresseble onPress={() => navigation.navigate('Tickets')}>
+            <Box
+              flexDirection="row"
+              alignItems="center"
+              backgroundColor="white"
+              borderRadius={30}
+              padding="sm"
+            >
+              <Box flex={1} alignItems="center" justifyContent="center">
+                <TicketIcon />
+              </Box>
+              <Box flex={8} alignItems="flex-start">
+                <AppText variant="s1">{t('tickets')}</AppText>
+              </Box>
+
+              <Box flex={1} alignItems="center" justifyContent="center">
+                <Chevron size={15} />
+              </Box>
+            </Box>
+          </AppPresseble>
+          <AppSpacer />
+          {user?.type === 'user' && (
+            <>
+              <AppPresseble
+                onPress={() => navigation.navigate('VendorApplication')}
+              >
+                <Box
+                  flexDirection="row"
+                  alignItems="center"
+                  backgroundColor="white"
+                  borderRadius={30}
+                  padding="sm"
+                >
+                  <Box flex={1} alignItems="center" justifyContent="center">
+                    <InfoCircleIcon />
+                  </Box>
+                  <Box flex={8} alignItems="flex-start">
+                    <AppText variant="s1">{t('becomeVendor')}</AppText>
+                  </Box>
+
+                  <Box flex={1} alignItems="center" justifyContent="center">
+                    <Chevron size={15} />
+                  </Box>
+                </Box>
+              </AppPresseble>
+              <AppSpacer />
+            </>
+          )}
+
+          <Box width={'100%'} borderRadius={30} backgroundColor="white">
+            {/* <Box flexDirection="row" alignItems="center" padding="sm">
             <Box flex={1} alignItems="center" justifyContent="center">
               <QuestionCircleIcon />
             </Box>
@@ -171,58 +175,59 @@ const Settings = () => {
               <Chevron size={15} />
             </Box>
           </Box> */}
-          <Box width={'90%'} alignSelf="center">
-            <AppLineSeparator />
-          </Box>
-          <AppPresseble
-            onPress={() => navigation.navigate('ServiceConditions')}
-          >
-            <Box flexDirection="row" alignItems="center" padding="sm">
-              <Box flex={1} alignItems="center" justifyContent="center">
-                <InfoCircleIcon />
-              </Box>
-              <Box flex={8} alignItems="flex-start">
-                <AppText variant="s1">{t('serviceConditions')}</AppText>
-              </Box>
-
-              <Box flex={1} alignItems="center" justifyContent="center">
-                <Chevron size={15} />
-              </Box>
+            <Box width={'90%'} alignSelf="center">
+              <AppLineSeparator />
             </Box>
-          </AppPresseble>
-          <Box width={'90%'} alignSelf="center">
-            <AppLineSeparator />
-          </Box>
-          <AppPresseble onPress={() => navigation.navigate('UserPolicies')}>
-            <Box flexDirection="row" alignItems="center" padding="sm">
-              <Box flex={1} alignItems="center" justifyContent="center">
-                <InfoCircleIcon />
-              </Box>
-              <Box flex={8} alignItems="flex-start">
-                <AppText variant="s1">{t('userPolicy')}</AppText>
-              </Box>
+            <AppPresseble
+              onPress={() => navigation.navigate('ServiceConditions')}
+            >
+              <Box flexDirection="row" alignItems="center" padding="sm">
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <InfoCircleIcon />
+                </Box>
+                <Box flex={8} alignItems="flex-start">
+                  <AppText variant="s1">{t('serviceConditions')}</AppText>
+                </Box>
 
-              <Box flex={1} alignItems="center" justifyContent="center">
-                <Chevron size={15} />
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <Chevron size={15} />
+                </Box>
               </Box>
+            </AppPresseble>
+            <Box width={'90%'} alignSelf="center">
+              <AppLineSeparator />
             </Box>
-          </AppPresseble>
-        </Box>
-        <AppSpacer variant="xl" />
-        <Box width={'100%'}>
-          <AppButton
-            onPress={() => logoutConfirmationModalRef?.current?.openModal()}
-            label={t('logout')}
-            isOutLined
-            textColor="red"
-            style={{ borderColor: colors.red }}
-            icon={
-              <Box marginRight="s">
-                <LogoutIcon />
+            <AppPresseble onPress={() => navigation.navigate('UserPolicies')}>
+              <Box flexDirection="row" alignItems="center" padding="sm">
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <InfoCircleIcon />
+                </Box>
+                <Box flex={8} alignItems="flex-start">
+                  <AppText variant="s1">{t('userPolicy')}</AppText>
+                </Box>
+
+                <Box flex={1} alignItems="center" justifyContent="center">
+                  <Chevron size={15} />
+                </Box>
               </Box>
-            }
-          />
-        </Box>
+            </AppPresseble>
+          </Box>
+          <AppSpacer variant="xl" />
+          <Box width={'100%'}>
+            <AppButton
+              onPress={() => logoutConfirmationModalRef?.current?.openModal()}
+              label={t('logout')}
+              isOutLined
+              textColor="red"
+              style={{ borderColor: colors.red }}
+              icon={
+                <Box marginRight="s">
+                  <LogoutIcon />
+                </Box>
+              }
+            />
+          </Box>
+        </ScrollView>
       </AppSpaceWrapper>
 
       <ChooseLanguageModal ref={chooseLanguageModalRef} />

@@ -79,7 +79,9 @@ const UpdateProfile = () => {
             <AppSpacer variant="xl" />
             <Box width={'100%'}>
               <AppButton
-                onPress={() => deleteAccountConfirmationModalRef?.current?.openModal()}
+                onPress={() =>
+                  deleteAccountConfirmationModalRef?.current?.openModal()
+                }
                 label={t('deleteAccount') || 'Delete Account'}
                 isOutLined
                 textColor="red"
@@ -92,6 +94,8 @@ const UpdateProfile = () => {
               />
             </Box>
           </Box>
+          <AppSpacer variant="xxl" />
+          <AppSpacer variant="xl" />
         </ScrollView>
       </AppSpaceWrapper>
       <Box position="absolute" bottom={10} width={'100%'} paddingHorizontal="m">
@@ -104,13 +108,17 @@ const UpdateProfile = () => {
           try {
             await deleteAccount();
             ShowSnackBar({
-              text: t('accountDeletedSuccessfully') || 'Account deleted successfully',
+              text:
+                t('accountDeletedSuccessfully') ||
+                'Account deleted successfully',
             });
             // Navigation will automatically redirect to Login when isLoggedIn becomes false
             // via the AppRoot component
           } catch (error) {
             ShowSnackBar({
-              text: t('errors.failedToDeleteAccount') || 'Failed to delete account. Please try again.',
+              text:
+                t('errors.failedToDeleteAccount') ||
+                'Failed to delete account. Please try again.',
               type: 'error',
             });
             console.error('Error deleting account:', error);

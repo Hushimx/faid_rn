@@ -418,10 +418,9 @@ const useEditServiceController = (serviceId: number) => {
       values.existingMediaIds.forEach((id) => {
         formData.append('keep_media_ids[]', id.toString());
       });
-    } else {
-      // Send empty array to indicate no media should be kept
-      formData.append('keep_media_ids[]', '');
     }
+    // Don't send empty string - if no IDs, just don't send the field
+    // Backend will handle this correctly
     
     values.faqs.forEach((item, index) => {
       if (

@@ -1,16 +1,18 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { useAppTheme } from 'common';
 import { AuthStack, BottomTab } from 'navigation';
-import { StatusBar, AppState } from 'react-native';
+import { StatusBar, AppState, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from 'store';
 import { OnBoarding } from '../screens/auth';
 import { useEffect, useRef } from 'react';
 
 const AppRoot = () => {
-  const { isLoggedIn, isOnBoarded, refreshUser } = useAuthStore();
+  const { isLoggedIn, isOnBoarded, refreshUser, isGuestMode } = useAuthStore();
   const { colors } = useAppTheme();
   const appState = useRef(AppState.currentState);
+  const canAccessApp = isLoggedIn || isGuestMode;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   // Refresh user data when app comes to foreground
   useEffect(() => {
@@ -18,7 +20,8 @@ const AppRoot = () => {
       if (
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active' &&
-        isLoggedIn
+        isLoggedIn &&
+        !isGuestMode
       ) {
         // App has come to the foreground, refresh user data
         refreshUser();
@@ -29,22 +32,35 @@ const AppRoot = () => {
     return () => {
       subscription.remove();
     };
-  }, [isLoggedIn, refreshUser]);
+  }, [isLoggedIn, isGuestMode, refreshUser]);
+
+  // Fade animation when switching between navigators
+  useEffect(() => {
+    fadeAnim.setValue(0);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [canAccessApp, isOnBoarded]);
+
   return (
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: isLoggedIn ? colors.pageBackground : colors.white,
+        backgroundColor: canAccessApp ? colors.pageBackground : colors.white,
       }}
     >
       <StatusBar backgroundColor={colors.primary} />
-      {isOnBoarded ? (
-        <NavigationContainer>
-          {isLoggedIn ? <BottomTab /> : <AuthStack />}
-        </NavigationContainer>
-      ) : (
-        <OnBoarding />
-      )}
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+        {isOnBoarded ? (
+          <NavigationContainer>
+            {canAccessApp ? <BottomTab /> : <AuthStack />}
+          </NavigationContainer>
+        ) : (
+          <OnBoarding />
+        )}
+      </Animated.View>
     </SafeAreaView>
   );
 };

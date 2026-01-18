@@ -1,11 +1,13 @@
 import { PhoneInputRefType } from '@linhnguyen96114/react-native-phone-input';
-import { Box, useAppTheme } from 'common';
+import { Box } from 'common';
 import {
+  AppButton,
   AppInput,
   AppKeyboardAwareScrollView,
   AppPhoneInput,
   AppSpacer,
   AppSpaceWrapper,
+  AppText,
   Lock,
   Mail,
   User,
@@ -13,7 +15,7 @@ import {
 import { useSignupController } from 'hooks';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AuthFooter, AuthHeader } from './components';
+import { AuthHeader } from './components';
 const SignUp = () => {
   const { t } = useTranslation();
   const phoneInputRef = useRef<PhoneInputRefType>(null);
@@ -112,18 +114,28 @@ const SignUp = () => {
             accessoryLeft={() => <Lock />}
             isPassword
           />
+          <AppSpacer variant="xl" />
+          <Box width="100%" paddingHorizontal="m">
+            <AppButton
+              label={t('signUp')}
+              onPress={handleSubmit}
+              isLoading={isLoading}
+              isFullWidth
+            />
+          </Box>
+          <AppSpacer variant="s" />
+          <Box alignItems="center" justifyContent="center" width="100%">
+            <AppText variant="s2">
+              {t('alreadyHaveAccount')}{' '}
+              <AppText onPress={goBack} color="primary">
+                {t('login2')}
+              </AppText>
+            </AppText>
+          </Box>
           <AppSpacer variant="xxl" />
           <AppSpacer variant="xxl" />
         </AppSpaceWrapper>
       </AppKeyboardAwareScrollView>
-      <AuthFooter
-        btnLabel={t('signUp')}
-        onPress={handleSubmit}
-        isLoading={isLoading}
-        firstSubLabel={t('alreadyHaveAccount')}
-        secondSubLabel={t('login2')}
-        onSecondTitlePress={goBack}
-      />
     </Box>
   );
 };

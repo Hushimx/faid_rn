@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import {
   Image,
   Platform,
-  Pressable,
   StyleSheet,
   Dimensions,
 } from 'react-native';
@@ -21,7 +20,7 @@ type SlideItem = {
 const OnBoarding = () => {
   const { t } = useTranslation();
   const { colors } = useAppTheme();
-  const { setIsOnBoarded } = useAuthStore();
+  const { setIsOnBoarded, loginAsGuest } = useAuthStore();
 
   const slides: SlideItem[] = [
     {
@@ -124,6 +123,11 @@ const OnBoarding = () => {
     setIsOnBoarded(true);
   };
 
+  const handleGuestLogin = () => {
+    loginAsGuest();
+    setIsOnBoarded(true);
+  };
+
   return (
     <Box flex={1} backgroundColor="white">
       {/* Header with Skip Button */}
@@ -155,11 +159,30 @@ const OnBoarding = () => {
       </Box>
 
       {/* Footer */}
-      <AuthFooter
-        firstSubLabel={t('alreadyHaveAccount')}
-        secondSubLabel={t('login2')}
-        onSecondTitlePress={handleSkip}
-      />
+      <Box
+        position="absolute"
+        bottom={0}
+        width={'100%'}
+        alignItems="center"
+        justifyContent="center"
+        paddingBottom="l"
+      >
+        <Box width="95%" paddingHorizontal="m">
+          <AppButton
+            label={t('continueAsGuest')}
+            onPress={handleGuestLogin}
+            isFullWidth
+            isOutLined
+          />
+        </Box>
+        <AppSpacer variant="s" />
+        <AuthFooter
+          firstSubLabel={t('alreadyHaveAccount')}
+          secondSubLabel={t('login2')}
+          onSecondTitlePress={handleSkip}
+          disableSecondLabel={false}
+        />
+      </Box>
     </Box>
   );
 };

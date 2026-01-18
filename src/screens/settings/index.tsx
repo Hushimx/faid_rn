@@ -12,6 +12,7 @@ import {
   EditIcon,
   InfoCircleIcon,
   LanguageIcon,
+  Lock,
   LogoutIcon,
   MessageIcon,
   TicketIcon,
@@ -25,11 +26,47 @@ import { ChooseLanguageModal, LogoutConfirmationModal } from './components';
 
 const Settings = () => {
   const { t } = useTranslation();
-  const { user, logout } = useAuthStore();
+  const { user, logout, isGuestMode, setIsGuestMode } = useAuthStore();
   const { colors } = useAppTheme();
   const navigation = useNavigation();
   const chooseLanguageModalRef = useRef<IModalRef>(null);
   const logoutConfirmationModalRef = useRef<IModalRef>(null);
+
+  const handleLoginPress = () => {
+    setIsGuestMode(false);
+  };
+
+  if (isGuestMode) {
+    return (
+      <Box flex={1} backgroundColor="pageBackground">
+        <AppHeader label={t('settings')} />
+        <AppSpaceWrapper>
+          <AppSpacer variant="xl" />
+          <Box
+            flex={1}
+            alignItems="center"
+            justifyContent="center"
+            paddingHorizontal="m"
+          >
+            <Box marginBottom="l">
+              <Lock size={64} color="#464F67" />
+            </Box>
+            <AppText variant="h6" color="lightBlack" textAlign="center" marginBottom="m">
+              {t('loginRequired')}
+            </AppText>
+            <AppText variant="s1" color="customGray" textAlign="center" marginBottom="xl">
+              {t('pleaseLoginToAccessSettings')}
+            </AppText>
+            <AppButton
+              label={t('loginNow')}
+              onPress={handleLoginPress}
+              isFullWidth
+            />
+          </Box>
+        </AppSpaceWrapper>
+      </Box>
+    );
+  }
 
   return (
     <Box flex={1} backgroundColor="pageBackground">

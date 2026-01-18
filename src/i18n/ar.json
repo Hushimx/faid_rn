@@ -345,5 +345,11 @@
   "serviceCreatedSuccessfully": "تم إنشاء الخدمة بنجاح",
   "serviceUpdatedSuccessfully": "تم تحديث الخدمة بنجاح",
   "success": "نجح",
-  "actionCompletedSuccessfully": "تم إكمال العملية بنجاح"
+  "actionCompletedSuccessfully": "تم إكمال العملية بنجاح",
+  "loginRequired": "تسجيل الدخول مطلوب",
+  "loginNow": "تسجيل الدخول الآن",
+  "pleaseLoginToAccessChats": "الرجاء تسجيل الدخول للوصول إلى محادثاتك",
+  "pleaseLoginToAccessSettings": "الرجاء تسجيل الدخول للوصول إلى الإعدادات",
+  "pleaseLoginToMessageVendor": "الرجاء تسجيل الدخول لإرسال رسالة إلى البائع",
+  "continueAsGuest": "المتابعة كضيف"
 }

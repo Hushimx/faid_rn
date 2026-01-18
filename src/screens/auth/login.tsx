@@ -1,5 +1,6 @@
 import { Box } from '@common';
 import {
+  AppButton,
   AppInput,
   AppKeyboardAwareScrollView,
   AppSpacer,
@@ -9,6 +10,7 @@ import {
 } from '@components';
 import { useLoginController } from '@hooks';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from 'store';
 import { AuthFooter, AuthHeader } from './components';
 
 const Login = () => {
@@ -16,6 +18,11 @@ const Login = () => {
     useLoginController();
   const { t } = useTranslation();
   const { values, touched, errors, handleSubmit, handleChange } = formik;
+  const { loginAsGuest } = useAuthStore();
+
+  const handleGuestLogin = () => {
+    loginAsGuest();
+  };
 
   return (
     <Box flex={1} backgroundColor="white">
@@ -60,17 +67,44 @@ const Login = () => {
           >
             {t('forgetPassword')}
           </AppText>
+          <AppSpacer variant="xl" />
+          <Box width="100%" paddingHorizontal="m">
+            <AppButton
+              label={t('login')}
+              onPress={handleSubmit}
+              isLoading={isLoading}
+              isFullWidth
+            />
+          </Box>
+          <AppSpacer variant="s" />
+          <Box alignItems="center" justifyContent="center" width="100%">
+            <AppText variant="s2">
+              {t('donothaveAccount')}{' '}
+              <AppText onPress={onCreateAccountPress} color="primary">
+                {t('createAccount')}
+              </AppText>
+            </AppText>
+          </Box>
           <AppSpacer variant="xxl" />
         </AppKeyboardAwareScrollView>
       </Box>
-      <AuthFooter
-        btnLabel={t('login')}
-        onPress={handleSubmit}
-        isLoading={isLoading}
-        firstSubLabel={t('donothaveAccount')}
-        secondSubLabel={t('createAccount')}
-        onSecondTitlePress={onCreateAccountPress}
-      />
+      <Box
+        position="absolute"
+        bottom={0}
+        width={'100%'}
+        alignItems="center"
+        justifyContent="center"
+        paddingBottom="l"
+      >
+        <Box width="95%" paddingHorizontal="m">
+          <AppButton
+            label={t('continueAsGuest')}
+            onPress={handleGuestLogin}
+            isFullWidth
+            isOutLined
+          />
+        </Box>
+      </Box>
     </Box>
   );
 };

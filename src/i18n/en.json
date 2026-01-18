@@ -349,5 +349,11 @@
   "serviceCreatedSuccessfully": "Service created successfully",
   "serviceUpdatedSuccessfully": "Service updated successfully",
   "success": "Success",
-  "actionCompletedSuccessfully": "Your action has been completed successfully"
+  "actionCompletedSuccessfully": "Your action has been completed successfully",
+  "loginRequired": "Login Required",
+  "loginNow": "Login Now",
+  "pleaseLoginToAccessChats": "Please login to access your chats",
+  "pleaseLoginToAccessSettings": "Please login to access settings",
+  "pleaseLoginToMessageVendor": "Please login to message the vendor",
+  "continueAsGuest": "Continue as Guest"
 }

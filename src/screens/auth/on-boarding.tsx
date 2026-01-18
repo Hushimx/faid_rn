@@ -101,17 +101,26 @@ const OnBoarding = () => {
             {item.text}
           </AppText>
 
-          {/* Start Now Button - Only on last slide */}
+          {/* Buttons - Only on last slide */}
           {isLastSlide && (
             <>
               <AppSpacer variant="xl" />
               <Box width="100%" paddingHorizontal="m">
                 <AppButton
-                  label={t('startNow') || 'Start Now!'}
+                  label={t('startNow')}
                   onPress={handleSkip}
                   isFullWidth
                 />
+                <AppSpacer variant="s" />
+                <AppButton
+                  label={t('continueAsGuest')}
+                  onPress={handleGuestLogin}
+                  isFullWidth
+                  isOutLined
+                />
               </Box>
+              <AppSpacer variant="s" />
+
             </>
           )}
         </Box>
@@ -167,21 +176,9 @@ const OnBoarding = () => {
         justifyContent="center"
         paddingBottom="l"
       >
-        <Box width="95%" paddingHorizontal="m">
-          <AppButton
-            label={t('continueAsGuest')}
-            onPress={handleGuestLogin}
-            isFullWidth
-            isOutLined
-          />
-        </Box>
+
         <AppSpacer variant="s" />
-        <AuthFooter
-          firstSubLabel={t('alreadyHaveAccount')}
-          secondSubLabel={t('login2')}
-          onSecondTitlePress={handleSkip}
-          disableSecondLabel={false}
-        />
+
       </Box>
     </Box>
   );

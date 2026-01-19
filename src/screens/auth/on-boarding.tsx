@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import {
   Image,
   Platform,
-  Pressable,
   StyleSheet,
   Dimensions,
 } from 'react-native';
@@ -21,7 +20,7 @@ type SlideItem = {
 const OnBoarding = () => {
   const { t } = useTranslation();
   const { colors } = useAppTheme();
-  const { setIsOnBoarded } = useAuthStore();
+  const { setIsOnBoarded, loginAsGuest } = useAuthStore();
 
   const slides: SlideItem[] = [
     {
@@ -102,17 +101,26 @@ const OnBoarding = () => {
             {item.text}
           </AppText>
 
-          {/* Start Now Button - Only on last slide */}
+          {/* Buttons - Only on last slide */}
           {isLastSlide && (
             <>
               <AppSpacer variant="xl" />
               <Box width="100%" paddingHorizontal="m">
                 <AppButton
-                  label={t('startNow') || 'Start Now!'}
+                  label={t('startNow')}
                   onPress={handleSkip}
                   isFullWidth
                 />
+                <AppSpacer variant="s" />
+                <AppButton
+                  label={t('continueAsGuest')}
+                  onPress={handleGuestLogin}
+                  isFullWidth
+                  isOutLined
+                />
               </Box>
+              <AppSpacer variant="s" />
+
             </>
           )}
         </Box>
@@ -121,6 +129,11 @@ const OnBoarding = () => {
   };
 
   const handleSkip = () => {
+    setIsOnBoarded(true);
+  };
+
+  const handleGuestLogin = () => {
+    loginAsGuest();
     setIsOnBoarded(true);
   };
 
@@ -155,11 +168,18 @@ const OnBoarding = () => {
       </Box>
 
       {/* Footer */}
-      <AuthFooter
-        firstSubLabel={t('alreadyHaveAccount')}
-        secondSubLabel={t('login2')}
-        onSecondTitlePress={handleSkip}
-      />
+      <Box
+        position="absolute"
+        bottom={0}
+        width={'100%'}
+        alignItems="center"
+        justifyContent="center"
+        paddingBottom="l"
+      >
+
+        <AppSpacer variant="s" />
+
+      </Box>
     </Box>
   );
 };

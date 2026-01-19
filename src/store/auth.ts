@@ -29,6 +29,16 @@ const useAuthStore = create<IAuthStore>()(
       isLoggedIn: false,
       setIsLoggedIn: (value: boolean) => set({ isLoggedIn: value }),
 
+      isGuestMode: false,
+      setIsGuestMode: (value: boolean) => set({ isGuestMode: value }),
+
+      loginAsGuest: () => {
+        set({ isGuestMode: true });
+        set({ isLoggedIn: false });
+        set({ user: null });
+        set({ access_token: null });
+      },
+
       logout: async () => {
         try {
           const fcmToken = await fcmTokenGenerator();
@@ -36,10 +46,12 @@ const useAuthStore = create<IAuthStore>()(
           set({ user: null });
           set({ access_token: null });
           set({ isLoggedIn: false });
-        } catch (e) {
+          set({ isGuestMode: false });
+        } catch {
           set({ user: null });
           set({ access_token: null });
           set({ isLoggedIn: false });
+          set({ isGuestMode: false });
         }
       },
       deleteAccount: async () => {
@@ -49,11 +61,13 @@ const useAuthStore = create<IAuthStore>()(
           set({ user: null });
           set({ access_token: null });
           set({ isLoggedIn: false });
+          set({ isGuestMode: false });
         } catch (e) {
           // Even if API call fails, clear local state
           set({ user: null });
           set({ access_token: null });
           set({ isLoggedIn: false });
+          set({ isGuestMode: false });
           throw e;
         }
       },

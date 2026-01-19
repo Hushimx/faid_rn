@@ -208,6 +208,8 @@ const MainStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        animation: 'slide_from_right',
+        animationDuration: 300,
       }}
       initialRouteName="BottomTab"
     >

@@ -7,7 +7,7 @@ const UserPolicies = () => {
   const { t } = useTranslation();
 
   const TXT_ar = `
-  توضح سياسة المستخدم هذه القواعد والشروط التي يجب على جميع مستخدمي التطبيق الالتزام بها لضمان تجربة آمنة وعادلة لكل من العملاء ومقدمي الخدمات. باستخدامك للتطبيق، فإنك توافق على الالتزام بما يلي:
+  توضح سياسة الخصوصية هذه القواعد والشروط التي يجب على جميع مستخدمي التطبيق الالتزام بها لضمان تجربة آمنة وعادلة لكل من العملاء ومقدمي الخدمات. باستخدامك للتطبيق، فإنك توافق على الالتزام بما يلي:
 إنشاء الحساب:
 يجب على المستخدم إدخال بيانات صحيحة وكاملة عند التسجيل.
 يُمنع إنشاء أكثر من حساب واحد لنفس المستخدم أو استخدام بيانات مزيفة.
@@ -40,14 +40,14 @@ const UserPolicies = () => {
 المستخدم مسؤول عن جميع الأنشطة التي تتم من خلال حسابه.
 التطبيق غير مسؤول عن أي تعاملات خارج المنصة أو اتفاقات تتم دون استخدام نظام الحجز الرسمي.
 التعديلات على السياسة:
-يحتفظ التطبيق بالحق في تعديل سياسة المستخدم في أي وقت.
+يحتفظ التطبيق بالحق في تعديل سياسة الخصوصية في أي وقت.
 سيتم إشعار المستخدمين بالتغييرات عبر التطبيق أو البريد الإلكتروني.
 استمرار استخدام التطبيق بعد التحديثات يعني الموافقة على الشروط الجديدة.
-الدعم والتواصل:  لأي استفسارات أو شكاوى، يمكن التواصل مع فريق الدعم عبر:  📧 البريد الإلكتروني: support@yourapp.com  📞 رقم الهاتف: +966 5X XXX XXXX
+الدعم والتواصل:  لأي استفسارات أو شكاوى، يمكن التواصل مع فريق الدعم عبر:  📧 البريد الإلكتروني: faid.app0@gmail.com  📞 رقم الهاتف: +966 54 110 3452
   `;
 
   const TXT_en = `
-This User Policy outlines the rules and conditions that all users of the application must follow to ensure a safe and fair experience for both customers and service providers. By using the application, you agree to comply with the following:
+This Privacy Policy outlines the rules and conditions that all users of the application must follow to ensure a safe and fair experience for both customers and service providers. By using the application, you agree to comply with the following:
 
 Account Creation:
 - Users must enter accurate and complete information when registering.
@@ -89,14 +89,14 @@ Responsibility:
 - The application is not responsible for any transactions conducted outside the platform or agreements made without using the official booking system.
 
 Policy Modifications:
-- The application reserves the right to modify the User Policy at any time.
+- The application reserves the right to modify the Privacy Policy at any time.
 - Users will be notified of updates through the app or via email.
 - Continued use of the application after the updates means acceptance of the new terms.
 
 Support and Contact:
 For any inquiries or complaints, you can contact the support team via:
-📧 Email: support@yourapp.com
-📞 Phone: +966 5X XXX XXXX
+📧 Email: faid.app0@gmail.com
+📞 Phone: +966 54 110 3452
   `;
   return (
     <Box flex={1} backgroundColor="pageBackground">

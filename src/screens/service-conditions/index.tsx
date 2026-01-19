@@ -14,7 +14,7 @@ const TXT_ar = `
 يتم جمع البيانات الشخصية للمستخدمين فقط لأغراض تشغيل الخدمة وتحسينها، ولا تتم مشاركة البيانات مع أي طرف ثالث دون موافقة المستخدم، إلا في الحالات القانونية. يمكن للمستخدم مراجعة سياسة الخصوصية لمعرفة المزيد عن كيفية استخدام البيانات.
 يمكن للمستخدمين تقييم مقدمي الخدمات بعد إتمام الخدمة، ويحق للتطبيق حذف أي تقييم يحتوي على إساءة أو لغة غير لائقة أو معلومات مضللة.
 يحتفظ التطبيق بالحق في تعديل هذه الشروط في أي وقت، وسيتم إخطار المستخدمين بالتغييرات عبر التطبيق أو البريد الإلكتروني، ويعد استمرار استخدام التطبيق بعد التعديلات موافقة ضمنية على الشروط الجديدة.
-لأي استفسارات أو شكاوى، يمكن التواصل مع فريق الدعم الفني عبر البريد الإلكتروني: support@yourapp.com أو من خلال رقم الدعم: +966 5X XXX XXXX.
+لأي استفسارات أو شكاوى، يمكن التواصل مع فريق الدعم الفني عبر البريد الإلكتروني: faid.app0@gmail.com أو من خلال رقم الدعم: +966 54 110 3452.
 `;
 const TXT_en = `
 Welcome to our application! By using the app or any of the services provided through it, you agree to be bound by these terms and conditions. Please read these terms carefully before using the app or creating an account.
@@ -41,7 +41,7 @@ Users can rate service providers after completing the service, and the applicati
 
 The application reserves the right to modify these terms at any time. Users will be notified of changes through the app or via email, and continued use of the app after modifications constitutes implicit acceptance of the new terms.
 
-For any inquiries or complaints, you can contact the technical support team via email at: support@yourapp.com or through the support number: +966 5X XXX XXXX.
+For any inquiries or complaints, you can contact the technical support team via email at: faid.app0@gmail.com or through the support number: +966 54 110 3452.
 `;
 
 const ServiceConditions = () => {

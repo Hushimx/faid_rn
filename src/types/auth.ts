@@ -35,6 +35,9 @@ export interface IAuthStore {
   setIsStoreReady: (value: boolean) => unknown;
   isLoggedIn: boolean;
   setIsLoggedIn: (value: boolean) => void;
+  isGuestMode: boolean;
+  setIsGuestMode: (value: boolean) => void;
+  loginAsGuest: () => void;
   logout: () => void;
   deleteAccount: () => Promise<void>;
   refreshUser: () => Promise<void>;

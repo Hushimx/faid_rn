@@ -38,7 +38,7 @@ const TicketItem: FC<ITicketItemProps> = ({ ticket, index, onPress }) => {
   };
 
   const getStatusText = (status: TicketStatus) => {
-    return status === 'open' ? 'Open' : 'Closed';
+    return status === 'open' ? t('open') : t('closed');
   };
 
   return (
@@ -145,7 +145,7 @@ const TicketItem: FC<ITicketItemProps> = ({ ticket, index, onPress }) => {
                     alignSelf="flex-start"
                   >
                     <AppText color="white" variant="s3" fontWeight="600">
-                      {ticket.priority.toUpperCase()}
+                      {t(ticket.priority)}
                     </AppText>
                   </Box>
                 </Box>

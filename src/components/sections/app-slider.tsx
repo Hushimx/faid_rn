@@ -4,7 +4,6 @@ import React, { useRef, useState } from 'react';
 import {
   View,
   FlatList,
-  Image,
   Dimensions,
   StyleSheet,
   Platform,
@@ -15,25 +14,47 @@ import { IServiceMedia } from 'types';
 import Video from 'react-native-video';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const HORIZONTAL_PADDING = 16;
+const CONTENT_WIDTH = SCREEN_WIDTH - HORIZONTAL_PADDING * 2;
 const IMAGE_WIDTH = SCREEN_WIDTH * 0.95;
 
 interface IProps<T = IServiceMedia> {
   data: T[];
-  onPress?: (item: T, index: number) => void;
+  onPress?: (_item: T, _index: number) => void;
   height?: number;
   showMediaCount?: boolean;
-  getUrl?: (item: T) => string;
-  getType?: (item: T) => 'image' | 'video';
+  getUrl?: (_item: T) => string;
+  getType?: (_item: T) => 'image' | 'video';
+  /** Aspect ratio for image container (e.g. 16/10). When set, height is computed from content width. */
+  aspectRatio?: number;
+  /** Border radius for image container. Default 12. */
+  borderRadius?: number;
+  /** Badge position: 'left' (HTML-style dark overlay) or 'right' (default). */
+  badgePosition?: 'left' | 'right';
+  /** Badge style: 'dark' = black/40 overlay (HTML-style), 'light' = white bg. */
+  badgeVariant?: 'dark' | 'light';
+  /** Use full content width with horizontal padding instead of 95% width. */
+  fullWidthWithPadding?: boolean;
 }
 
 const AppSlider = <T extends Record<string, any> = IServiceMedia>({
   data,
   onPress,
-  height = 300,
+  height,
   showMediaCount = true,
   getUrl,
   getType,
+  aspectRatio,
+  borderRadius = 12,
+  badgePosition = 'right',
+  badgeVariant = 'light',
+  fullWidthWithPadding = false,
 }: IProps<T>) => {
+  const ratio = aspectRatio ?? 16 / 10;
+  const computedHeight =
+    height ??
+    (fullWidthWithPadding ? CONTENT_WIDTH / ratio : 300);
+  const imageWidth = fullWidthWithPadding ? CONTENT_WIDTH : IMAGE_WIDTH;
   const ref = useRef<FlatList<any> | null>(null);
   const imageViewerRef = useRef<any>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -43,8 +64,8 @@ const AppSlider = <T extends Record<string, any> = IServiceMedia>({
   }
 
   // Default extractors for IServiceMedia
-  const extractUrl = getUrl || ((item: any) => item?.url || item?.image);
-  const extractType = getType || ((item: any) => item?.type || 'image');
+  const extractUrl = getUrl || ((it: any) => it?.url || it?.image);
+  const extractType = getType || ((it: any) => it?.type || 'image');
 
   // Convert data to IServiceMedia format for ImageViewerModal
   const convertedData: IServiceMedia[] = data.map(item => ({
@@ -64,7 +85,7 @@ const AppSlider = <T extends Record<string, any> = IServiceMedia>({
 
   return (
     <>
-      <View style={[styles.wrapper, { height }]}>
+      <View style={[styles.wrapper, { height: computedHeight }]}>
         <FlatList
           ref={ref}
           data={data}
@@ -99,16 +120,24 @@ const AppSlider = <T extends Record<string, any> = IServiceMedia>({
                 {itemType === 'video' ? (
                   <Video
                     source={{ uri: itemUrl }}
-                    style={styles.imageHolder}
-                    resizeMode="contain"
+                    style={[
+                      styles.imageHolder,
+                      { width: imageWidth, borderRadius },
+                      fullWidthWithPadding && styles.imageHolderFullHeight,
+                    ]}
+                    resizeMode="cover"
                     controls
                     paused
                   />
                 ) : (
                   <AppImage
                     source={{ uri: itemUrl }}
-                    style={styles.imageHolder}
-                    resizeMode="contain"
+                    style={[
+                      styles.imageHolder,
+                      { width: imageWidth, borderRadius },
+                      fullWidthWithPadding && styles.imageHolderFullHeight,
+                    ]}
+                    resizeMode="cover"
                   />
                 )}
               </Pressable>
@@ -118,18 +147,27 @@ const AppSlider = <T extends Record<string, any> = IServiceMedia>({
         {showMediaCount && (
           <Box
             position="absolute"
-            bottom={30}
-            right={10}
-            backgroundColor="white"
+            bottom={16}
+            left={badgePosition === 'left' ? 16 : undefined}
+            right={badgePosition === 'right' ? 10 : undefined}
+            backgroundColor={badgeVariant === 'dark' ? undefined : 'white'}
             borderRadius={20}
             paddingHorizontal="sm"
+            paddingVertical="ss"
             flexDirection="row"
             alignItems="center"
+            style={badgeVariant === 'dark' ? styles.badgeDark : undefined}
           >
-            <Box marginBottom="ss" marginRight="sm">
-              <Camera />
+            <Box marginRight="sm">
+              <Camera
+                size={14}
+                color={badgeVariant === 'dark' ? '#fff' : undefined}
+              />
             </Box>
-            <AppText>
+            <AppText
+              color={badgeVariant === 'dark' ? 'white' : undefined}
+              variant="s3"
+            >
               {data?.length ? currentIndex + 1 : 0}/{data?.length}
             </AppText>
           </Box>
@@ -145,24 +183,25 @@ export default AppSlider;
 
 const styles = StyleSheet.create({
   wrapper: {
-    height: 300, // adjust to your desired height or make dynamic
+    height: 300,
     alignItems: 'center',
     justifyContent: 'center',
   },
   itemContainer: {
-    width: SCREEN_WIDTH, // IMPORTANT: full screen width
+    width: SCREEN_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
   },
   imageHolder: {
-    width: IMAGE_WIDTH, // 95% of screen width
+    width: IMAGE_WIDTH,
     height: '90%',
     borderRadius: 12,
     overflow: 'hidden',
-    // optional shadow/elevation can be added here
   },
-  image: {
-    width: '100%',
+  imageHolderFullHeight: {
     height: '100%',
+  },
+  badgeDark: {
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
 });

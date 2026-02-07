@@ -19,10 +19,10 @@ export interface ILoginPayload {
   fcm_token: fcmToken;
 }
 export interface ISendOtpPayload {
-  phone: string;
+  email: string;
 }
 export interface IVerifyOtpPayload {
-  phone: string;
+  email: string;
   otp: string;
   type: OTP_TYPE_ENUM;
 }
@@ -36,7 +36,7 @@ export interface IVerifyOtpResponse {
 export interface IResetPasswordPayload {
   password: string;
   password_confirmation: string;
-  phone: string;
+  email: string;
   otp: string;
 }
 export interface ILogoutPayload {
@@ -59,6 +59,7 @@ export enum QUERIES_KEY_ENUM {
   notifications = 'notifications',
   chats = 'chats',
   related_services = 'related_services',
+  favorites = 'favorites',
   tickets = 'tickets',
   ticket_messages = 'ticket_messages',
 }
@@ -163,6 +164,7 @@ export interface IServiceResponse {
     name: string | { ar: string; en: string };
   };
   faqs: IServiceFaq[];
+  is_favorited?: boolean;
 }
 
 export interface IServiceReviewResponse {

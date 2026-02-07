@@ -6,15 +6,17 @@ import {
   Platform,
   StyleSheet,
   Dimensions,
+  Text,
 } from 'react-native';
 import { useAuthStore } from 'store';
-import { AuthFooter } from './components';
 
 type SlideItem = {
   key: string;
   title: string;
   text: string;
   image: any;
+  /** 0-based index of the word in title to highlight with primary color */
+  highlightWordIndex: number;
 };
 
 const OnBoarding = () => {
@@ -29,7 +31,8 @@ const OnBoarding = () => {
       text:
         t('onboardingDescription1') ||
         'Buy and sell easily in one place. Discover products near you and start your experience now.',
-      image: IMAGES.imageOnboardingOne,
+      image: IMAGES.onboardingLaunch,
+      highlightWordIndex: 0, // "Sell" – matches Launching/start theme
     },
     {
       key: 'slide-2',
@@ -37,7 +40,8 @@ const OnBoarding = () => {
       text:
         t('onboardingDescription2') ||
         'Connect with service providers in your area. Get quality services at your convenience.',
-      image: IMAGES.imageOnboardingTwo,
+      image: IMAGES.onboardingNavigation,
+      highlightWordIndex: 0, // "Find" – matches Navigation/explore theme
     },
     {
       key: 'slide-3',
@@ -45,7 +49,8 @@ const OnBoarding = () => {
       text:
         t('onboardingDescription3') ||
         'Join thousands of users. Create your account and explore endless possibilities.',
-      image: IMAGES.imageOnboardingThree,
+      image: IMAGES.onboardingPipeline,
+      highlightWordIndex: 0, // "Start" – matches Pipeline/service/journey theme
     },
   ];
 
@@ -60,11 +65,11 @@ const OnBoarding = () => {
         paddingHorizontal="m"
         width="100%"
       >
-        {/* Image Container */}
+        {/* Image Container - marginBottom xxl (40) to match HTML */}
         <Box
           alignItems="center"
           justifyContent="center"
-          marginBottom="xl"
+          marginBottom="xxl"
           width="100%"
         >
           <Image
@@ -74,20 +79,36 @@ const OnBoarding = () => {
           />
         </Box>
 
-        {/* Text Container */}
+        {/* Text Container - paddingTop prevents Arabic text clipping from top */}
         <Box
           alignItems="center"
           justifyContent="center"
           width="100%"
           paddingHorizontal="sm"
+          paddingTop="m"
         >
           <AppText
             variant="h1"
-            color="lightBlack"
             style={styles.title}
             textAlign="center"
           >
-            {item.title}
+            {(() => {
+              const words = item.title.split(/\s+/);
+              return words.map((word, i) => (
+                <Text
+                  key={i}
+                  style={{
+                    color:
+                      i === item.highlightWordIndex
+                        ? colors.primary
+                        : colors.lightBlack,
+                  }}
+                >
+                  {word}
+                  {i < words.length - 1 ? ' ' : ''}
+                </Text>
+              ));
+            })()}
           </AppText>
 
           <AppSpacer variant="sm" />
@@ -101,10 +122,10 @@ const OnBoarding = () => {
             {item.text}
           </AppText>
 
-          {/* Buttons - Only on last slide */}
+          {/* Buttons - Only on last slide, xxl (40) to match HTML */}
           {isLastSlide && (
             <>
-              <AppSpacer variant="xl" />
+              <AppSpacer variant="xxl" />
               <Box width="100%" paddingHorizontal="m">
                 <AppButton
                   label={t('startNow')}
@@ -146,7 +167,7 @@ const OnBoarding = () => {
         justifyContent="space-between"
         paddingHorizontal="m"
         paddingTop="l"
-        paddingBottom="sm"
+        paddingBottom="m"
       >
         <AppText variant="s1" color="grayDark">
           {t('welcomeTo')} {APP_NAME}
@@ -195,10 +216,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    lineHeight: 36,
+    lineHeight: 42,
+    paddingTop: Platform.OS === 'android' ? 4 : 0,
+    ...(Platform.OS === 'android' && { includeFontPadding: true }),
   },
   description: {
-    lineHeight: 22,
+    lineHeight: 26,
+    paddingTop: Platform.OS === 'android' ? 2 : 0,
+    ...(Platform.OS === 'android' && { includeFontPadding: true }),
   },
   skipButton: {
     paddingHorizontal: 16,

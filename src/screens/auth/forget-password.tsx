@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { Box } from 'common';
-import { AppErrorMessage, AppPhoneInput, AppSpaceWrapper } from 'components';
+import { AppErrorMessage, AppInput, AppSpaceWrapper } from 'components';
 import { useForgetPasswordController } from 'hooks';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
@@ -16,14 +16,17 @@ const ForgetPassword = (
   const navigation = useNavigation();
   const {
     onConfirmPress,
-    setCountryCode,
-    countryCode,
     setValue,
     value,
-    phoneInputRef,
     isValid,
     setIsValid,
+    validateEmail,
   } = useForgetPasswordController({ isForVerification });
+
+  const handleEmailChange = (text: string) => {
+    setValue(text);
+    setIsValid(validateEmail(text));
+  };
 
   return (
     <Box flex={1} backgroundColor="white">
@@ -31,28 +34,27 @@ const ForgetPassword = (
         <AppSpaceWrapper>
           <AuthHeader
             label={
-              isForVerification ? t('phoneVerification') : t('forgetPassword')
+              isForVerification ? t('emailVerification') : t('forgetPassword')
             }
             subLabel={
               isForVerification
-                ? t('checkPhoneForVerification')
-                : t('pleaseEnterYourPhone')
+                ? t('checkEmailForVerification')
+                : t('pleaseEnterYourEmail')
             }
           />
 
-          <AppPhoneInput
-            ref={phoneInputRef}
+          <AppInput
             value={value}
-            onChangeText={setValue}
-            isValid={isValid}
-            setIsValid={setIsValid}
-            countryCode={countryCode}
-            onChangeCountry={setCountryCode}
-            disableCountryPicker={true}
+            onChangeText={handleEmailChange}
+            placeholder={t('email')}
+            label={t('email')}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
           />
           <AppErrorMessage
             isError={!isValid && !!value?.length}
-            text={t('errors.enterValidPhone')}
+            text={t('errors.enterValidEmail')}
           />
         </AppSpaceWrapper>
       </ScrollView>

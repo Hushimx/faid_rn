@@ -16,6 +16,7 @@ import { useVendorStoreController } from './useVendorStoreController';
 import { useTicketsController } from './useTicketsController';
 import { useTicketDetailController } from './useTicketDetailController';
 import { useCreateTicketController } from './useCreateTicketController';
+import { useFavoritesController } from './useFavoritesController';
 
 export {
   useLoginController,
@@ -36,4 +37,5 @@ export {
   useTicketsController,
   useTicketDetailController,
   useCreateTicketController,
+  useFavoritesController,
 };

@@ -1,7 +1,8 @@
 import { Box } from 'common';
-import { AppText } from 'components';
+import { AppPresseble, AppText } from 'components';
 import { useRef } from 'react';
-import { Modal, StatusBar, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Linking, Modal, Platform, StatusBar, TouchableOpacity } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 interface LocationMessageViewerProps {
@@ -13,13 +14,26 @@ interface LocationMessageViewerProps {
   onClose: () => void;
 }
 
+const getOpenInMapsUrl = (lat: number, lng: number) => {
+  if (Platform.OS === 'ios') {
+    return `https://maps.apple.com/?q=${lat},${lng}`;
+  }
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+};
+
 const LocationMessageViewer = ({
   location,
   visible,
   onClose,
 }: LocationMessageViewerProps) => {
+  const { t } = useTranslation();
   const mapRef = useRef<MapView>(null);
   const { latitude, longitude } = location;
+
+  const handleOpenInMaps = () => {
+    const url = getOpenInMapsUrl(latitude, longitude);
+    Linking.openURL(url).catch(() => {});
+  };
 
   return (
     <Modal
@@ -71,6 +85,24 @@ const LocationMessageViewer = ({
             ✕
           </AppText>
         </TouchableOpacity>
+        <AppPresseble
+          onPress={handleOpenInMaps}
+          style={{
+            position: 'absolute',
+            bottom: 40,
+            left: 20,
+            right: 20,
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            borderRadius: 12,
+            paddingVertical: 14,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <AppText color="white" variant="m" fontWeight="600">
+            {t('openInMaps')}
+          </AppText>
+        </AppPresseble>
       </Box>
     </Modal>
   );

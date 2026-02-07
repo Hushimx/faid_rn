@@ -12,17 +12,15 @@ import {
   OTP_TYPE_ENUM,
   QUERIES_KEY_ENUM,
 } from 'types';
-import { dataExtractor, phoneNumberShapeCreator, translateErrorMessage } from 'utils';
+import { dataExtractor, translateErrorMessage } from 'utils';
 
 const useEnterOtpController = ({
-  phone,
-  callingCode,
+  email,
   isForResetPassword,
   userData,
   isForRegister,
 }: {
-  phone: string;
-  callingCode: string;
+  email: string;
   isForResetPassword?: boolean;
   isForRegister?: boolean;
   userData?: {
@@ -47,29 +45,20 @@ const useEnterOtpController = ({
     isError: isSendOtpError,
     error: sendOtpError,
   } = useQuery<any, any, { data: ISendOtpPayload }>({
-    queryFn: async () => {
-      const formattedPhone = phoneNumberShapeCreator({ phone, callingCode });
-      return AuthApis.sendOtp({
-        phone: formattedPhone,
-      });
-    },
-    queryKey: [QUERIES_KEY_ENUM.send_otp, phone, callingCode],
+    queryFn: async () =>
+      AuthApis.sendOtp({
+        email: email.trim().toLowerCase(),
+      }),
+    queryKey: [QUERIES_KEY_ENUM.send_otp, email],
     retry: false,
     // Always enable the query - it will send OTP when screen loads
     // This works for both new registrations and password resets
-    enabled: !!phone && !!callingCode,
+    enabled: !!email?.trim(),
     refetchOnMount: true,
   });
 
   const { mutateAsync: verifyOtp, isPending: isLoading } = useMutation({
     mutationFn: (data: IVerifyOtpPayload) => AuthApis.verifyOtp(data),
-    onError: (error: any) => {
-      // Error is handled by axios interceptor, but we can add additional handling here if needed
-      const errorMessage = error?.response?.data?.message || error?.message || '';
-      if (errorMessage) {
-        // The axios interceptor will show the translated error via ShowSnackBar
-      }
-    },
   });
 
   useEffect(() => {
@@ -85,7 +74,7 @@ const useEnterOtpController = ({
     setIsVerifying(true);
     try {
       const res = await verifyOtp({
-        phone: phoneNumberShapeCreator({ phone, callingCode }),
+        email: email.trim().toLowerCase(),
         otp: passedOtp,
         type: isForResetPassword
           ? OTP_TYPE_ENUM.password_reset
@@ -95,8 +84,7 @@ const useEnterOtpController = ({
 
       if (isForResetPassword) {
         navigation.navigate('ResetPassword', {
-          phone,
-          callingCode,
+          email: email.trim().toLowerCase(),
           otp: otpRes?.otp as string,
         });
         return;

@@ -18,11 +18,6 @@ const useHomeController = () => {
     queryKey: [QUERIES_KEY_ENUM.categories, selectedCity?.id],
   });
 
-  const { data: offersData, isLoading: offersLoading } = useQuery({
-    queryFn: () => HomeApis.getOffers(),
-    queryKey: [QUERIES_KEY_ENUM.offers],
-  });
-
   const { data: bannersData, isLoading: bannersLoading } = useQuery({
     queryFn: () => HomeApis.getBanners(),
     queryKey: [QUERIES_KEY_ENUM.banners],
@@ -36,8 +31,6 @@ const useHomeController = () => {
     total: metaExtractor(categories)?.total,
     selectedCity,
     setSelectedCity,
-    offers: (dataExtractor(offersData) as any[]) || [],
-    offersLoading,
     banners: (dataExtractor(bannersData) as IBanner[]) || [],
     bannersLoading,
   };

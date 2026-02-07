@@ -1,5 +1,7 @@
 import { createBox, createText, createTheme } from '@shopify/restyle';
 
+const FONT_FAMILY = 'Cairo';
+
 const COLORS = {
   primary: 'rgba(35, 68, 205, 1)',
   white: 'white',
@@ -40,42 +42,52 @@ const theme = createTheme({
   spacing: SPACING,
   textVariants: {
     h1: {
+      fontFamily: FONT_FAMILY,
       fontSize: 30,
       fontWeight: '700',
     },
     h2: {
+      fontFamily: FONT_FAMILY,
       fontSize: 28,
       fontWeight: '700',
     },
     h3: {
+      fontFamily: FONT_FAMILY,
       fontSize: 26,
       fontWeight: '700',
     },
     h4: {
+      fontFamily: FONT_FAMILY,
       fontSize: 24,
       fontWeight: '700',
     },
     h5: {
+      fontFamily: FONT_FAMILY,
       fontSize: 22,
       fontWeight: '700',
     },
     h6: {
+      fontFamily: FONT_FAMILY,
       fontSize: 20,
       fontWeight: '700',
     },
     m: {
+      fontFamily: FONT_FAMILY,
       fontSize: 18,
       fontWeight: '700',
     },
     s1: {
+      fontFamily: FONT_FAMILY,
       fontSize: 17,
       fontWeight: '500',
     },
     s2: {
+      fontFamily: FONT_FAMILY,
       fontSize: 14,
       fontWeight: '400',
     },
     s3: {
+      fontFamily: FONT_FAMILY,
       fontSize: 12,
       fontWeight: '400',
     },

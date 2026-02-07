@@ -11,6 +11,10 @@ const IMAGES = {
   imageOnboardingOne: require('../assets/images/image-1.png'),
   imageOnboardingTwo: require('../assets/images/image-2.png'),
   imageOnboardingThree: require('../assets/images/image-3.png'),
+  // Onboarding illustrations (Launching, Navigation, Pipeline maintenance)
+  onboardingLaunch: require('../assets/images/Launching-bro.png'),
+  onboardingNavigation: require('../assets/images/Navigation-amico.png'),
+  onboardingPipeline: require('../assets/images/Pipeline maintenance-amico.png'),
 };
 
 export default IMAGES;

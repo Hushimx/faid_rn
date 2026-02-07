@@ -505,8 +505,14 @@ const useEditServiceController = (serviceId: number) => {
         text: t('serviceUpdatedSuccessfully') || 'Service updated successfully',
       });
 
-      // Navigate to service details screen
-      navigation.navigate('ServiceDetails', { serviceId: updatedServiceId });
+      // Reset stack so back from Service Details goes to home (no Edit in history)
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: 'BottomTab' },
+          { name: 'ServiceDetails', params: { serviceId: updatedServiceId } },
+        ],
+      });
     } catch (error: any) {
       console.error('=== UPDATE SERVICE ERROR ===');
       console.error('Error:', error);
@@ -518,6 +524,7 @@ const useEditServiceController = (serviceId: number) => {
 
   return {
     formik,
+    onUpdateServicePress,
     onUploadServiceMedia,
     onDeleteServiceImage,
     onAddFaq,

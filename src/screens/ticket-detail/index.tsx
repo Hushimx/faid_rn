@@ -81,7 +81,7 @@ const TicketDetail = (
     // Only use createdAtHelper as fallback if created_at_human is missing
     const timeAgo = item.created_at_human 
       ? item.created_at_human 
-      : (item.created_at ? createdAtHelper(item.created_at) : 'Just now');
+      : (item.created_at ? createdAtHelper(item.created_at) : t('justNow'));
 
     return (
       <View
@@ -97,7 +97,7 @@ const TicketDetail = (
             color={isMyMessage ? 'primary' : 'customGray'} 
             fontWeight="600"
           >
-            {isMyMessage ? t('you') : (item.user?.name || 'Admin')}
+            {isMyMessage ? t('you') : (item.user?.name || t('admin'))}
           </AppText>
         </View>
 
@@ -251,7 +251,7 @@ const TicketDetail = (
               alignSelf="flex-start"
             >
               <AppText color="white" variant="s3" fontWeight="700">
-                {ticket.status.toUpperCase()}
+                {t(ticket.status)}
               </AppText>
             </Box>
           </Box>

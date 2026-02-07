@@ -183,8 +183,8 @@ const ServiceDetailsForm = () => {
             faqs={values.faqs}
             onAddFaq={onAddFaq}
             onDeleteFaq={onDeleteFaq}
-            onUpdateFaqQuestion={(index, value, lang) => onUpdateFaqQuestion(index, lang, value)}
-            onUpdateFaqAnswer={(index, value, lang) => onUpdateFaqAnswer(index, lang, value)}
+            onUpdateFaqQuestion={(index, value, lang) => onUpdateFaqQuestion(index, value, lang)}
+            onUpdateFaqAnswer={(index, value, lang) => onUpdateFaqAnswer(index, value, lang)}
             errors={errors}
             touched={touched}
           />

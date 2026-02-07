@@ -4,7 +4,7 @@ import { AppHeader, AppInput, AppSpaceWrapper, AppSpacer } from 'components';
 import { useFormik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
-import { phoneNumberShapeCreator, resetPasswordScheme, ShowSnackBar } from 'utils';
+import { resetPasswordScheme, ShowSnackBar } from 'utils';
 import { AuthFooter, AuthHeader } from './components';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { IResetPasswordPayload, RootStackParamList } from 'types';
@@ -16,7 +16,7 @@ const ResetPassword = (
   props: NativeStackScreenProps<RootStackParamList, 'ResetPassword'>,
 ) => {
   const { t } = useTranslation();
-  const { phone, callingCode, otp } = props?.route?.params || {};
+  const { email, otp } = props?.route?.params || {};
   const navigation = useNavigation();
   const { values, touched, errors, handleSubmit, handleChange } = useFormik({
     initialValues: { password: '', confirmPassword: '' },
@@ -29,7 +29,7 @@ const ResetPassword = (
 
   // Validate required params on mount
   useEffect(() => {
-    if (!phone || !callingCode || !otp) {
+    if (!email || !otp) {
       ShowSnackBar({
         text: t('missingRequiredInformation'),
         type: 'error',
@@ -46,11 +46,11 @@ const ResetPassword = (
         );
       }
     }
-  }, [phone, callingCode, otp, navigation, t]);
+  }, [email, otp, navigation, t]);
 
   const updatePassword = async () => {
     // Validate params before submitting
-    if (!phone || !callingCode || !otp) {
+    if (!email || !otp) {
       ShowSnackBar({
         text: t('missingRequiredInformation'),
         type: 'error',
@@ -62,7 +62,7 @@ const ResetPassword = (
       await mutateAsync({
         password: values?.password,
         password_confirmation: values.confirmPassword,
-        phone: phoneNumberShapeCreator({ phone, callingCode }),
+        email: email.trim().toLowerCase(),
         otp,
       });
       ShowSnackBar({

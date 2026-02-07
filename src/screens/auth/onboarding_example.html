@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Onboarding - FAID</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px 24px; /* paddingTop l, paddingHorizontal m */
+    }
+    .header {
+      margin-bottom: 16px;
+    }
+    .header-text {
+      font-size: 17px;
+      font-weight: 500;
+      color: rgba(70, 79, 103, 0.6);
+    }
+    .slider {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      width: 100%;
+    }
+    .slide-image {
+      width: 70vw;
+      max-width: 320px;
+      height: 28vh;
+      max-height: 320px;
+      background: #f0f0f0;
+      border-radius: 12px;
+      margin-bottom: 40px;
+      object-fit: contain;
+    }
+    .text-block {
+      width: 100%;
+      text-align: center;
+      padding: 16px 12px 0; /* paddingTop m, paddingHorizontal sm */
+    }
+    .title {
+      font-family: 'Cairo', sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: rgba(62, 68, 83, 1);
+      line-height: 42px;
+      margin-bottom: 12px;
+    }
+    .description {
+      font-family: 'Cairo', sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: rgba(70, 79, 103, 0.6);
+      line-height: 26px;
+    }
+    .buttons {
+      width: 100%;
+      margin-top: 40px;
+      padding: 0 16px;
+    }
+    .btn {
+      font-family: 'Cairo', sans-serif;
+      display: block;
+      width: 100%;
+      height: 60px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 500;
+      text-align: center;
+      line-height: 60px;
+      cursor: pointer;
+      border: 1px solid rgba(35, 68, 205, 1);
+      margin-bottom: 8px;
+    }
+    .btn-primary {
+      background: rgba(35, 68, 205, 1);
+      color: #fff;
+    }
+    .btn-outline {
+      background: #fff;
+      color: rgba(35, 68, 205, 1);
+    }
+    .pagination {
+      position: fixed;
+      bottom: 24px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 5px;
+      background: #ccc;
+    }
+    .dot.active {
+      background: rgba(35, 68, 205, 1);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <span class="header-text">مرحباً بك في فايد</span>
+  </header>
+  <main class="slider">
+    <div class="slide">
+      <div class="slide-image" role="img" aria-label="Onboarding"></div>
+      <div class="text-block">
+        <h1 class="title">ابدأ رحلتك</h1>
+        <p class="description">انضم إلى آلاف المستخدمين. أنشئ حسابك واستكشف إمكانيات لا حصر لها.</p>
+      </div>
+      <div class="buttons">
+        <button type="button" class="btn btn-primary">ابدأ الآن!</button>
+        <button type="button" class="btn btn-outline">المتابعة كضيف</button>
+      </div>
+    </div>
+  </main>
+  <div class="pagination">
+    <span class="dot"></span>
+    <span class="dot"></span>
+    <span class="dot active"></span>
+  </div>
+</body>
+</html>

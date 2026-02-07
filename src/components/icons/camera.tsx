@@ -1,7 +1,12 @@
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const Camera = () => {
-  return <Ionicons name="camera-outline" size={22} />;
+interface CameraProps {
+  size?: number;
+  color?: string;
+}
+
+const Camera = ({ size = 22, color }: CameraProps) => {
+  return <Ionicons name="camera-outline" size={size} color={color} />;
 };
 
 export default Camera;

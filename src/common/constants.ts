@@ -4,9 +4,9 @@ export const APP_NAME = I18nManager.isRTL ? 'فايد' : 'FAID';
 
 export const FONT_FAMILY = 'Cairo';
 
-// export const BASE_URL = 'http://192.168.1.107:8000/api/';
+export const BASE_URL = 'http://192.168.1.107:8000/api/';
 
-export const BASE_URL = 'https://faid.app/api/';
+// export const BASE_URL = 'https://faid.app/api/';
 
 export const OTP_COUNT_DOWN_NUMBER = 60;
 

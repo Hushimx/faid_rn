@@ -264,57 +264,11 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
                 ),
               }}
               renderMessageImage={props => {
-                const isPending = props.currentMessage?.pending;
                 const imageUri = props.currentMessage?.image;
                 const imageWidth = Math.min(width * 0.6, 220); // Smaller images: 60% of screen width or max 220
                 const imageHeight = imageWidth * 1.1; // Slightly taller aspect ratio
                 
-                // For pending messages, show loading overlay
-                if (isPending) {
-                  return (
-                    <View
-                      style={{
-                        height: imageHeight,
-                        width: imageWidth,
-                        borderRadius: 10,
-                        overflow: 'hidden',
-                        backgroundColor: colors.grayLight,
-                      }}
-                    >
-                      <View
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          backgroundColor: 'rgba(0,0,0,0.5)',
-                          zIndex: 1,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                        pointerEvents="none"
-                      >
-                        <Spinner status="primary" />
-                        <AppText
-                          variant="s2"
-                          color="white"
-                          marginTop="s"
-                          textAlign="center"
-                        >
-                          Sending...
-                        </AppText>
-                      </View>
-                      <Image
-                        source={{ uri: imageUri }}
-                        style={{ flex: 1, width: '100%', height: '100%' }}
-                        resizeMode="cover"
-                      />
-                    </View>
-                  );
-                }
-                
-                // For non-pending messages, use TouchableOpacity with custom modal for proper RTL support
+                // For pending and sent messages, show image without loading overlay
                 return (
                   <TouchableOpacity
                     activeOpacity={0.9}
@@ -336,7 +290,6 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
                 );
               }}
               renderBubble={props => {
-                const isPending = props.currentMessage?.pending;
                 const hasImage = !!props.currentMessage?.image;
                 const hasVideo = !!props.currentMessage?.video;
                 const hasLocation = !!props.currentMessage?.location;
@@ -354,45 +307,9 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
                   },
                 };
                 
-                // Only add loading overlay for pending video/location messages
-                // Images are handled by renderMessageImage (only for pending)
-                if (isPending && (hasVideo || hasLocation) && !hasImage) {
-                  return (
-                    <View style={{ position: 'relative' }}>
-                      <Bubble {...bubbleProps} />
-                      {/* Loading overlay */}
-                      <View
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          backgroundColor: 'rgba(0,0,0,0.5)',
-                          borderRadius: 10,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                        pointerEvents="none"
-                      >
-                        <Spinner status="primary" />
-                        <AppText
-                          variant="s2"
-                          color="white"
-                          marginTop="s"
-                          textAlign="center"
-                        >
-                          Sending...
-                        </AppText>
-                      </View>
-                    </View>
-                  );
-                }
-                
                 return <Bubble {...bubbleProps} />;
               }}
               renderMessageVideo={props => {
-                const isPending = props.currentMessage?.pending;
                 return (
                   <View
                     style={{
@@ -403,32 +320,6 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
                       backgroundColor: colors.cutomBlack,
                     }}
                   >
-                    {isPending && (
-                      <View
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          backgroundColor: 'rgba(0,0,0,0.5)',
-                          zIndex: 1,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                        pointerEvents="none"
-                      >
-                        <Spinner status="primary" />
-                        <AppText
-                          variant="s2"
-                          color="white"
-                          marginTop="s"
-                          textAlign="center"
-                        >
-                          Sending...
-                        </AppText>
-                      </View>
-                    )}
                     <Video
                       source={{ uri: props.currentMessage?.video }}
                       style={{ flex: 1 }}
@@ -460,32 +351,6 @@ const Chat = (props: NativeStackScreenProps<RootStackParamList, 'Chat'>) => {
                       borderColor="grayLight"
                       position="relative"
                     >
-                      {isPending && (
-                        <View
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            backgroundColor: 'rgba(0,0,0,0.5)',
-                            zIndex: 2,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                          pointerEvents="none"
-                        >
-                          <Spinner status="primary" />
-                          <AppText
-                            variant="s2"
-                            color="white"
-                            marginTop="s"
-                            textAlign="center"
-                          >
-                            Sending...
-                          </AppText>
-                        </View>
-                      )}
                       <MapView
                         style={{ flex: 1 }}
                         provider={PROVIDER_GOOGLE}

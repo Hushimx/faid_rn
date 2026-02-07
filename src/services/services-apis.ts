@@ -75,6 +75,17 @@ const ServicesApis = {
   deleteService: (serviceId: number) => {
     return axiosInstance.delete(`services/${serviceId}`);
   },
+  addFavorite: (serviceId: number) =>
+    axiosInstance.post(`services/${serviceId}/favorite`),
+  removeFavorite: (serviceId: number) =>
+    axiosInstance.delete(`services/${serviceId}/favorite`),
+  getFavorites: (params?: { page?: number; per_page?: number }) => {
+    const search = new URLSearchParams();
+    if (params?.page) search.set('page', params.page.toString());
+    if (params?.per_page) search.set('per_page', params.per_page.toString());
+    search.set('include_media', 'true');
+    return axiosInstance.get(`favorites?${search.toString()}`);
+  },
 };
 
 export default ServicesApis;

@@ -26,6 +26,9 @@ export const translateErrorMessage = (errorMessage: string): string => {
   const lowerMessage = errorMessage.toLowerCase();
   
   // Map common backend error messages to translation keys
+  if (lowerMessage.includes('email not found') && lowerMessage.includes('please register first')) {
+    return i18next.t('errors.emailNotFound');
+  }
   if (lowerMessage.includes('phone number not found') || lowerMessage.includes('please register first')) {
     return i18next.t('errors.phoneNumberNotFound');
   }
@@ -43,6 +46,9 @@ export const translateErrorMessage = (errorMessage: string): string => {
   }
   if (lowerMessage.includes('email already taken') || lowerMessage.includes('email has already been taken')) {
     return i18next.t('errors.emailAlreadyTaken');
+  }
+  if (lowerMessage.includes('phone field is required') || lowerMessage.includes('the phone field is required')) {
+    return i18next.t('errors.phoneFieldRequired');
   }
   if (lowerMessage.includes('phone number already taken') || lowerMessage.includes('phone has already been taken')) {
     return i18next.t('errors.phoneAlreadyTaken');

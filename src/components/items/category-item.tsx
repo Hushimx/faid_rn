@@ -7,16 +7,14 @@ import {
   AppText,
   UserAvatar,
 } from 'components/atoms';
-import { AppButton, AppSpacer, BaseModal, Lock } from 'components';
 import { EditIcon, LocationPin, Star, Trash } from 'components/icons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import { useChatController } from 'hooks';
-import { FC, Fragment, useMemo, useRef } from 'react';
+import { FC, Fragment, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useAuthStore } from 'store';
-import { ICategoryItem, IModalRef } from 'types';
+import { ICategoryItem } from 'types';
 import i18n from 'i18n';
 
 const CategoryItem: FC<ICategoryItem> = ({
@@ -34,15 +32,16 @@ const CategoryItem: FC<ICategoryItem> = ({
   city,
   onDelete,
   showEditButton = false,
+  showFavoriteButton = false,
+  isFavorited = false,
+  onFavoritePress,
 }) => {
   const { colors } = useAppTheme();
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const { startChatWithVendor, isStartChatLaoding } = useChatController();
-  const { user, isGuestMode, setIsGuestMode } = useAuthStore();
+  const { user } = useAuthStore();
   const { width } = useWindowDimensions();
   const disableChatWithVendor = user?.id === vendorId;
-  const loginModalRef = useRef<IModalRef>(null);
 
   // Helper to extract string from translation object
   const getTranslatedValue = (value: string | { ar: string; en: string } | null | undefined): string => {
@@ -57,26 +56,6 @@ const CategoryItem: FC<ICategoryItem> = ({
   const displayPrice = useMemo(() => price ?? 0, [price]);
   const displayImageUrl = useMemo(() => imageUrl || '', [imageUrl]);
   const displayVendorImageUrl = useMemo(() => vendorImageUrl || '', [vendorImageUrl]);
-
-  const handleMessagePress = () => {
-    if (isGuestMode) {
-      loginModalRef.current?.openModal();
-    } else {
-      startChatWithVendor({
-        serviceId,
-        vendor: {
-          id: vendorId,
-          name: userName,
-          profile_picture: displayVendorImageUrl,
-        },
-      });
-    }
-  };
-
-  const handleLoginPress = () => {
-    loginModalRef.current?.closeModal();
-    setIsGuestMode(false);
-  };
 
   return (
     <Animated.View entering={FadeIn.delay(index * 100)} style={{ flex: 1 }}>
@@ -104,6 +83,33 @@ const CategoryItem: FC<ICategoryItem> = ({
             position="relative"
           >
             <AppImage source={{ uri: displayImageUrl }} style={styles.img} />
+            {/* Favorite button overlay */}
+            {showFavoriteButton && (
+              <Box
+                position="absolute"
+                top={8}
+                left={8}
+                zIndex={1}
+              >
+                <AppPresseble
+                  onPress={() => onFavoritePress?.(serviceId)}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <MaterialIcons
+                    name={isFavorited ? 'favorite' : 'favorite-border'}
+                    size={20}
+                    color="#F43F5E"
+                  />
+                </AppPresseble>
+              </Box>
+            )}
             {/* City overlay in top right corner */}
             {displayCity && (
               <Box
@@ -149,14 +155,16 @@ const CategoryItem: FC<ICategoryItem> = ({
                 ({rating}/5) | {reviewCount} {t('review')}
               </AppText>
             </Box>
-            <AppText
-              color="primary"
-              variant="s1"
-              marginLeft="ss"
-              fontWeight={'700'}
-            >
-              {displayPrice} {t('riyal')}
-            </AppText>
+            {displayPrice != null && displayPrice > 0 && (
+              <AppText
+                color="primary"
+                variant="s1"
+                marginLeft="ss"
+                fontWeight={'700'}
+              >
+                {displayPrice} {t('riyal')}
+              </AppText>
+            )}
           </Box>
 
           <Fragment>
@@ -212,52 +220,9 @@ const CategoryItem: FC<ICategoryItem> = ({
                     )}
                   </>
                 )}
-              {!disableChatWithVendor && (
-                <AppPresseble
-                  isLoading={isStartChatLaoding && !isGuestMode}
-                  onPress={handleMessagePress}
-                >
-                  <Box
-                    width={40}
-                    height={40}
-                    alignItems="center"
-                    justifyContent="center"
-                    backgroundColor="lightBlue"
-                    borderRadius={10}
-                  >
-                    <FontAwesome5 name="comment-dots" size={20} color={colors.primary} />
-                  </Box>
-                </AppPresseble>
-              )}
               </Box>
             </Box>
           </Fragment>
-
-          <BaseModal ref={loginModalRef}>
-            <Box padding="m" alignItems="center">
-              <Box marginBottom="l">
-                <Lock size={64} color="#464F67" />
-              </Box>
-              <AppText variant="h6" color="lightBlack" textAlign="center" marginBottom="m">
-                {t('loginRequired')}
-              </AppText>
-              <AppText variant="s1" color="customGray" textAlign="center" marginBottom="xl">
-                {t('pleaseLoginToMessageVendor')}
-              </AppText>
-              <AppButton
-                label={t('loginNow')}
-                onPress={handleLoginPress}
-                isFullWidth
-              />
-              <AppSpacer variant="s" />
-              <AppButton
-                label={t('cancel')}
-                onPress={() => loginModalRef.current?.closeModal()}
-                isFullWidth
-                isOutLined
-              />
-            </Box>
-          </BaseModal>
 
           {/* {showComments && (
             <Box>

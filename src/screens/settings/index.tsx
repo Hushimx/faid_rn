@@ -18,6 +18,7 @@ import {
   TicketIcon,
   UserAvatar,
 } from 'components';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from 'store';
@@ -198,6 +199,29 @@ const Settings = () => {
               <AppSpacer />
             </>
           )}
+
+          <AppSpacer />
+          <AppPresseble onPress={() => navigation.navigate('Favorites')}>
+            <Box
+              flexDirection="row"
+              alignItems="center"
+              backgroundColor="white"
+              borderRadius={30}
+              padding="sm"
+            >
+              <Box flex={1} alignItems="center" justifyContent="center">
+                <MaterialIcons name="favorite" size={22} color="#3E4453" />
+              </Box>
+              <Box flex={8} alignItems="flex-start">
+                <AppText variant="s1">{t('myFavorites')}</AppText>
+              </Box>
+
+              <Box flex={1} alignItems="center" justifyContent="center">
+                <Chevron size={15} />
+              </Box>
+            </Box>
+          </AppPresseble>
+          <AppSpacer />
 
           <Box width={'100%'} borderRadius={30} backgroundColor="white">
             {/* <Box flexDirection="row" alignItems="center" padding="sm">

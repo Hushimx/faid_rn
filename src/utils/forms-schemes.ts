@@ -17,7 +17,10 @@ export const signUpScheme = (t: any) =>
     email: Yup.string()
       .email(t('errors.emailError'))
       .required(t('errors.fieldRequired')),
-    phone: Yup.string().required(t('errors.fieldRequired')),
+    phone: Yup.string()
+      .required(t('errors.fieldRequired'))
+      .length(9, t('errors.phoneMustBe9Digits'))
+      .matches(/^5\d{8}$/, t('errors.phoneMustStartWith5')),
     firstName: Yup.string().required(t('errors.fieldRequired')),
     lastName: Yup.string().required(t('errors.fieldRequired')),
     password: Yup.string()
@@ -86,22 +89,10 @@ export const createServiceScheme = (t: any) =>
         object()
           .shape({
             id: number().optional(),
-            questionEn: string().matches(/^[a-zA-Z0-9\s.,!?'-]*$/, {
-              message: t('errors.onlyEnglishAllowed'),
-              excludeEmptyString: true,
-            }).optional(),
-            questionAr: string().matches(/^[\u0600-\u06FF\s.,!?'-]*$/, {
-              message: t('errors.onlyArabicAllowed'),
-              excludeEmptyString: true,
-            }).optional(),
-            answerEn: string().matches(/^[a-zA-Z0-9\s.,!?'-]*$/, {
-              message: t('errors.onlyEnglishAllowed'),
-              excludeEmptyString: true,
-            }).optional(),
-            answerAr: string().matches(/^[\u0600-\u06FF\s.,!?'-]*$/, {
-              message: t('errors.onlyArabicAllowed'),
-              excludeEmptyString: true,
-            }).optional(),
+            questionEn: string().optional(),
+            questionAr: string().optional(),
+            answerEn: string().optional(),
+            answerAr: string().optional(),
           })
           .test('faq-complete', t('errors.fieldRequired'), (value) => {
             const { questionEn, questionAr, answerEn, answerAr, id } = value || {};

@@ -2,8 +2,7 @@ import { IVendor } from './apis';
 import { IUser } from './auth';
 
 interface IBaseOtpParams {
-  phone: string;
-  callingCode: string;
+  email: string;
   isForResetPassword?: boolean;
   isForRegister?: boolean;
   userData?: {
@@ -20,8 +19,7 @@ export type RootStackParamList = {
   };
   EnterOtp: IBaseOtpParams;
   ResetPassword: {
-    phone: string;
-    callingCode: string;
+    email: string;
     otp: string;
   };
   Home: undefined;
@@ -57,6 +55,7 @@ export type RootStackParamList = {
     vendorId: number;
   };
   Tickets: undefined;
+  Favorites: undefined;
   TicketDetail: {
     ticketId: number;
   };

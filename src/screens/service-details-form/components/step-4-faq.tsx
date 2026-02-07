@@ -13,8 +13,8 @@ interface Step4FaqProps {
   faqs: any[];
   onAddFaq: () => void;
   onDeleteFaq: (index: number) => void;
-  onUpdateFaqQuestion: (index: number, language: 'ar' | 'en', value: string) => void;
-  onUpdateFaqAnswer: (index: number, language: 'ar' | 'en', value: string) => void;
+  onUpdateFaqQuestion: (index: number, value: string, language: 'ar' | 'en') => void;
+  onUpdateFaqAnswer: (index: number, value: string, language: 'ar' | 'en') => void;
   errors: any;
   touched: any;
 }

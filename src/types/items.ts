@@ -23,6 +23,9 @@ export interface ICategoryItem {
   city: string | { ar: string; en: string } | null;
   onDelete?: (serviceId: number) => void;
   showEditButton?: boolean;
+  showFavoriteButton?: boolean;
+  isFavorited?: boolean;
+  onFavoritePress?: (serviceId: number) => void;
 }
 
 export interface ICommentItem {

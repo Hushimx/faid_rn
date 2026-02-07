@@ -31,6 +31,7 @@ import {
   Tickets,
   TicketDetail,
   CreateTicket,
+  Favorites,
 } from 'screens';
 import { useAuthStore } from 'store';
 import { USER_TYPE_ENUM } from 'types';
@@ -235,6 +236,7 @@ const MainStack = () => {
       <Stack.Screen name="VendorApplication" component={VendorApplication} />
       <Stack.Screen name="VendorStore" component={VendorStore as any} />
       <Stack.Screen name="Tickets" component={Tickets} />
+      <Stack.Screen name="Favorites" component={Favorites as any} />
       <Stack.Screen name="TicketDetail" component={TicketDetail as any} />
       <Stack.Screen name="CreateTicket" component={CreateTicket} />
     </Stack.Navigator>

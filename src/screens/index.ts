@@ -19,3 +19,4 @@ export { default as VendorStore } from './vendor-store';
 export { default as Tickets } from './tickets';
 export { default as TicketDetail } from './ticket-detail';
 export { default as CreateTicket } from './create-ticket';
+export { default as Favorites } from './favorites';

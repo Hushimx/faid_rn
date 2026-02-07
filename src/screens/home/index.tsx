@@ -1,7 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import { Box, IMAGES } from 'common';
+import { Box } from 'common';
 import {
-  AppImage,
   AppPresseble,
   AppSearchInput,
   AppSpacer,
@@ -9,12 +8,10 @@ import {
   CitySelectionSection,
 } from 'components';
 import { useHomeController } from 'hooks';
-import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet } from 'react-native';
-import { Banners, ServiceList, Services, SpecialOffers } from './components';
+import { ScrollView } from 'react-native';
+import { Banners, ServiceList, Services } from './components';
 
 const Home = () => {
-  const { t } = useTranslation();
   const {
     categories,
     isLoading,
@@ -23,19 +20,13 @@ const Home = () => {
     total,
     setSelectedCity,
     selectedCity,
-    offers,
-    offersLoading,
     banners,
-    bannersLoading,
   } = useHomeController();
   const naviagtion = useNavigation();
 
   return (
     <Box flex={1} backgroundColor="pageBackground">
       <Box
-        flexDirection="row"
-        alignItems="center"
-        justifyContent="space-between"
         marginTop="s"
         width={'95%'}
         alignSelf="center"
@@ -44,34 +35,6 @@ const Home = () => {
           selectedCity={selectedCity}
           onSelectCity={setSelectedCity}
         />
-        <AppPresseble onPress={() => naviagtion?.navigate('Notifications')}>
-          <Box>
-            <AppImage source={IMAGES.bell} style={styles.img} />
-            {/* Uncomment when notification count API is available */}
-            {/* <Box
-              position="absolute"
-              top={-3}
-              left={-8}
-              backgroundColor="pageBackground"
-              width={23}
-              height={23}
-              borderRadius={23 / 2}
-            >
-              <Box
-                width={21}
-                height={21}
-                borderRadius={11}
-                backgroundColor="red"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <AppText color="white" variant="s3">
-                  2
-                </AppText>
-              </Box>
-            </Box> */}
-          </Box>
-        </AppPresseble>
       </Box>
 
       <Box
@@ -106,8 +69,6 @@ const Home = () => {
             displayIsShowAll={total > categories?.length}
           />
           <AppSpacer variant="sm" />
-          <SpecialOffers offers={offers} />
-          <AppSpacer variant="sm" />
 
           {categories?.map(item => (
             <Box key={item?.name}>
@@ -129,10 +90,3 @@ const Home = () => {
 };
 
 export default Home;
-
-const styles = StyleSheet.create({
-  img: {
-    width: 30,
-    height: 30,
-  },
-});

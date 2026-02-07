@@ -6,7 +6,6 @@ import {
   AppInput,
   AppKeyboardAwareScrollView,
   AppPresseble,
-  AppRadioBtn,
   AppShadowContainer,
   AppSpacer,
   AppSpaceWrapper,
@@ -19,6 +18,7 @@ import {
   UplaodBox,
 } from 'components';
 import { useEditServiceController } from 'hooks';
+import { ShowSnackBar } from 'utils';
 import { Fragment, useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n from 'i18n';
@@ -63,6 +63,7 @@ const EditService = (
   const { t } = useTranslation();
   const {
     formik,
+    onUpdateServicePress,
     onUploadServiceMedia,
     onDeleteServiceImage,
     onAddFaq,
@@ -76,7 +77,7 @@ const EditService = (
     isUpdateServiceLoading,
     isServiceLoading,
   } = useEditServiceController(serviceId);
-  const { values, errors, touched, handleSubmit } = formik;
+  const { values, errors, touched } = formik;
   const {
     serviceMedia,
     serviceType,
@@ -91,8 +92,12 @@ const EditService = (
   const displayAddress = currentLang === 'ar' ? (fullLocationAr || fullLocation) : (fullLocationEn || fullLocation);
   const { colors } = useAppTheme();
 
-  const [showTitleEn, setShowTitleEn] = useState(false);
-  const [showDescriptionEn, setShowDescriptionEn] = useState(false);
+  // Show English fields when value exists (from API) or when user clicked "add"
+  const [userRevealedTitleEn, setUserRevealedTitleEn] = useState(false);
+  const [userRevealedDescriptionEn, setUserRevealedDescriptionEn] = useState(false);
+  const showTitleEn = !!values.serviceTitleEn || userRevealedTitleEn;
+  const showDescriptionEn = !!values.serviceDescriptionEn || userRevealedDescriptionEn;
+
   const [isPriceEnabled, setIsPriceEnabled] = useState(
     serviceType === PRICE_TYPE_ENUM.fixed
   );
@@ -128,16 +133,6 @@ const EditService = (
   const displayPrice = currentLang === 'ar' && values.serviceCost
     ? convertEnglishToArabic(values.serviceCost)
     : values.serviceCost;
-
-  // Show English fields if they have values
-  useEffect(() => {
-    if (values.serviceTitleEn) {
-      setShowTitleEn(true);
-    }
-    if (values.serviceDescriptionEn) {
-      setShowDescriptionEn(true);
-    }
-  }, [values.serviceTitleEn, values.serviceDescriptionEn]);
 
   // Refs for scrollView and field containers
   const scrollViewRef = useRef<any>(null);
@@ -232,20 +227,45 @@ const EditService = (
     }
   };
 
-  // Custom handleSubmit that scrolls to first error
+  // Get first user-visible error message from validation errors (including nested e.g. faqs[0])
+  const getFirstErrorMessage = (errs: Record<string, unknown>): string => {
+    for (const key of Object.keys(errs)) {
+      const val = errs[key];
+      if (typeof val === 'string') return val;
+      if (Array.isArray(val)) {
+        for (let i = 0; i < val.length; i++) {
+          if (val[i] && typeof val[i] === 'object') {
+            const nested = getFirstErrorMessage(val[i] as Record<string, unknown>);
+            if (nested) return nested;
+          }
+          if (typeof val[i] === 'string') return val[i] as string;
+        }
+      }
+      if (val && typeof val === 'object' && !Array.isArray(val)) {
+        const nested = getFirstErrorMessage(val as Record<string, unknown>);
+        if (nested) return nested;
+      }
+    }
+    return t('errors.pleaseFixErrors') || 'Please fix the errors below';
+  };
+
+  // Custom handleSubmit that scrolls to first error and submits
   const handleSubmitWithScroll = async () => {
     const validationErrors = await formik.validateForm();
     if (Object.keys(validationErrors).length > 0) {
-      // Set all fields as touched to show errors
+      // Log full errors for debugging
+      console.warn('[EditService] Validation failed:', JSON.stringify(validationErrors, null, 2));
       Object.keys(validationErrors).forEach(key => {
         formik.setFieldTouched(key, true);
       });
-      // Wait a bit for state updates, then scroll to first error
-      setTimeout(() => {
-        scrollToFirstError();
-      }, 100);
+      const message = getFirstErrorMessage(validationErrors as Record<string, unknown>);
+      ShowSnackBar({
+        text: message,
+        type: 'error',
+      });
+      setTimeout(() => scrollToFirstError(), 100);
     } else {
-      handleSubmit();
+      await onUpdateServicePress();
     }
   };
 
@@ -344,7 +364,7 @@ const EditService = (
                   </AppText>
                   <AppPresseble
                     onPress={() => {
-                      setShowTitleEn(false);
+                      setUserRevealedTitleEn(false);
                       formik.setFieldValue('serviceTitleEn', '');
                     }}
                   >
@@ -354,13 +374,13 @@ const EditService = (
                 <AppInput
                   placeholder={t('enterServiceTitle')}
                   value={values.serviceTitleEn}
-                  onChangeText={formik.handleChange('serviceTitleEn')}
+                  onChangeText={(value) => formik.setFieldValue('serviceTitleEn', value)}
                   touched={touched.serviceTitleEn}
                   caption={errors.serviceTitleEn}
                 />
               </Box>
             ) : (
-              <AppPresseble onPress={() => setShowTitleEn(true)}>
+              <AppPresseble onPress={() => setUserRevealedTitleEn(true)}>
                 <AppText color="primary" variant="s1">
                   + {t('addEnglishTitle')}
                 </AppText>
@@ -413,7 +433,7 @@ const EditService = (
                   </AppText>
                   <AppPresseble
                     onPress={() => {
-                      setShowDescriptionEn(false);
+                      setUserRevealedDescriptionEn(false);
                       formik.setFieldValue('serviceDescriptionEn', '');
                     }}
                   >
@@ -423,13 +443,13 @@ const EditService = (
                 <AppTextArea
                   placeholder={t('enterServiceDescription')}
                   value={values.serviceDescriptionEn}
-                  onChangeText={formik.handleChange('serviceDescriptionEn')}
+                  onChangeText={(value) => formik.setFieldValue('serviceDescriptionEn', value)}
                   touched={touched.serviceDescriptionEn}
                   caption={errors.serviceDescriptionEn}
                 />
               </Box>
             ) : (
-              <AppPresseble onPress={() => setShowDescriptionEn(true)}>
+              <AppPresseble onPress={() => setUserRevealedDescriptionEn(true)}>
                 <AppText color="primary" variant="s1">
                   + {t('addEnglishDescription')}
                 </AppText>

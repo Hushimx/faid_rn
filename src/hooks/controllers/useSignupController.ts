@@ -19,7 +19,7 @@ const useSignupController = ({ phoneRef }: UseSignupControllerProps = {}) => {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
-  const { setUser, setIsLoggedIn } = useAuthStore();
+  useAuthStore();
   // const {}=useMutation({
   //   mutationFn:async()=>
   // })
@@ -47,7 +47,6 @@ const useSignupController = ({ phoneRef }: UseSignupControllerProps = {}) => {
   });
 
   async function onSignUpPress() {
-    const { countryCode, phone } = values;
     const callingCode = phoneRef?.current?.getCallingCode();
     const isPhoneValid = phoneRef?.current?.isValidNumber(
       callingCode + values.phone,
@@ -59,12 +58,16 @@ const useSignupController = ({ phoneRef }: UseSignupControllerProps = {}) => {
     try {
       setIsLoading(true);
       const fcmToken = await fcmTokenGenerator();
+      const phoneValue =
+        callingCode != null && values.phone
+          ? phoneNumberShapeCreator({
+              phone: values.phone,
+              callingCode,
+            })
+          : '';
       await AuthApis.signup({
         email: values.email,
-        phone: phoneNumberShapeCreator({
-          phone: values.phone,
-          callingCode,
-        }),
+        phone: phoneValue,
         first_name: values.firstName,
         last_name: values.lastName,
         password: values.password,
@@ -74,11 +77,10 @@ const useSignupController = ({ phoneRef }: UseSignupControllerProps = {}) => {
 
       // Navigate to OTP screen - user will be created after OTP verification
       navigation.navigate('EnterOtp', {
-        phone,
-        callingCode: callingCode,
+        email: values.email.trim().toLowerCase(),
         isForRegister: true,
       });
-    } catch (e) {
+    } catch {
       // Error handling is done by axios interceptor
     } finally {
       setIsLoading(false);

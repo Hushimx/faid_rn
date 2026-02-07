@@ -191,16 +191,7 @@ const Step3PricingLocation = ({
           label={t('fullLocation')}
           placeholder={t('enterFullLocation')}
           value={currentLang === 'ar' ? (values.fullLocationAr || '') : (values.fullLocationEn || '')}
-          onChangeText={(text) => {
-            // Update the appropriate field based on current language
-            if (currentLang === 'ar') {
-              onLocationArChange(text);
-              onLocationChange(text);
-            } else {
-              onLocationEnChange(text);
-              onLocationChange(text);
-            }
-          }}
+          editable={false}
           touched={touched.fullLocation || touched.fullLocationAr}
           caption={errors.fullLocationAr || errors.fullLocation}
         />

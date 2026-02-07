@@ -1,45 +1,42 @@
-import { PhoneInputRefType } from '@linhnguyen96114/react-native-phone-input';
 import { useNavigation } from '@react-navigation/native';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const useForgetPasswordController = ({
   isForVerification,
 }: {
   isForVerification?: boolean;
 }) => {
-  const phoneInputRef = useRef<PhoneInputRefType>(null);
   const navigation = useNavigation();
 
   const [value, setValue] = useState('');
-  const [countryCode, setCountryCode] = useState('SA');
   const [isValid, setIsValid] = useState(false);
 
+  const validateEmail = (email: string) => EMAIL_REGEX.test(email.trim());
+
   const onConfirmPress = async () => {
-    const callingCode = phoneInputRef?.current?.getCallingCode();
-    const isValidNumber = phoneInputRef?.current?.isValidNumber(
-      callingCode + value,
-    );
-    if (!isValidNumber) {
+    const emailValid = validateEmail(value);
+    if (!emailValid) {
       setIsValid(false);
       return;
     }
+    setIsValid(true);
     try {
       navigation.navigate('EnterOtp', {
-        phone: value,
-        callingCode,
+        email: value.trim().toLowerCase(),
         isForResetPassword: !isForVerification,
       });
     } catch (e) {}
   };
+
   return {
     onConfirmPress,
     value,
     setValue,
-    countryCode,
-    setCountryCode,
-    phoneInputRef,
     isValid,
     setIsValid,
+    validateEmail,
   };
 };
 

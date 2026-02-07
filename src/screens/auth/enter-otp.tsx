@@ -11,7 +11,7 @@ import {
 import { LoadingErrorScreenHandler } from 'hoc';
 import { useEnterOtpController } from 'hooks';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native';
 import { OtpInput } from 'react-native-otp-entry';
 import { RootStackParamList } from 'types';
 import { AuthHeader } from './components';
@@ -20,7 +20,7 @@ const EnterOtp = (
   props: NativeStackScreenProps<RootStackParamList, 'EnterOtp'>,
 ) => {
   const { t } = useTranslation();
-  const { phone, callingCode, userData, isForResetPassword, isForRegister } =
+  const { email, userData, isForResetPassword, isForRegister } =
     props?.route?.params || {};
   const { colors } = useAppTheme();
 
@@ -36,10 +36,8 @@ const EnterOtp = (
     setOtp,
     isError,
     errorMessage,
-    isRateLimitError,
   } = useEnterOtpController({
-    phone,
-    callingCode,
+    email: email ?? '',
     isForResetPassword,
     isForRegister,
     userData,
@@ -62,8 +60,8 @@ const EnterOtp = (
         <ScrollView>
           <AppSpaceWrapper>
             <AuthHeader
-              label={t('checkYourPhoneForOtp')}
-              subLabel={t('enterOtpFromYourPhone')}
+              label={t('checkYourEmailForOtp')}
+              subLabel={t('enterOtpFromYourEmail')}
             />
 
             <OtpInput
@@ -88,16 +86,15 @@ const EnterOtp = (
               justifyContent="space-between"
               flexWrap="wrap"
             >
-              <AppText color="grayDark" variant="s1">
-                {t('otpEndsAfter')}{' '}
-                <AppText color="grayDark" variant="s1" fontWeight={'bold'}>
-                  {OTP_COUNT_DOWN_NUMBER}{' '}
-                </AppText>
-                {t('seconds')}
-              </AppText>
               {countdown > 0 ? (
                 <AppText color="grayDark" variant="s1">
-                  {'00'}:{countdown?.toString().padStart(2, '0')}
+                  {t('otpEndsAfter')}{' '}
+                <AppText color="grayDark" variant="s1" fontWeight={'bold'}>
+                {countdown?.toString().padStart(2, '0')}
+                {" "}
+                </AppText>
+                {t('seconds')}
+
                 </AppText>
               ) : (
                 <AppText
@@ -125,19 +122,3 @@ const EnterOtp = (
 };
 
 export default EnterOtp;
-
-const styles = StyleSheet.create({
-  textInput: {
-    borderRadius: 12,
-    borderWidth: 1,
-    backgroundColor: 'white',
-    height: 56,
-    width: 56,
-    fontSize: 24,
-    textAlign: 'center',
-  },
-  container: {
-    width: '100%',
-    alignItems: 'center',
-  },
-});

@@ -61,8 +61,7 @@ const Login = () => {
 
           <AppText
             textDecorationLine="underline"
-            color="red"
-            textDecorationColor="red"
+            color="primary"
             onPress={onForgetPasswordPress}
           >
             {t('forgetPassword')}

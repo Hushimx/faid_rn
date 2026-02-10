@@ -22,44 +22,78 @@ import 'moment/locale/ar';
  */
 export const translateErrorMessage = (errorMessage: string): string => {
   if (!errorMessage) return i18next.t('errors.unexpectedError');
-  
+
   const lowerMessage = errorMessage.toLowerCase();
-  
+
   // Map common backend error messages to translation keys
-  if (lowerMessage.includes('email not found') && lowerMessage.includes('please register first')) {
+  if (
+    lowerMessage.includes('email not found') &&
+    lowerMessage.includes('please register first')
+  ) {
     return i18next.t('errors.emailNotFound');
   }
-  if (lowerMessage.includes('phone number not found') || lowerMessage.includes('please register first')) {
+  if (
+    lowerMessage.includes('phone number not found') ||
+    lowerMessage.includes('please register first')
+  ) {
     return i18next.t('errors.phoneNumberNotFound');
   }
-  if (lowerMessage.includes('failed to send otp') || lowerMessage.includes('failed to send')) {
+  if (
+    lowerMessage.includes('failed to send otp') ||
+    lowerMessage.includes('failed to send')
+  ) {
     return i18next.t('errors.failedToSendOtp');
   }
-  if (lowerMessage.includes('too many requests') || lowerMessage.includes('rate limit')) {
+  if (
+    lowerMessage.includes('too many requests') ||
+    lowerMessage.includes('rate limit')
+  ) {
     return i18next.t('errors.tooManyRequests');
   }
-  if (lowerMessage.includes('invalid otp') || lowerMessage.includes('otp is invalid')) {
+  if (
+    lowerMessage.includes('invalid otp') ||
+    lowerMessage.includes('otp is invalid')
+  ) {
     return i18next.t('errors.invalidOtp');
   }
-  if (lowerMessage.includes('otp expired') || lowerMessage.includes('expired')) {
+  if (
+    lowerMessage.includes('otp expired') ||
+    lowerMessage.includes('expired')
+  ) {
     return i18next.t('errors.otpExpired');
   }
-  if (lowerMessage.includes('email already taken') || lowerMessage.includes('email has already been taken')) {
+  if (
+    lowerMessage.includes('email already taken') ||
+    lowerMessage.includes('email has already been taken')
+  ) {
     return i18next.t('errors.emailAlreadyTaken');
   }
-  if (lowerMessage.includes('phone field is required') || lowerMessage.includes('the phone field is required')) {
+  if (
+    lowerMessage.includes('phone field is required') ||
+    lowerMessage.includes('the phone field is required')
+  ) {
     return i18next.t('errors.phoneFieldRequired');
   }
-  if (lowerMessage.includes('phone number already taken') || lowerMessage.includes('phone has already been taken')) {
+  if (
+    lowerMessage.includes('phone number already taken') ||
+    lowerMessage.includes('phone has already been taken')
+  ) {
     return i18next.t('errors.phoneAlreadyTaken');
   }
-  if (lowerMessage.includes('invalid credentials') || lowerMessage.includes('incorrect password') || lowerMessage.includes('wrong password')) {
+  if (
+    lowerMessage.includes('invalid credentials') ||
+    lowerMessage.includes('incorrect password') ||
+    lowerMessage.includes('wrong password')
+  ) {
     return i18next.t('errors.invalidCredentials');
   }
-  if (lowerMessage.includes('network error') || lowerMessage.includes('network')) {
+  if (
+    lowerMessage.includes('network error') ||
+    lowerMessage.includes('network')
+  ) {
     return i18next.t('errors.networkError');
   }
-  
+
   // Return original message if no translation found (it might already be translated)
   return errorMessage;
 };
@@ -223,7 +257,7 @@ export const reverseGeocode = async (
 
     const arFeature = arResponse.data?.features?.[0];
     const enFeature = enResponse.data?.features?.[0];
-    
+
     if (!arFeature || !enFeature) {
       return null;
     }
@@ -245,19 +279,26 @@ export const reverseGeocode = async (
         arProperties.district,
         arProperties.suburb,
       ].filter(Boolean);
-      
+
       // Find the first field that contains Arabic characters
       for (const field of cityFields) {
-        if (field && typeof field === 'string' && /[\u0600-\u06FF]/.test(field)) {
+        if (
+          field &&
+          typeof field === 'string' &&
+          /[\u0600-\u06FF]/.test(field)
+        ) {
           return field;
         }
       }
-      
+
       // Check address components
-      if (arProperties.address_line2 && /[\u0600-\u06FF]/.test(arProperties.address_line2)) {
+      if (
+        arProperties.address_line2 &&
+        /[\u0600-\u06FF]/.test(arProperties.address_line2)
+      ) {
         return arProperties.address_line2;
       }
-      
+
       // Check if address object exists and has localized names
       if (arProperties.address) {
         const address = arProperties.address;
@@ -268,7 +309,7 @@ export const reverseGeocode = async (
           return address.town;
         }
       }
-      
+
       // If no Arabic found in any field, check if formatted address contains Arabic
       const formatted = arProperties.formatted || arProperties.name || '';
       if (formatted && /[\u0600-\u06FF]/.test(formatted)) {
@@ -282,27 +323,29 @@ export const reverseGeocode = async (
           }
         }
       }
-      
+
       // Last resort: return empty string if no Arabic found
       // This ensures we don't return English as Arabic
       return '';
     };
 
     const getEnglishCity = () => {
-      return enProperties.city || 
-             enProperties.town || 
-             enProperties.municipality || 
-             enProperties.county || 
-             enProperties.state ||
-             enProperties.region ||
-             enProperties.district ||
-             enProperties.suburb ||
-             '';
+      return (
+        enProperties.city ||
+        enProperties.town ||
+        enProperties.municipality ||
+        enProperties.county ||
+        enProperties.state ||
+        enProperties.region ||
+        enProperties.district ||
+        enProperties.suburb ||
+        ''
+      );
     };
 
     const cityAr = getArabicCity();
     const cityEn = getEnglishCity();
-    
+
     // If Arabic city is empty but we have English, don't use English as Arabic
     // This prevents showing English names when Arabic should be shown
 
@@ -342,20 +385,22 @@ export const forwardGeocode = async (
     const apiKey = 'df9958e2fade405ab83129710d14daec';
     const currentLang = i18n.language || 'ar';
     const lang = currentLang === 'ar' ? 'ar' : 'en';
-    
+
     const response = await axios.get(
-      `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&apiKey=${apiKey}&lang=${lang}&limit=5&filter=countrycode:sa`,
+      `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
+        query,
+      )}&apiKey=${apiKey}&lang=${lang}&limit=5&filter=countrycode:sa`,
     );
-    
+
     if (!response.data?.features) {
       return [];
     }
-    
+
     return response.data.features.map((feature: any) => {
       const properties = feature.properties || {};
       const geometry = feature.geometry || {};
       const coordinates = geometry.coordinates || [];
-      
+
       return {
         display_name: properties.formatted || properties.name || '',
         lat: coordinates[1]?.toString() || '',
@@ -410,11 +455,3 @@ export const createdAtHelper = (createdAt: string) => {
     .locale(I18nManager.isRTL ? 'ar' : 'en')
     .fromNow();
 };
-
-
-
-
-
-
-
-

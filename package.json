@@ -9,6 +9,7 @@
     "start": "react-native start",
     "test": "jest",
     "ios:clean": "./react-native-setup-ios.sh clean",
+    "android:clean": "./react-native-setup-android.sh clean",
     "postinstall": "npx patch-package && cd ios && pod install",
     "prepare": "husky",
     "build:apk": "cd android && ./gradlew assembleRelease"

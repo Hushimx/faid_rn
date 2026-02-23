@@ -6,7 +6,11 @@ import axios, {
 import { BASE_URL } from 'common';
 import { I18nManager } from 'react-native';
 import { useAuthStore } from 'store';
-import { checkInternetConnection, ShowSnackBar, translateErrorMessage } from 'utils';
+import {
+  checkInternetConnection,
+  ShowSnackBar,
+  translateErrorMessage,
+} from 'utils';
 import analytics from '@react-native-firebase/analytics';
 import crashlytics from '@react-native-firebase/crashlytics';
 
@@ -40,36 +44,10 @@ axiosInstance.interceptors.request.use(
       await checkInternetConnection(true);
       // Get token from storage
       const token = useAuthStore.getState().access_token;
-      // console.log('access', token);
 
-      //   // If token exists, add to headers
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
         config.headers['Accept-Language'] = I18nManager.isRTL ? 'ar' : 'en';
-      }
-
-      // Check if data is FormData - React Native FormData has _parts property
-      const isFormData =
-        config.data instanceof FormData ||
-        (config.data && typeof config.data === 'object' && '_parts' in config.data);
-
-      if (isFormData) {
-        // Completely remove Content-Type header - React Native will set it automatically
-        // with multipart/form-data and boundary
-        if (config.headers) {
-          delete config.headers['Content-Type'];
-          delete config.headers['content-type'];
-        }
-        // Prevent axios from transforming FormData - let React Native handle it natively
-        // This is crucial for Android to work correctly
-        config.transformRequest = [];
-        // Also ensure axios doesn't try to serialize it
-        config.data = config.data; // Keep as-is
-      } else if (config.data && typeof config.data === 'object') {
-        // For non-FormData requests (JSON), ensure Content-Type is set correctly
-        if (config.headers && !config.headers['Content-Type']) {
-          config.headers['Content-Type'] = 'application/json';
-        }
       }
 
       return config;
@@ -133,12 +111,12 @@ axiosInstance.interceptors.response.use(
     const responseErrors = res?.data?.errors || {};
     const errors = Object.values(responseErrors)?.flat();
     const messageDisplay = errors?.toString();
-    
+
     // Translate error messages
-    const translatedMessage = messageDisplay?.length 
-      ? translateErrorMessage(messageDisplay) 
+    const translatedMessage = messageDisplay?.length
+      ? translateErrorMessage(messageDisplay)
       : translateErrorMessage(rawErrorMessage);
-    
+
     if (error?.config?.method != 'get')
       ShowSnackBar({
         text: translatedMessage,

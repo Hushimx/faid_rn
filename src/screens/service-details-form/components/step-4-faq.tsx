@@ -1,10 +1,5 @@
 import { Box } from 'common';
-import {
-  AppButton,
-  AppShadowContainer,
-  AppSpacer,
-  AppText,
-} from 'components';
+import { AppButton, AppShadowContainer, AppSpacer, AppText } from 'components';
 import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import FaqItem from './faq-item';
@@ -13,8 +8,16 @@ interface Step4FaqProps {
   faqs: any[];
   onAddFaq: () => void;
   onDeleteFaq: (index: number) => void;
-  onUpdateFaqQuestion: (index: number, value: string, language: 'ar' | 'en') => void;
-  onUpdateFaqAnswer: (index: number, value: string, language: 'ar' | 'en') => void;
+  onUpdateFaqQuestion: (
+    index: number,
+    value: string,
+    language: 'ar' | 'en',
+  ) => void;
+  onUpdateFaqAnswer: (
+    index: number,
+    value: string,
+    language: 'ar' | 'en',
+  ) => void;
   errors: any;
   touched: any;
 }
@@ -72,22 +75,21 @@ const Step4Faq = ({
       <AppSpacer variant="m" />
 
       {/* Completion Message */}
-      <AppShadowContainer
-        backgroundColor="success"
+      {/* <AppShadowContainer
+        backgroundColor="white"
         borderRadius={16}
         style={{ padding: 16 }}
       >
-        <AppText variant="s1" color="white" textAlign="center">
+        <AppText variant="s1" color="lightBlack" textAlign="center">
           {t('readyToPublishService')}
         </AppText>
         <AppSpacer variant="s" />
-        <AppText variant="s3" color="white" textAlign="center">
+        <AppText variant="s3" color="lightBlack" textAlign="center">
           {t('reviewAndPublishMessage')}
         </AppText>
-      </AppShadowContainer>
+      </AppShadowContainer> */}
     </Box>
   );
 };
 
 export default Step4Faq;
-

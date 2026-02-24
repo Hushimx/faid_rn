@@ -49,7 +49,6 @@ axiosInstance.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
         config.headers['Accept-Language'] = I18nManager.isRTL ? 'ar' : 'en';
       }
-
       return config;
     } catch (error) {
       return Promise.reject(error);

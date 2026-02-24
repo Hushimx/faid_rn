@@ -1,14 +1,14 @@
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Box, useAppTheme } from 'common';
 import {
   AppInput,
   AppPresseble,
   AppSpacer,
-  AppSpaceWrapper,
   AppText,
   BaseModal,
   Chevron,
 } from 'components';
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { I18nManager, TouchableOpacity } from 'react-native';
 import { IModalRef } from 'types';
 
@@ -42,6 +42,16 @@ const AppDropdown = ({
   const selectedItem = data?.find(item => item.value === value);
   const selectedLabel = selectedItem?.label;
 
+  // const listHeader = useCallback(
+  //   () => (
+  //     <Box width={'100%'} alignSelf="center" paddingHorizontal="m">
+  //       <AppText variant="h6">{placeholder}</AppText>
+  //       <AppSpacer variant="s" />
+  //     </Box>
+  //   ),
+  //   [placeholder],
+  // );
+
   return (
     <>
       <TouchableOpacity onPress={() => modalRef.current?.openModal()}>
@@ -68,42 +78,44 @@ const AppDropdown = ({
         </Box>
       </TouchableOpacity>
 
-      <BaseModal ref={modalRef}>
-        <AppSpaceWrapper>
-          <Box width={'100%'} alignSelf="center">
-            <AppText variant="h6">{placeholder}</AppText>
-          </Box>
+      <BaseModal ref={modalRef} enableContentPanningGesture={false}>
+        <Box width={'100%'} alignSelf="center" paddingHorizontal="m">
+          <AppText variant="h6">{placeholder}</AppText>
           <AppSpacer variant="s" />
-          <BaseModal.AppListContainer>
-            <BaseModal.FlatList
-              data={data}
-              keyExtractor={(item: any) => item.value}
-              contentContainerStyle={{
-                paddingBottom: spacing.xxl * 2,
-              }}
-              renderItem={({ item }: any) => {
-                const isSelected = item.value === value;
-                return (
-                  <AppPresseble onPress={() => handleSelect(item.value)}>
-                    <Box
-                      width={'100%'}
-                      alignSelf="center"
-                      borderRadius={12}
-                      borderWidth={1}
-                      borderColor={isSelected ? 'primary' : 'grayLight'}
-                      padding="sm"
-                      backgroundColor={isSelected ? 'customGray1' : 'white'}
-                    >
-                      <AppText variant="s1" color={isSelected ? 'primary' : 'darkSlateBlue'}>
-                        {item.label}
-                      </AppText>
-                    </Box>
-                  </AppPresseble>
-                );
-              }}
-            />
-          </BaseModal.AppListContainer>
-        </AppSpaceWrapper>
+        </Box>
+        <BottomSheetFlatList
+          data={data}
+          keyExtractor={(item: any) => item.value}
+          // ListHeaderComponent={listHeader}
+          contentContainerStyle={{
+            paddingBottom: spacing.xxl * 2,
+            paddingHorizontal: spacing.m,
+          }}
+          renderItem={({ item }: any) => {
+            const isSelected = item.value === value;
+            return (
+              <AppPresseble onPress={() => handleSelect(item.value)}>
+                <Box
+                  width={'100%'}
+                  alignSelf="center"
+                  borderRadius={12}
+                  borderWidth={1}
+                  borderColor={isSelected ? 'primary' : 'grayLight'}
+                  padding="sm"
+                  backgroundColor={isSelected ? 'customGray1' : 'white'}
+                  marginBottom="sm"
+                >
+                  <AppText
+                    variant="s1"
+                    color={isSelected ? 'primary' : 'darkSlateBlue'}
+                  >
+                    {item.label}
+                  </AppText>
+                </Box>
+              </AppPresseble>
+            );
+          }}
+        />
       </BaseModal>
     </>
   );

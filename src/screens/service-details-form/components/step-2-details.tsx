@@ -6,7 +6,6 @@ import {
   AppText,
   AppTextArea,
 } from 'components';
-import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Trash } from 'components/icons';
 import { AppPresseble } from 'components/atoms';
@@ -38,7 +37,9 @@ const Step2Details = ({
 }: Step2DetailsProps) => {
   const { t } = useTranslation();
   const [showTitleEn, setShowTitleEn] = useState(!!values.serviceTitleEn);
-  const [showDescriptionEn, setShowDescriptionEn] = useState(!!values.serviceDescriptionEn);
+  const [showDescriptionEn, setShowDescriptionEn] = useState(
+    !!values.serviceDescriptionEn,
+  );
 
   return (
     <Box flex={1}>
@@ -108,10 +109,10 @@ const Step2Details = ({
 
         {/* Category */}
         <AppDropdown
-          data={categories?.map(item => ({
-            label: item?.name,
-            value: item?.id,
-          }))}
+          data={categories?.map((item, index) => ({
+            label: item?.name ?? '',
+            value: item?.id ?? index,
+          })) ?? []}
           onSelect={onCategorySelect}
           value={values.category_id}
           placeholder={t('selectCategory')}
@@ -176,4 +177,3 @@ const Step2Details = ({
 };
 
 export default Step2Details;
-

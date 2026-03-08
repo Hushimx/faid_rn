@@ -34,23 +34,51 @@ const AppDropdown = ({
   const modalRef = useRef<IModalRef>(null);
   const { colors, spacing } = useAppTheme();
 
-  const handleSelect = (itemValue: string) => {
-    onSelect(itemValue);
-    modalRef.current?.closeModal();
-  };
+  const handleSelect = useCallback(
+    (itemValue: string) => {
+      onSelect(itemValue);
+      modalRef.current?.closeModal();
+    },
+    [onSelect],
+  );
 
-  const selectedItem = data?.find(item => item.value === value);
+  const safeData = data ?? [];
+  const selectedItem = safeData.find(item => item.value === value);
   const selectedLabel = selectedItem?.label;
 
-  // const listHeader = useCallback(
-  //   () => (
-  //     <Box width={'100%'} alignSelf="center" paddingHorizontal="m">
-  //       <AppText variant="h6">{placeholder}</AppText>
-  //       <AppSpacer variant="s" />
-  //     </Box>
-  //   ),
-  //   [placeholder],
-  // );
+  const keyExtractor = useCallback(
+    (item: { label: string; value: any }, index: number) =>
+      String(item?.value ?? index),
+    [],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: { label: string; value: any } }) => {
+      const isSelected = item.value === value;
+      return (
+        <AppPresseble onPress={() => handleSelect(item.value)}>
+          <Box
+            width={'100%'}
+            alignSelf="center"
+            borderRadius={12}
+            borderWidth={1}
+            borderColor={isSelected ? 'primary' : 'grayLight'}
+            padding="sm"
+            backgroundColor={isSelected ? 'customGray1' : 'white'}
+            marginBottom="sm"
+          >
+            <AppText
+              variant="s1"
+              color={isSelected ? 'primary' : 'darkSlateBlue'}
+            >
+              {item.label}
+            </AppText>
+          </Box>
+        </AppPresseble>
+      );
+    },
+    [value, handleSelect],
+  );
 
   return (
     <>
@@ -84,37 +112,14 @@ const AppDropdown = ({
           <AppSpacer variant="s" />
         </Box>
         <BottomSheetFlatList
-          data={data}
-          keyExtractor={(item: any) => item.value}
-          // ListHeaderComponent={listHeader}
+          data={safeData}
+          keyExtractor={keyExtractor}
           contentContainerStyle={{
             paddingBottom: spacing.xxl * 2,
             paddingHorizontal: spacing.m,
           }}
-          renderItem={({ item }: any) => {
-            const isSelected = item.value === value;
-            return (
-              <AppPresseble onPress={() => handleSelect(item.value)}>
-                <Box
-                  width={'100%'}
-                  alignSelf="center"
-                  borderRadius={12}
-                  borderWidth={1}
-                  borderColor={isSelected ? 'primary' : 'grayLight'}
-                  padding="sm"
-                  backgroundColor={isSelected ? 'customGray1' : 'white'}
-                  marginBottom="sm"
-                >
-                  <AppText
-                    variant="s1"
-                    color={isSelected ? 'primary' : 'darkSlateBlue'}
-                  >
-                    {item.label}
-                  </AppText>
-                </Box>
-              </AppPresseble>
-            );
-          }}
+          renderItem={renderItem}
+          removeClippedSubviews={false}
         />
       </BaseModal>
     </>

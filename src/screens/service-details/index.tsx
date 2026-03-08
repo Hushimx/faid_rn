@@ -29,6 +29,9 @@ import {
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+
+// Apple Maps on iOS (works in Simulator); Google on Android
+const MAP_PROVIDER = Platform.OS === 'ios' ? undefined : PROVIDER_GOOGLE;
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Comments } from 'screens/show-all-for-category/components';
 import { ServicesApis } from 'services';
@@ -105,43 +108,48 @@ const ServiceDetails = (
 
   const queryClient = useQueryClient();
   const isFavorited = DATA?.is_favorited ?? false;
-  const { mutate: toggleFavorite, isPending: isTogglingFavorite } = useMutation({
-    mutationFn: async () => {
-      if (isFavorited) {
-        return ServicesApis.removeFavorite(serviceId);
-      }
-      return ServicesApis.addFavorite(serviceId);
+  const { mutate: toggleFavorite, isPending: isTogglingFavorite } = useMutation(
+    {
+      mutationFn: async () => {
+        if (isFavorited) {
+          return ServicesApis.removeFavorite(serviceId);
+        }
+        return ServicesApis.addFavorite(serviceId);
+      },
+      onSuccess: () => {
+        queryClient.setQueryData(
+          [QUERIES_KEY_ENUM.service_details, serviceId],
+          (old: any) => {
+            if (!old?.data?.data) return old;
+            return {
+              ...old,
+              data: {
+                ...old.data,
+                data: { ...old.data.data, is_favorited: !isFavorited },
+              },
+            };
+          },
+        );
+        queryClient.invalidateQueries({
+          queryKey: [QUERIES_KEY_ENUM.favorites],
+        });
+      },
+      onError: () => {
+        ShowSnackBar({
+          text: t('errors.networkError') || 'Something went wrong',
+          type: 'error',
+        });
+      },
     },
-    onSuccess: () => {
-      queryClient.setQueryData(
-        [QUERIES_KEY_ENUM.service_details, serviceId],
-        (old: any) => {
-          if (!old?.data?.data) return old;
-          return {
-            ...old,
-            data: {
-              ...old.data,
-              data: { ...old.data.data, is_favorited: !isFavorited },
-            },
-          };
-        },
-      );
-      queryClient.invalidateQueries({
-        queryKey: [QUERIES_KEY_ENUM.favorites],
-      });
-    },
-    onError: () => {
-      ShowSnackBar({
-        text: t('errors.networkError') || 'Something went wrong',
-        type: 'error',
-      });
-    },
-  });
+  );
 
   const handleFavoritePress = useCallback(() => {
     if (!user) {
       ShowSnackBar({
-        text: t('loginToAddFavorites') || t('loginRequired') || 'Please login to add favorites',
+        text:
+          t('loginToAddFavorites') ||
+          t('loginRequired') ||
+          'Please login to add favorites',
         type: 'error',
       });
       return;
@@ -271,8 +279,12 @@ const ServiceDetails = (
                 </AppText>
               </Box>
             </Box>
-            <Box flexDirection="row" alignItems="center" flex={1} justifyContent="flex-end">
-   
+            <Box
+              flexDirection="row"
+              alignItems="center"
+              flex={1}
+              justifyContent="flex-end"
+            >
               <AppPresseble
                 onPress={handleFavoritePress}
                 disabled={isTogglingFavorite}
@@ -310,7 +322,12 @@ const ServiceDetails = (
 
           {/* Description section */}
           <Box marginBottom="l">
-            <AppText variant="m" fontWeight="700" color="cutomBlack" marginBottom="s">
+            <AppText
+              variant="m"
+              fontWeight="700"
+              color="cutomBlack"
+              marginBottom="s"
+            >
               {t('description')}
             </AppText>
             <AppText
@@ -360,8 +377,8 @@ const ServiceDetails = (
               >
                 <MapView
                   key={`${DATA.lat}-${DATA.lng}`}
-                  style={StyleSheet.absoluteFill}
-                  provider={PROVIDER_GOOGLE}
+                  style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
+                  provider={MAP_PROVIDER}
                   initialRegion={{
                     latitude: DATA.lat,
                     longitude: DATA.lng,
@@ -456,7 +473,9 @@ const ServiceDetails = (
             serviceProviderImage={DATA?.vendor?.profile_picture}
             onPress={() => {
               if (DATA?.vendor?.id) {
-                navigation.navigate('VendorStore', { vendorId: DATA.vendor.id });
+                navigation.navigate('VendorStore', {
+                  vendorId: DATA.vendor.id,
+                });
               }
             }}
           />

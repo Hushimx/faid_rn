@@ -6,6 +6,9 @@ import { Linking, Platform } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { RootStackParamList } from 'types';
 
+// Apple Maps on iOS (works in Simulator); Google on Android
+const MAP_PROVIDER = Platform.OS === 'ios' ? undefined : PROVIDER_GOOGLE;
+
 const getOpenInMapsUrl = (lat: number, lng: number) => {
   if (Platform.OS === 'ios') {
     return `https://maps.apple.com/?q=${lat},${lng}`;
@@ -45,8 +48,8 @@ const FullScreenMapView = (
       <Box flex={1} position="relative">
         <MapView
           key={`${mapLatitude}-${mapLongitude}`}
-          style={{ flex: 1 }}
-          provider={PROVIDER_GOOGLE}
+          style={{ flex: 1, width: '100%', height: '100%' }}
+          provider={MAP_PROVIDER}
           initialRegion={{
             latitude: mapLatitude,
             longitude: mapLongitude,

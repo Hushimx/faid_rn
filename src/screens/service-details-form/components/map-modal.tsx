@@ -17,7 +17,12 @@ import {
   useImperativeHandle,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, useWindowDimensions, View } from 'react-native';
+import {
+  FlatList,
+  Platform,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import MapView, {
   LatLng,
   MapPressEvent,
@@ -25,6 +30,9 @@ import MapView, {
   MarkerDragStartEndEvent,
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
+
+// Use Apple Maps on iOS (works in Simulator); Google Maps on Android
+const MAP_PROVIDER = Platform.OS === 'ios' ? undefined : PROVIDER_GOOGLE;
 import { IModalRef } from 'types';
 import { forwardGeocode, GeocodeResult, isInsideSaudiArabia } from 'utils';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -200,11 +208,12 @@ const MapModal = forwardRef<IModalRef, IProps>(
             />
 
             <AppSpacer variant="s" />
-            {/* Map View - matching location-message-viewer pattern */}
+            {/* Map View - explicit height so it renders on iOS Simulator */}
             <View
               style={{
-                height: height * 0.5,
+                height: Math.max(height * 0.5, 280),
                 width: '100%',
+                minHeight: 280,
                 borderRadius: 12,
                 overflow: 'hidden',
                 position: 'relative',
@@ -277,8 +286,8 @@ const MapModal = forwardRef<IModalRef, IProps>(
               <MapView
                 ref={mapRef}
                 key={`map-${mapKey}`}
-                style={{ flex: 1 }}
-                provider={PROVIDER_GOOGLE}
+                style={{ width: '100%', height: '100%', flex: 1 }}
+                provider={MAP_PROVIDER}
                 initialRegion={
                   shouldCenterOnOpen && locationCoordinates
                     ? {

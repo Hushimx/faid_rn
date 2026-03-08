@@ -174,7 +174,11 @@ const MapModal = forwardRef<IModalRef, IProps>(
     };
 
     return (
-      <BaseModal ref={modalRef} enableContentPanningGesture={false}>
+      <BaseModal
+        ref={modalRef}
+        enableContentPanningGesture={false}
+        contentMaxHeight={height * 0.85}
+      >
         <BottomSheetScrollView
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}
           keyboardShouldPersistTaps="handled"
@@ -199,7 +203,7 @@ const MapModal = forwardRef<IModalRef, IProps>(
             {/* Map View - matching location-message-viewer pattern */}
             <View
               style={{
-                height: height * 0.55,
+                height: height * 0.5,
                 width: '100%',
                 borderRadius: 12,
                 overflow: 'hidden',

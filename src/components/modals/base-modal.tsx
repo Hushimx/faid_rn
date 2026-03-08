@@ -39,6 +39,8 @@ interface IProps extends BottomSheetModalProps {
   onDismiss?: () => void;
   enableContentPanningGesture?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
+  /** Override max height (e.g. height * 0.9 for 90% of screen). Default 70%. */
+  contentMaxHeight?: number;
 }
 
 interface InputProps {
@@ -71,8 +73,11 @@ const BaseModalInner = (props: IProps, ref: any) => {
     isNotClosable,
     enableContentPanningGesture,
     containerStyle,
+    contentMaxHeight,
     ...otherProps
   } = props;
+
+  const effectiveMaxHeight = contentMaxHeight ?? maxHeight;
 
   const { colors } = useAppTheme();
   const { bottom } = useSafeAreaInsets();
@@ -125,7 +130,7 @@ const BaseModalInner = (props: IProps, ref: any) => {
       }}
       backdropComponent={renderBackDrop}
       enableDismissOnClose
-      maxDynamicContentSize={maxHeight}
+      maxDynamicContentSize={effectiveMaxHeight}
       enableContentPanningGesture={enableContentPanningGesture}
       {...otherProps}
     >
@@ -134,7 +139,7 @@ const BaseModalInner = (props: IProps, ref: any) => {
           {
             flex: 1,
             paddingBottom: bottom + 8,
-            maxHeight,
+            maxHeight: effectiveMaxHeight,
           },
           containerStyle,
         ]}

@@ -9,7 +9,7 @@ import { SuccessBottomSheetProvider } from 'contexts/success-bottom-sheet-contex
 import i18n from 'i18n';
 import { useEffect } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { StyleSheet, useColorScheme } from 'react-native';
+import { LogBox, StyleSheet, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -29,6 +29,7 @@ const App = () => {
   });
 
   useEffect(() => {
+    LogBox.ignoreAllLogs();
     let timeout: any;
     if (isStoreReady) {
       timeout = setTimeout(() => {
